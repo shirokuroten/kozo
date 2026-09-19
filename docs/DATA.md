@@ -35,10 +35,17 @@ interface Srs {
   lastRatio: number | null;
 }
 
+// 外の文書から同期した木の出どころ。手で作った木にはない
+interface TreeSource {
+  kind: 'gdoc';
+  docId: string;
+}
+
 interface Tree {
   id: string;
   root: Node;
   srs: Srs;
+  source?: TreeSource;
   createdAt: string;
   updatedAt: string;
 }
@@ -54,7 +61,7 @@ interface ReviewLog {
 
 ## 永続化
 
-- IndexedDB。テーブルは `trees` と `reviewLogs`。ほかに、サンプルの木を入れ済みかを覚える `meta`（エクスポートには含めない）
+- IndexedDB。テーブルは `trees` と `reviewLogs`。ほかに、端末ごとの設定を置く `meta`（サンプルの木を入れ済みか、Google のクライアント ID、同期に登録した文書の一覧。エクスポートには含めない）
 - `trees` は木を丸ごと1レコードで持つ。節をテーブルに分解しない（木は数十節までで小さく、丸ごと読み書きするほうが単純）
 - `reviewLogs` は追記のみ。フェーズ2の履歴表示のために最初から記録しておく
 
