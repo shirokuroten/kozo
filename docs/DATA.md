@@ -39,6 +39,7 @@ interface Srs {
 interface TreeSource {
   kind: 'gdoc';
   docId: string;
+  path?: string[]; // 文書の中での場所（タブ名、章の見出し）。表示と、同期での同一判定に使う
 }
 
 interface Tree {

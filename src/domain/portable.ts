@@ -52,8 +52,17 @@ function isTree(v: unknown): v is Tree {
     typeof v.updatedAt === 'string' &&
     isNode(v.root) &&
     isSrs(v.srs) &&
-    (v.source === undefined ||
-      (isObject(v.source) && v.source.kind === 'gdoc' && typeof v.source.docId === 'string'))
+    (v.source === undefined || isSource(v.source))
+  );
+}
+
+function isSource(v: unknown): boolean {
+  return (
+    isObject(v) &&
+    v.kind === 'gdoc' &&
+    typeof v.docId === 'string' &&
+    (v.path === undefined ||
+      (Array.isArray(v.path) && v.path.every((part) => typeof part === 'string')))
   );
 }
 

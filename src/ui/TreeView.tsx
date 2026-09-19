@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { nodeTone, type NodeTone } from '../domain/tree';
-import type { Node } from '../domain/types';
+import type { Node, Tree } from '../domain/types';
 
 export const TONE_CLASS: Record<NodeTone, string> = {
   shu: 'text-shu',
@@ -12,6 +12,13 @@ export const TONE_CLASS: Record<NodeTone, string> = {
 export function Indent({ depth, children }: { depth: number; children: ReactNode }) {
   if (depth === 0) return <div>{children}</div>;
   return <div className="ml-[14px] border-l border-rule pl-[14px]">{children}</div>;
+}
+
+// 同期した木の、文書の中での場所。同じ見出し（「要件」など）の木を見分けるために根の上に添える
+export function TreePath({ tree }: { tree: Tree }) {
+  const path = tree.source?.path ?? [];
+  if (path.length === 0) return null;
+  return <div className="font-gothic text-xs text-usuzumi">{path.join(' / ')}</div>;
 }
 
 export function nodeTextClass(depth: number): string {

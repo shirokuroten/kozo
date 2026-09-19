@@ -5,7 +5,7 @@ import type { Node, Tree } from '../domain/types';
 import { Button } from './Button';
 import { NotFound } from './Note';
 import { navigate } from './route';
-import { Indent, nodeTextClass } from './TreeView';
+import { Indent, nodeTextClass, TreePath } from './TreeView';
 
 interface NodeProps {
   node: Node;
@@ -133,6 +133,7 @@ export function ReviewScreen({ tree, today, onChanged }: Props) {
         </Button>
       </div>
 
+      <TreePath tree={tree} />
       <ReviewNode
         node={tree.root}
         depth={0}

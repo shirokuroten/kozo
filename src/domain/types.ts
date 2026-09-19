@@ -20,6 +20,8 @@ export interface Srs {
 export interface TreeSource {
   kind: 'gdoc';
   docId: string;
+  // 文書の中での場所（タブ名、章の見出しなど）。根の上に小さく添える
+  path?: string[];
 }
 
 export interface Tree {

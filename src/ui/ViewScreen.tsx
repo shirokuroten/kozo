@@ -5,7 +5,7 @@ import { formatDue } from '../domain/tree';
 import type { Tree } from '../domain/types';
 import { Button } from './Button';
 import { navigate } from './route';
-import { TreeView } from './TreeView';
+import { TreePath, TreeView } from './TreeView';
 
 interface Props {
   tree: Tree;
@@ -35,6 +35,7 @@ export function ViewScreen({ tree, today, onChanged }: Props) {
       <Button kind="text" className="mb-2" onClick={() => navigate({ name: 'home' })}>
         戻る
       </Button>
+      <TreePath tree={tree} />
       <TreeView node={tree.root} />
       <p className="mt-4 font-gothic text-xs text-usuzumi">
         {due === null

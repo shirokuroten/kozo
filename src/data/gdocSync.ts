@@ -1,4 +1,4 @@
-import { docToOutlines, planSync, type SyncPlan } from '../domain/gdoc';
+import { docToTrees, planSync, type SyncPlan } from '../domain/gdoc';
 import { fetchGoogleDoc, getAccessToken } from './google';
 import type { LinkedDoc, Repository } from './repository';
 
@@ -16,7 +16,7 @@ export async function syncGoogleDoc(
 ): Promise<SyncResult> {
   const token = await getAccessToken(clientId);
   const googleDoc = await fetchGoogleDoc(docId, token);
-  const plan = planSync(await repo.listTrees(), docId, docToOutlines(googleDoc), now);
+  const plan = planSync(await repo.listTrees(), docId, docToTrees(googleDoc), now);
   await repo.putTrees(plan.put);
 
   const doc: LinkedDoc = { docId, title: googleDoc.title ?? '無題の文書', lastSyncedAt: now };

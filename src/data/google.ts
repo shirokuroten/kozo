@@ -6,8 +6,8 @@ import type { GoogleDoc } from '../domain/gdoc';
 
 const GIS_SRC = 'https://accounts.google.com/gsi/client';
 const SCOPE = 'https://www.googleapis.com/auth/documents.readonly';
-const FIELDS =
-  'title,body(content(paragraph(elements(textRun(content)),bullet(listId,nestingLevel),paragraphStyle(namedStyleType))))';
+// 入れ子のタブ（childTabs）には細かい絞り込みが効かないので、段落は丸ごと受け取る
+const FIELDS = 'title,tabs(tabProperties(title),documentTab(body(content(paragraph))),childTabs)';
 
 interface TokenResponse {
   access_token?: string;
@@ -93,7 +93,9 @@ export async function getAccessToken(clientId: string): Promise<string> {
 }
 
 export async function fetchGoogleDoc(docId: string, token: string): Promise<GoogleDoc> {
-  const url = `https://docs.googleapis.com/v1/documents/${encodeURIComponent(docId)}?fields=${encodeURIComponent(FIELDS)}`;
+  // includeTabsContent を付けないと、最初のタブの本文しか返ってこない
+  const query = `includeTabsContent=true&fields=${encodeURIComponent(FIELDS)}`;
+  const url = `https://docs.googleapis.com/v1/documents/${encodeURIComponent(docId)}?${query}`;
   const response = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
   if (response.status === 401) {
     cached = null;

@@ -2,6 +2,7 @@ import { countLastMissed, countNodes, formatDue, partitionByDue } from '../domai
 import type { Tree } from '../domain/types';
 import { Button } from './Button';
 import { navigate } from './route';
+import { TreePath } from './TreeView';
 
 function Row({ tree, today }: { tree: Tree; today: string }) {
   const missed = countLastMissed(tree.root);
@@ -13,6 +14,7 @@ function Row({ tree, today }: { tree: Tree; today: string }) {
         className="min-w-0 flex-1 text-left"
         onClick={() => navigate({ name: 'view', id: tree.id })}
       >
+        <TreePath tree={tree} />
         <div className="font-mincho text-[17px] leading-[1.6] text-sumi">{tree.root.text}</div>
         <div className="mt-0.5 flex flex-wrap gap-x-3 font-gothic text-xs text-usuzumi">
           <span>{countNodes(tree.root)} 節</span>
