@@ -5,3 +5,6 @@ dist
 .DS_Store
 
 dev-dist
+
+# 書き出したデータ。中身は公開しない
+kozo-*.json

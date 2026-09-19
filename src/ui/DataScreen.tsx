@@ -5,6 +5,7 @@ import { buildExport, parseImport, splitOutlines } from '../domain/portable';
 import { countNodes, createTree } from '../domain/tree';
 import type { Node } from '../domain/types';
 import { Button } from './Button';
+import { GoogleSection } from './GoogleSection';
 import { Note } from './Note';
 import { navigate } from './route';
 
@@ -79,9 +80,12 @@ export function DataScreen({ today, onChanged }: Props) {
         戻る
       </Button>
       <h1 className="font-mincho text-[20px] leading-[1.6] text-sumi">データの出し入れ</h1>
-      <p role="status" className="mt-2 min-h-5 font-gothic text-sm text-sumi">
+      <p role="status" className="mt-2 min-h-5 font-gothic text-sm whitespace-pre-line text-sumi">
         {message}
       </p>
+
+      <SectionTitle>Google ドキュメントと同期</SectionTitle>
+      <GoogleSection onChanged={onChanged} onMessage={setMessage} />
 
       <SectionTitle>まとめて取り込む</SectionTitle>
       <Note>

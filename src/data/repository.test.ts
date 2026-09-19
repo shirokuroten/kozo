@@ -68,6 +68,16 @@ describe('repository', () => {
     expect(await repo.listReviewLogs()).toHaveLength(1);
   });
 
+  it('Google の設定と登録した文書を覚える', async () => {
+    expect(await repo.getGoogleClientId()).toBe('');
+    expect(await repo.listLinkedDocs()).toEqual([]);
+    await repo.setGoogleClientId('abc.apps.googleusercontent.com');
+    const docs = [{ docId: 'd1', title: '憲法', lastSyncedAt: null }];
+    await repo.saveLinkedDocs(docs);
+    expect(await repo.getGoogleClientId()).toBe('abc.apps.googleusercontent.com');
+    expect(await repo.listLinkedDocs()).toEqual(docs);
+  });
+
   describe('ensureSample', () => {
     it('初回はサンプルの木を1本だけ入れる', async () => {
       await repo.ensureSample(NOW);

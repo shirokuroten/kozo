@@ -6,6 +6,15 @@ import { openDb, type KozoDb } from './db';
 import { SAMPLE_OUTLINE } from './sample';
 
 const SEEDED_KEY = 'seeded';
+const GOOGLE_CLIENT_ID_KEY = 'googleClientId';
+const LINKED_DOCS_KEY = 'linkedDocs';
+
+// 同期の対象として登録した Google ドキュメント
+export interface LinkedDoc {
+  docId: string;
+  title: string;
+  lastSyncedAt: string | null;
+}
 
 // UI はこの層だけを通してデータに触る
 export function createRepository(db: KozoDb = openDb()) {
@@ -41,6 +50,28 @@ export function createRepository(db: KozoDb = openDb()) {
 
     async addTrees(trees: Tree[]): Promise<void> {
       await db.trees.bulkAdd(trees);
+    },
+
+    async putTrees(trees: Tree[]): Promise<void> {
+      await db.trees.bulkPut(trees);
+    },
+
+    // 設定は端末の中だけに置く。書き出しファイルにも含めない
+    async getGoogleClientId(): Promise<string> {
+      return (await db.meta.get(GOOGLE_CLIENT_ID_KEY))?.value ?? '';
+    },
+
+    async setGoogleClientId(clientId: string): Promise<void> {
+      await db.meta.put({ key: GOOGLE_CLIENT_ID_KEY, value: clientId });
+    },
+
+    async listLinkedDocs(): Promise<LinkedDoc[]> {
+      const entry = await db.meta.get(LINKED_DOCS_KEY);
+      return entry ? (JSON.parse(entry.value) as LinkedDoc[]) : [];
+    },
+
+    async saveLinkedDocs(docs: LinkedDoc[]): Promise<void> {
+      await db.meta.put({ key: LINKED_DOCS_KEY, value: JSON.stringify(docs) });
     },
 
     // 既存のデータは消さない。同じ id の木は新しい方を残し、履歴は手元にないものだけ足す

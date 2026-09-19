@@ -51,7 +51,9 @@ function isTree(v: unknown): v is Tree {
     typeof v.createdAt === 'string' &&
     typeof v.updatedAt === 'string' &&
     isNode(v.root) &&
-    isSrs(v.srs)
+    isSrs(v.srs) &&
+    (v.source === undefined ||
+      (isObject(v.source) && v.source.kind === 'gdoc' && typeof v.source.docId === 'string'))
   );
 }
 

@@ -16,10 +16,17 @@ export interface Srs {
   lastRatio: number | null;
 }
 
+// 外の文書から同期した木の出どころ。手で作った木にはない
+export interface TreeSource {
+  kind: 'gdoc';
+  docId: string;
+}
+
 export interface Tree {
   id: string;
   root: Node;
   srs: Srs;
+  source?: TreeSource;
   createdAt: string;
   updatedAt: string;
 }
