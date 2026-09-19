@@ -43,9 +43,9 @@
 
 ## フェーズ 4: 持ち運び
 
-- [ ] PWA 化（manifest、service worker、オフライン動作）
-- [ ] JSON エクスポート／インポート
-- [ ] 木の Markdown コピー
+- [x] PWA 化（manifest、service worker、オフライン動作）
+- [x] JSON エクスポート／インポート
+- [x] 木の Markdown コピー
 
 ## フェーズ 5: 仕上げ
 
