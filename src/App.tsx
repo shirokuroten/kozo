@@ -41,7 +41,7 @@ export default function App() {
   }, [reload]);
 
   return (
-    <main className="mx-auto min-h-screen max-w-[520px] px-5 py-6">
+    <main className="mx-auto min-h-screen max-w-[520px] px-5 pt-[max(1.5rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))]">
       {failed ? (
         <Note>端末内のデータを開けなかった。ブラウザの設定で保存が禁止されていないか確認する</Note>
       ) : trees === null ? (
