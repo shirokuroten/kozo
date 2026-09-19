@@ -79,17 +79,21 @@ export function DataScreen({ today, onChanged }: Props) {
       <Button kind="text" className="mb-2" onClick={() => navigate({ name: 'home' })}>
         戻る
       </Button>
-      <h1 className="font-mincho text-[20px] leading-[1.6] text-sumi">データの出し入れ</h1>
+      <h1 className="font-mincho text-[20px] leading-[1.6] text-sumi">取り込みとバックアップ</h1>
+      <Note>
+        木は一覧の「新しい木を作る」で1本ずつ書ける。ここは、別の場所に書きためた木をまとめて入れるための画面。下の2つのどちらかを使う。いちばん下は控えを取る機能
+      </Note>
       <p role="status" className="mt-2 min-h-5 font-gothic text-sm whitespace-pre-line text-sumi">
         {message}
       </p>
 
-      <SectionTitle>Google ドキュメントと同期</SectionTitle>
+      <SectionTitle>Google ドキュメントから取り込む</SectionTitle>
       <GoogleSection onChanged={onChanged} onMessage={setMessage} />
 
-      <SectionTitle>まとめて取り込む</SectionTitle>
+      <SectionTitle>貼り付けて取り込む</SectionTitle>
       <Note>
-        文書に書きためた木を貼り付ける。字下げも記号もない行が見出しになり、そこから次の見出しまでが1本の木になる
+        Google
+        を使わないときはこちら。メモや文書に書いた木をコピーして、下の欄に貼る。字下げも記号もない行が見出しになり、そこから次の見出しまでが1本の木になる。貼るたびに新しい木として増える
       </Note>
       <textarea
         value={bulkText}
@@ -117,13 +121,13 @@ export function DataScreen({ today, onChanged }: Props) {
         {bulkRoots.length > 0 ? `${bulkRoots.length} 本の木を取り込む` : '木を取り込む'}
       </Button>
 
-      <SectionTitle>持ち運ぶ</SectionTitle>
+      <SectionTitle>バックアップと引っ越し</SectionTitle>
       <Note>
-        すべての木と展開の記録を1つのファイルにする。読み込みは手元のデータに追加する。同じ木は新しい方を残す
+        木と展開の記録はこの端末の中にしかない。「書き出す」で控えのファイルを1つ作れる。別の端末や、データが消えたあとに「読み込む」と元に戻る。読み込んでも手元の木は消えない
       </Note>
       <div className="mt-3 flex flex-wrap gap-2">
-        <Button onClick={exportAll}>ファイルに書き出す</Button>
-        <Button onClick={() => fileInput.current?.click()}>ファイルから読み込む</Button>
+        <Button onClick={exportAll}>控えを書き出す</Button>
+        <Button onClick={() => fileInput.current?.click()}>控えを読み込む</Button>
         <input
           ref={fileInput}
           type="file"

@@ -95,8 +95,9 @@ export function GoogleSection({ onChanged, onMessage }: Props) {
     return (
       <div>
         <Note>
-          自分の Google ドキュメントを読むために、自分用のクライアント ID
-          を1度だけ登録する。作り方は docs/GOOGLE.md にある。ID はこの端末の中だけに保存する
+          Google
+          ドキュメントに書いた木を、ボタン1つで取り込めるようにする。最初に1度だけ、自分用のクライアント
+          ID をここに貼る（作り方は docs/GOOGLE.md）。ID はこの端末の中だけに保存する
         </Note>
         <input
           value={clientId}
@@ -117,7 +118,8 @@ export function GoogleSection({ onChanged, onMessage }: Props) {
   return (
     <div>
       <Note>
-        箇条書きでない段落が見出しになり、その下の箇条書きが1本の木になる。同期は文書からアプリへの一方向。同じ見出しの木は中身だけ更新し、落ちた回数は引き継ぐ
+        Google ドキュメントに「見出しの行 +
+        その下の箇条書き」で書いておくと、見出しごとに1本の木になる。文書を直したら「同期」を押すだけで、木が増えたり更新されたりする。何度押しても木は重複せず、落ちた回数も残る。文書の側は書き換えない
       </Note>
 
       {docs.length > 0 && (

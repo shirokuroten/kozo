@@ -72,7 +72,7 @@ export function Home({ trees, today }: { trees: Tree[]; today: string }) {
           新しい木を作る
         </Button>
         <Button kind="text" onClick={() => navigate({ name: 'data' })}>
-          データの出し入れ
+          取り込みとバックアップ
         </Button>
       </div>
     </div>
