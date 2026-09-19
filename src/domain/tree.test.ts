@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { parseOutline } from './outline';
 import {
+  applyEdit,
   countLastMissed,
   countNodes,
   createTree,
@@ -90,5 +91,23 @@ describe('formatDue', () => {
   it('今年の日付は月日だけ、年が違えば年も出す', () => {
     expect(formatDue('2026-09-05', '2026-09-19')).toBe('9月5日');
     expect(formatDue('2027-01-05', '2026-12-28')).toBe('2027年1月5日');
+  });
+});
+
+describe('applyEdit', () => {
+  it('節の統計と間隔反復の状態を引き継ぎ、更新日時だけ進める', () => {
+    const tree = createTree(root(), '2026-09-01T00:00:00.000Z');
+    tree.root.children[0].missCount = 2;
+    tree.srs = { interval: 3, ease: 2.4, reps: 2, due: '2026-09-22', lastRatio: 0.8 };
+
+    const edited = applyEdit(tree, parseOutline('根\n  枝A\n  枝C')!, '2026-09-19T00:00:00.000Z');
+    expect(edited.id).toBe(tree.id);
+    expect(edited.srs).toEqual(tree.srs);
+    expect(edited.createdAt).toBe(tree.createdAt);
+    expect(edited.updatedAt).toBe('2026-09-19T00:00:00.000Z');
+    expect(edited.root.children.map((c) => [c.text, c.missCount])).toEqual([
+      ['枝A', 2],
+      ['枝C', 0],
+    ]);
   });
 });

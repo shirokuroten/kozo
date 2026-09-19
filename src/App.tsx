@@ -2,14 +2,23 @@ import { useCallback, useEffect, useState } from 'react';
 import { repository } from './data';
 import { toLocalDate } from './domain/tree';
 import type { Tree } from './domain/types';
+import { EditScreen } from './ui/EditScreen';
 import { Home } from './ui/Home';
 import { NotFound, Note } from './ui/Note';
 import { useRoute, type Route } from './ui/route';
+import { ViewScreen } from './ui/ViewScreen';
 
-function renderScreen(route: Route, trees: Tree[]) {
+function renderScreen(route: Route, trees: Tree[], reload: () => Promise<void>) {
   // 日付をまたいで開きっぱなしでも、画面を移るたびに今日を取り直す
   const today = toLocalDate(new Date());
   if (route.name === 'home') return <Home trees={trees} today={today} />;
+  if (route.name === 'new') return <EditScreen key="new" onChanged={reload} />;
+  if (route.name === 'data') return <NotFound>この画面はまだない</NotFound>;
+
+  const tree = trees.find((t) => t.id === route.id);
+  if (!tree) return <NotFound>この木は見つからない</NotFound>;
+  if (route.name === 'view') return <ViewScreen tree={tree} today={today} onChanged={reload} />;
+  if (route.name === 'edit') return <EditScreen key={tree.id} tree={tree} onChanged={reload} />;
   return <NotFound>この画面はまだない</NotFound>;
 }
 
@@ -36,7 +45,7 @@ export default function App() {
       ) : trees === null ? (
         <Note>読み込み中</Note>
       ) : (
-        renderScreen(route, trees)
+        renderScreen(route, trees, reload)
       )}
     </main>
   );

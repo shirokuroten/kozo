@@ -115,6 +115,49 @@ describe('parseOutline', () => {
     });
   });
 
+  it('深い行から浅い行に戻るときは、字下げの量が同じ行を兄弟にする', () => {
+    // 1段を空白4つで書いた場合でも形が崩れない
+    const root = parseOutline('根\n    枝\n        葉A\n        葉B\n    枝2')!;
+    expect(shape(root)).toEqual({
+      text: '根',
+      children: [
+        {
+          text: '枝',
+          children: [
+            { text: '葉A', children: [] },
+            { text: '葉B', children: [] },
+          ],
+        },
+        { text: '枝2', children: [] },
+      ],
+    });
+  });
+
+  it('行頭の箇条書きの記号は文言に含めない', () => {
+    // 文書作成ソフトや Markdown から貼り付けたアウトラインをそのまま使えるようにする
+    const root = parseOutline('根\n- 枝A\n  - 葉A\n* 枝B\n   * 葉B\n・枝C\n● 枝D')!;
+    expect(shape(root)).toEqual({
+      text: '根',
+      children: [
+        { text: '枝A', children: [{ text: '葉A', children: [] }] },
+        { text: '枝B', children: [{ text: '葉B', children: [] }] },
+        { text: '枝C', children: [] },
+        { text: '枝D', children: [] },
+      ],
+    });
+  });
+
+  it('記号だけの行は空行として捨て、文中のハイフンは残す', () => {
+    const root = parseOutline('- 根\n  -\n  A-B 間の関係\n  -1 は負の数')!;
+    expect(shape(root)).toEqual({
+      text: '根',
+      children: [
+        { text: 'A-B 間の関係', children: [] },
+        { text: '-1 は負の数', children: [] },
+      ],
+    });
+  });
+
   it('行末の空白は文言に含めない', () => {
     const root = parseOutline('根  \n  枝　 ')!;
     expect(root.text).toBe('根');

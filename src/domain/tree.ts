@@ -1,3 +1,4 @@
+import { mergeStats } from './mergeStats';
 import { initialSrs } from './schedule';
 import type { Node, Tree } from './types';
 
@@ -51,4 +52,9 @@ export function formatDue(due: string, today: string): string {
   const [y, m, d] = due.split('-').map(Number);
   const monthDay = `${m}月${d}日`;
   return due.slice(0, 4) === today.slice(0, 4) ? monthDay : `${y}年${monthDay}`;
+}
+
+// 編集の保存。間隔反復の状態は木のものなので、中身を書き換えても引き継ぐ
+export function applyEdit(tree: Tree, newRoot: Node, now: string): Tree {
+  return { ...tree, root: mergeStats(tree.root, newRoot), updatedAt: now };
 }
