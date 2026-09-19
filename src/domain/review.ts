@@ -1,0 +1,74 @@
+import { schedule } from './schedule';
+import type { Node, NodeId, ReviewLog, Tree } from './types';
+
+// 展開中の ○×。まだ付けていない節は載っていない
+export type Grades = Record<NodeId, boolean>;
+
+export interface ReviewSummary {
+  total: number;
+  graded: number;
+  correct: number;
+  finished: boolean;
+}
+
+export function summarize(root: Node, grades: Grades): ReviewSummary {
+  let total = 0;
+  let graded = 0;
+  let correct = 0;
+  const walk = (node: Node) => {
+    for (const child of node.children) {
+      total += 1;
+      const grade = grades[child.id];
+      if (grade !== undefined) graded += 1;
+      if (grade === true) correct += 1;
+      walk(child);
+    }
+  };
+  walk(root);
+  return { total, graded, correct, finished: total > 0 && graded === total };
+}
+
+function applyGrades(node: Node, grades: Grades): Node {
+  const grade = grades[node.id];
+  return {
+    ...node,
+    lastResult: grade === undefined ? node.lastResult : grade,
+    missCount: node.missCount + (grade === false ? 1 : 0),
+    children: node.children.map((child) => applyGrades(child, grades)),
+  };
+}
+
+function missedIds(node: Node, grades: Grades): NodeId[] {
+  return node.children.flatMap((child) => [
+    ...(grades[child.id] === false ? [child.id] : []),
+    ...missedIds(child, grades),
+  ]);
+}
+
+export function applyReview(
+  tree: Tree,
+  grades: Grades,
+  today: string,
+  now: string,
+): { tree: Tree; log: ReviewLog } {
+  const { total, correct, finished } = summarize(tree.root, grades);
+  // 途中の結果で間隔を動かすと、開いていない節が「言えた」扱いになってしまう
+  if (!finished) throw new Error('採点が終わっていない展開は保存できない');
+
+  const ratio = correct / total;
+  return {
+    tree: {
+      ...tree,
+      root: applyGrades(tree.root, grades),
+      srs: schedule(tree.srs, ratio, today),
+      updatedAt: now,
+    },
+    log: {
+      id: crypto.randomUUID(),
+      treeId: tree.id,
+      date: today,
+      ratio,
+      missedNodeIds: missedIds(tree.root, grades),
+    },
+  };
+}

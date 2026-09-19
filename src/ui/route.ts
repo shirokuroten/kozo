@@ -30,7 +30,6 @@ export function toHash(route: Route): string {
 type Guard = () => boolean;
 let guard: Guard | null = null;
 let currentHash = typeof window === 'undefined' ? '#/' : window.location.hash || '#/';
-let reverting = false;
 const listeners = new Set<() => void>();
 
 // 未保存の編集があるとき、画面を離れてよいかを尋ねる関数を登録する。false を返すと移動を取り消す
@@ -40,14 +39,10 @@ export function setNavigationGuard(next: Guard | null): void {
 
 function handleHashChange(): void {
   const nextHash = window.location.hash || '#/';
-  if (reverting) {
-    reverting = false;
-    return;
-  }
+  // 下で元の画面に戻したときの通知もここで捨てる
   if (nextHash === currentHash) return;
   if (guard && !guard()) {
     // ブラウザの「戻る」は止められないので、移動した後で元の画面に戻す
-    reverting = true;
     window.location.hash = currentHash;
     return;
   }

@@ -5,6 +5,7 @@ import type { Tree } from './domain/types';
 import { EditScreen } from './ui/EditScreen';
 import { Home } from './ui/Home';
 import { NotFound, Note } from './ui/Note';
+import { ReviewScreen } from './ui/ReviewScreen';
 import { useRoute, type Route } from './ui/route';
 import { ViewScreen } from './ui/ViewScreen';
 
@@ -19,7 +20,7 @@ function renderScreen(route: Route, trees: Tree[], reload: () => Promise<void>) 
   if (!tree) return <NotFound>この木は見つからない</NotFound>;
   if (route.name === 'view') return <ViewScreen tree={tree} today={today} onChanged={reload} />;
   if (route.name === 'edit') return <EditScreen key={tree.id} tree={tree} onChanged={reload} />;
-  return <NotFound>この画面はまだない</NotFound>;
+  return <ReviewScreen key={tree.id} tree={tree} today={today} onChanged={reload} />;
 }
 
 export default function App() {
