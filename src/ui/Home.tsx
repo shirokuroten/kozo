@@ -67,9 +67,14 @@ export function Home({ trees, today }: { trees: Tree[]; today: string }) {
         </section>
       )}
 
-      <Button kind="solid" onClick={() => navigate({ name: 'new' })}>
-        新しい木を作る
-      </Button>
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+        <Button kind="solid" onClick={() => navigate({ name: 'new' })}>
+          新しい木を作る
+        </Button>
+        <Button kind="text" onClick={() => navigate({ name: 'data' })}>
+          データの出し入れ
+        </Button>
+      </div>
     </div>
   );
 }

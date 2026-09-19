@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { repository } from './data';
 import { toLocalDate } from './domain/tree';
 import type { Tree } from './domain/types';
+import { DataScreen } from './ui/DataScreen';
 import { EditScreen } from './ui/EditScreen';
 import { Home } from './ui/Home';
 import { NotFound, Note } from './ui/Note';
@@ -14,7 +15,7 @@ function renderScreen(route: Route, trees: Tree[], reload: () => Promise<void>) 
   const today = toLocalDate(new Date());
   if (route.name === 'home') return <Home trees={trees} today={today} />;
   if (route.name === 'new') return <EditScreen key="new" onChanged={reload} />;
-  if (route.name === 'data') return <NotFound>この画面はまだない</NotFound>;
+  if (route.name === 'data') return <DataScreen today={today} onChanged={reload} />;
 
   const tree = trees.find((t) => t.id === route.id);
   if (!tree) return <NotFound>この木は見つからない</NotFound>;

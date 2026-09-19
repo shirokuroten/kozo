@@ -1,4 +1,5 @@
 import { parseOutline } from '../domain/outline';
+import { pickNewer } from '../domain/portable';
 import { createTree } from '../domain/tree';
 import type { ReviewLog, Tree } from '../domain/types';
 import { openDb, type KozoDb } from './db';
@@ -36,6 +37,20 @@ export function createRepository(db: KozoDb = openDb()) {
 
     listReviewLogs(): Promise<ReviewLog[]> {
       return db.reviewLogs.toArray();
+    },
+
+    async addTrees(trees: Tree[]): Promise<void> {
+      await db.trees.bulkAdd(trees);
+    },
+
+    // 既存のデータは消さない。同じ id の木は新しい方を残し、履歴は手元にないものだけ足す
+    async importData(trees: Tree[], logs: ReviewLog[]): Promise<{ trees: number }> {
+      return db.transaction('rw', db.trees, db.reviewLogs, async () => {
+        const accepted = pickNewer(await db.trees.toArray(), trees);
+        await db.trees.bulkPut(accepted);
+        await db.reviewLogs.bulkPut(logs);
+        return { trees: accepted.length };
+      });
     },
 
     // 初回起動のときだけサンプルを入れる。消した後に復活させないため、入れた事実を記録する

@@ -46,6 +46,28 @@ describe('repository', () => {
     expect(await repo.listReviewLogs()).toEqual([log]);
   });
 
+  it('読み込みは既存の木を消さず、同じ id は新しい方を残す', async () => {
+    const mine = createTree(parseOutline('手元の木')!, NOW);
+    const shared = createTree(parseOutline('共有の木')!, NOW);
+    await repo.addTrees([mine, shared]);
+
+    const older = {
+      ...shared,
+      root: parseOutline('古い版')!,
+      updatedAt: '2026-01-01T00:00:00.000Z',
+    };
+    const added = createTree(parseOutline('新しく来た木')!, NOW);
+    const log = { id: 'log1', treeId: added.id, date: '2026-09-19', ratio: 1, missedNodeIds: [] };
+
+    expect(await repo.importData([older, added], [log])).toEqual({ trees: 1 });
+    // 同じ履歴をもう一度読み込んでも増えない
+    await repo.importData([], [log]);
+
+    const texts = (await repo.listTrees()).map((t) => t.root.text).sort();
+    expect(texts).toEqual(['共有の木', '手元の木', '新しく来た木'].sort());
+    expect(await repo.listReviewLogs()).toHaveLength(1);
+  });
+
   describe('ensureSample', () => {
     it('初回はサンプルの木を1本だけ入れる', async () => {
       await repo.ensureSample(NOW);
