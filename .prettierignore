@@ -1,0 +1,6 @@
+dist
+node_modules
+reference
+docs
+CLAUDE.md
+package-lock.json

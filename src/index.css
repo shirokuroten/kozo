@@ -1,0 +1,21 @@
+@import 'tailwindcss';
+
+/* 色と書体は docs/DESIGN.md の表をそのまま写す。ここ以外で色の値を直書きしない */
+@theme {
+  --color-paper: #fafbf9;
+  --color-sumi: #22304a;
+  --color-usuzumi: #6b7590;
+  --color-rule: #c9cfda;
+  --color-shu: #c8452b;
+  --color-oudo: #b08a2e;
+  --color-koke: #3e7c59;
+
+  --font-mincho: 'Hiragino Mincho ProN', 'Yu Mincho', 'Noto Serif JP', serif;
+  --font-gothic: 'Hiragino Sans', 'Yu Gothic', 'Noto Sans JP', sans-serif;
+}
+
+body {
+  background-color: var(--color-paper);
+  color: var(--color-sumi);
+  font-family: var(--font-gothic);
+}
