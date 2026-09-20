@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { repository } from '../data';
+import { plainText } from '../domain/links';
 import { applyReview, summarize, type Grades } from '../domain/review';
 import type { Node, Tree } from '../domain/types';
 import { Button } from './Button';
@@ -59,7 +60,7 @@ function ReviewNode({ node, depth, opened, grades, onOpen, onGrade }: NodeProps)
     <Indent depth={depth}>
       <div className="flex items-start justify-between gap-3 py-1">
         <div className={`${nodeTextClass(depth)} ${grade === false ? 'text-shu' : 'text-sumi'}`}>
-          {node.text}
+          {plainText(node.text)}
         </div>
         {depth > 0 && (
           <div className="flex shrink-0 gap-2">

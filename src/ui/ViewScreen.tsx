@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { repository } from '../data';
+import { resolveLink } from '../domain/links';
 import { toMarkdown } from '../domain/portable';
 import { formatDue } from '../domain/tree';
 import type { Tree } from '../domain/types';
@@ -10,11 +11,13 @@ import { TreePath, TreeView } from './TreeView';
 
 interface Props {
   tree: Tree;
+  // All trees, to resolve [[links]] written in this tree's nodes
+  trees: Tree[];
   today: string;
   onChanged: () => Promise<void>;
 }
 
-export function ViewScreen({ tree, today, onChanged }: Props) {
+export function ViewScreen({ tree, trees, today, onChanged }: Props) {
   const { lang, t } = useI18n();
   const { due, interval } = tree.srs;
 
@@ -38,7 +41,7 @@ export function ViewScreen({ tree, today, onChanged }: Props) {
         {t.common.back}
       </Button>
       <TreePath tree={tree} />
-      <TreeView node={tree.root} />
+      <TreeView node={tree.root} linkTo={(target) => resolveLink(trees, tree, target)?.id} />
       <p className="mt-4 font-gothic text-xs text-usuzumi">
         {due === null
           ? t.row.neverReviewed

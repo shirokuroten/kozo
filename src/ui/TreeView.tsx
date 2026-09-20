@@ -1,8 +1,10 @@
 import type { ReactNode } from 'react';
+import { parseLinks } from '../domain/links';
 import { shelfPath } from '../domain/shelf';
 import { nodeTone, type NodeTone } from '../domain/tree';
 import type { Node, Tree } from '../domain/types';
 import { useI18n } from './i18n';
+import { navigate } from './route';
 
 export const TONE_CLASS: Record<NodeTone, string> = {
   shu: 'text-shu',
@@ -27,12 +29,43 @@ export function nodeTextClass(depth: number): string {
   return `font-mincho leading-[1.6] ${depth === 0 ? 'text-[20px]' : 'text-base'}`;
 }
 
-export function TreeView({ node, depth = 0 }: { node: Node; depth?: number }) {
+// Returns the id of the tree a [[link]] points at, or undefined when no tree has that root
+export type LinkResolver = (target: string) => string | undefined;
+
+// A link is marked only by an underline in the rule color. Color and weight are reserved for review results
+function NodeText({ text, linkTo }: { text: string; linkTo?: LinkResolver }) {
+  return (
+    <>
+      {parseLinks(text).map((segment, index) => {
+        const id = segment.target && linkTo?.(segment.target);
+        if (!id) return <span key={index}>{segment.text}</span>;
+        return (
+          <button
+            key={index}
+            type="button"
+            onClick={() => navigate({ name: 'view', id })}
+            className="underline decoration-rule underline-offset-4"
+          >
+            {segment.text}
+          </button>
+        );
+      })}
+    </>
+  );
+}
+
+interface TreeViewProps {
+  node: Node;
+  depth?: number;
+  linkTo?: LinkResolver;
+}
+
+export function TreeView({ node, depth = 0, linkTo }: TreeViewProps) {
   const { t } = useI18n();
   return (
     <Indent depth={depth}>
       <div className={`py-1 ${nodeTextClass(depth)} ${TONE_CLASS[nodeTone(node)]}`}>
-        {node.text}
+        <NodeText text={node.text} linkTo={linkTo} />
         {node.missCount > 0 && (
           <span className="ml-2 font-gothic text-xs text-usuzumi">
             {t.view.missCount(node.missCount)}
@@ -40,7 +73,7 @@ export function TreeView({ node, depth = 0 }: { node: Node; depth?: number }) {
         )}
       </div>
       {node.children.map((child) => (
-        <TreeView key={child.id} node={child} depth={depth + 1} />
+        <TreeView key={child.id} node={child} depth={depth + 1} linkTo={linkTo} />
       ))}
     </Indent>
   );

@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { plainText } from '../domain/links';
 import { countLastMissed, countNodes, formatDue } from '../domain/tree';
 import type { Tree } from '../domain/types';
 import { Button } from './Button';
@@ -34,7 +35,9 @@ export function TreeRow({
         onClick={() => navigate({ name: 'view', id: tree.id })}
       >
         {showPath && <TreePath tree={tree} />}
-        <div className="font-mincho text-[17px] leading-[1.6] text-sumi">{tree.root.text}</div>
+        <div className="font-mincho text-[17px] leading-[1.6] text-sumi">
+          {plainText(tree.root.text)}
+        </div>
         <div className="mt-0.5 flex flex-wrap gap-x-3 font-gothic text-xs text-usuzumi">
           <span>{t.common.nodeCount(countNodes(tree.root))}</span>
           {missed > 0 && <span className="text-shu">{t.row.missedLast(missed)}</span>}

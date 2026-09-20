@@ -22,7 +22,8 @@ function renderScreen(route: Route, trees: Tree[], reload: () => Promise<void>, 
 
   const tree = trees.find((t) => t.id === route.id);
   if (!tree) return <NotFound>{t.common.treeNotFound}</NotFound>;
-  if (route.name === 'view') return <ViewScreen tree={tree} today={today} onChanged={reload} />;
+  if (route.name === 'view')
+    return <ViewScreen tree={tree} trees={trees} today={today} onChanged={reload} />;
   if (route.name === 'edit') return <EditScreen key={tree.id} tree={tree} onChanged={reload} />;
   return <ReviewScreen key={tree.id} tree={tree} today={today} onChanged={reload} />;
 }
