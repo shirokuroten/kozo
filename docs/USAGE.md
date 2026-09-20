@@ -60,7 +60,7 @@ A review opens the whole tree from the top. If a single tree is too large, each 
 
 End a line with a colon to make it a label, for example `理由：` (reason) or `必要となるもの：` (what is needed). Use it for a category you want to answer under, or for words that only connect one level to the next.
 
-In a review a label is visible from the start, in pale ink, and has no ○ ×. The branches under it are still hidden behind "N branches", so you recall them as usual. Labels are not counted in "a / b recalled" or anywhere else. A label with nothing under it works as an ungraded note.
+In a review a label appears when you open its level, together with the branches next to it, in pale ink and with no ○ ×. It is not counted in "N branches". The branches under it are hidden behind their own "N branches", so you recall them as usual. Labels are not counted in "a / b recalled" or anywhere else. A label with nothing under it works as an ungraded note.
 
 ## Linking trees
 

@@ -119,8 +119,9 @@ Details are in `DATA.md`. Key points:
 Some lines in an outline are not knowledge to recall. They are scaffolding for what hangs under them: a connector such as 必要となるもの ("what is needed"), or a category to answer such as 理由 ("reason"). Being asked to recall them only costs thought.
 
 - A node whose text ends with a colon (`:` or `：`) is a label. Plain text, so it works the same in the editor, in pasted text and in Google Docs. Nothing is stored: a node is a label exactly when its text says so. The root is never a label
-- In a review, a label is shown as soon as its parent's branches become available, before the user opens them. It has no ○ × and is set in pale ink. What hangs under it is available at once, behind its own "N branches" button
-- The "N branches" count leaves labels out, and the button stands where the first hidden branch is, so nothing jumps when it opens
+- In a review, a label appears together with its sibling branches, when the user opens that level. Shown any earlier, it would hint at what the level holds. It has no ○ × and is set in pale ink. What hangs under it is available at once, behind its own "N branches" button
+- The "N branches" count leaves labels out, because they are not something to recall
+- A level made only of labels holds nothing to recall, so it is shown at once, without a button that would stand for no thought
 - Labels are outside everything that is counted: the progress and the result (a / b), the ratio that drives the schedule, miss counts, last results, the node count on the list, and the history marks
 - A label without children works as an ungraded note. It is visible during a review, so what is written there is the user's responsibility
 - This does not break the principle of reviewing the whole tree from the top. Nothing is asked in isolation. Labels only remove questions that were never real questions

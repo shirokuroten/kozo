@@ -70,7 +70,7 @@ export const ja = {
   edit: {
     hint: '1行目が見出し。行頭の空白2つ（または全角空白）で1段深くなる',
     labelHint:
-      '行末を「：」にした節は見出しになる。展開では最初から見えていて、採点しない。「理由：」のような答える区分や、つなぎの言葉に使う',
+      '行末を「：」にした節は見出しになる。展開では、その段を開いたときに一緒に出て、採点しない。「理由：」のような答える区分や、つなぎの言葉に使う',
     placeholder: `見出し
   枝
     内容
@@ -263,7 +263,7 @@ export const en: Messages = {
   edit: {
     hint: 'First line is the heading. Indent two spaces (or a tab) to go one level deeper',
     labelHint:
-      'A node ending with a colon is a label. It is visible from the start of a review and is not graded. Use it for a category to answer, such as "Reason:", or for connecting words',
+      'A node ending with a colon is a label. In a review it appears when its level is opened, and it is not graded. Use it for a category to answer, such as "Reason:", or for connecting words',
     placeholder: `Elements of a contract
   Offer
     A proposal showing intent to be bound

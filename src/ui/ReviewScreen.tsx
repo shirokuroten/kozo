@@ -56,12 +56,12 @@ function ReviewNode({ node, depth, opened, grades, onOpen, onGrade }: NodeProps)
   const grade = grades[node.id];
   // A label is scaffolding: it is shown without being recalled, and it is not graded
   const label = depth > 0 && isLabel(node);
-  const isOpen = opened.has(node.id);
   // Children are not shown under a node that has not been graded yet, to preserve the top-down order of the review.
   // A label has nothing to grade, so what hangs under it is available at once
   const canOpen = depth === 0 || label || grade !== undefined;
-  const hiddenCount = node.children.filter((child) => !isLabel(child)).length;
-  const firstHidden = node.children.findIndex((child) => !isLabel(child));
+  const recallCount = node.children.filter((child) => !isLabel(child)).length;
+  const showChildren =
+    canOpen && node.children.length > 0 && (opened.has(node.id) || recallCount === 0);
   const tone = label ? 'text-usuzumi' : grade === false ? 'text-shu' : 'text-sumi';
 
   return (
@@ -86,36 +86,32 @@ function ReviewNode({ node, depth, opened, grades, onOpen, onGrade }: NodeProps)
         )}
       </div>
 
-      {/* Until the branches are opened, labels are already visible and everything to recall hides behind
-          one button. The button stands where the first hidden branch is, so nothing jumps when it opens.
-          The count leaves labels out: they are not something to recall */}
-      {canOpen &&
-        node.children.map((child, index) => {
-          if (isOpen || isLabel(child)) {
-            return (
-              <ReviewNode
-                key={child.id}
-                node={child}
-                depth={depth + 1}
-                opened={opened}
-                grades={grades}
-                onOpen={onOpen}
-                onGrade={onGrade}
-              />
-            );
-          }
-          if (index !== firstHidden) return null;
-          return (
-            <button
-              key="expand"
-              type="button"
-              onClick={() => onOpen(node.id)}
-              className="my-1 ml-[14px] block rounded border border-dashed border-rule bg-surface px-3 py-2 text-left font-gothic text-sm text-usuzumi"
-            >
-              {t.review.expand(hiddenCount)}
-            </button>
-          );
-        })}
+      {/* A label appears together with its sibling branches, when the user opens the level. Shown any
+          earlier, it would hint at what the level holds. The count leaves labels out: they are not
+          something to recall. A level made only of labels holds nothing to recall, so it is shown at once
+          instead of asking for a press that stands for no thought */}
+      {canOpen && node.children.length > 0 && !showChildren && (
+        <button
+          type="button"
+          onClick={() => onOpen(node.id)}
+          className="my-1 ml-[14px] rounded border border-dashed border-rule bg-surface px-3 py-2 text-left font-gothic text-sm text-usuzumi"
+        >
+          {t.review.expand(recallCount)}
+        </button>
+      )}
+
+      {showChildren &&
+        node.children.map((child) => (
+          <ReviewNode
+            key={child.id}
+            node={child}
+            depth={depth + 1}
+            opened={opened}
+            grades={grades}
+            onOpen={onOpen}
+            onGrade={onGrade}
+          />
+        ))}
     </Indent>
   );
 }
