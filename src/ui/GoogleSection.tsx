@@ -9,7 +9,7 @@ import { Note } from './Note';
 import { describePlan } from './syncMessage';
 
 const INPUT_CLASS =
-  'w-full rounded border border-rule bg-white px-3 py-2 font-gothic text-base text-sumi placeholder:text-rule';
+  'w-full rounded border border-rule bg-surface px-3 py-2 font-gothic text-base text-sumi placeholder:text-rule';
 
 interface Props {
   onChanged: () => Promise<void>;

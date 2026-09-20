@@ -61,7 +61,7 @@ export function Home({ trees, today, onChanged }: Props) {
             aria-label={t.home.search}
             autoCapitalize="off"
             spellCheck={false}
-            className="mb-4 w-full rounded border border-rule bg-white px-3 py-2 font-gothic text-base text-sumi placeholder:text-usuzumi"
+            className="mb-4 w-full rounded border border-rule bg-surface px-3 py-2 font-gothic text-base text-sumi placeholder:text-usuzumi"
           />
 
           {searching ? (

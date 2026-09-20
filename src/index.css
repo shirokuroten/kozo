@@ -9,9 +9,27 @@
   --color-shu: #c8452b;
   --color-oudo: #b08a2e;
   --color-koke: #3e7c59;
+  /* Surface of inputs and buttons. White paper on the light theme, a slightly raised panel on the dark one */
+  --color-surface: #ffffff;
 
   --font-mincho: 'Hiragino Mincho ProN', 'Yu Mincho', 'Noto Serif JP', serif;
   --font-gothic: 'Hiragino Sans', 'Yu Gothic', 'Noto Sans JP', sans-serif;
+}
+
+/* Dark theme: follows the system setting. Same roles as the light palette, tuned so that
+   text on paper keeps roughly the same contrast. Values are listed in docs/DESIGN.md */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-paper: #14171c;
+    --color-sumi: #e4e7ec;
+    --color-usuzumi: #9aa3b5;
+    --color-rule: #343a46;
+    --color-shu: #e0705a;
+    --color-oudo: #cfa94a;
+    --color-koke: #6fb58c;
+    --color-surface: #1c2027;
+    color-scheme: dark;
+  }
 }
 
 body {

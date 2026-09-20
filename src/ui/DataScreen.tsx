@@ -88,7 +88,7 @@ export function DataScreen({ today, onChanged }: Props) {
         aria-label={t.data.pasteLabel}
         spellCheck={false}
         autoCapitalize="off"
-        className="mt-2 w-full rounded border border-rule bg-white p-3 font-gothic text-base leading-[1.7] text-sumi placeholder:text-rule"
+        className="mt-2 w-full rounded border border-rule bg-surface p-3 font-gothic text-base leading-[1.7] text-sumi placeholder:text-rule"
       />
       {bulkRoots.length > 0 && (
         <ul className="mt-2 rounded border border-rule px-3 py-2">

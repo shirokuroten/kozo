@@ -29,11 +29,11 @@ function GradeButton({
   const { t } = useI18n();
   const tone = value
     ? selected
-      ? 'border-koke bg-koke text-white'
-      : 'border-koke bg-white text-koke'
+      ? 'border-koke bg-koke text-paper'
+      : 'border-koke bg-surface text-koke'
     : selected
-      ? 'border-shu bg-shu text-white'
-      : 'border-shu bg-white text-shu';
+      ? 'border-shu bg-shu text-paper'
+      : 'border-shu bg-surface text-shu';
   return (
     <button
       type="button"
@@ -81,7 +81,7 @@ function ReviewNode({ node, depth, opened, grades, onOpen, onGrade }: NodeProps)
         <button
           type="button"
           onClick={() => onOpen(node.id)}
-          className="my-1 ml-[14px] rounded border border-dashed border-rule bg-white px-3 py-2 text-left font-gothic text-sm text-usuzumi"
+          className="my-1 ml-[14px] rounded border border-dashed border-rule bg-surface px-3 py-2 text-left font-gothic text-sm text-usuzumi"
         >
           {t.review.expand(node.children.length)}
         </button>
