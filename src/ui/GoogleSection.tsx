@@ -4,6 +4,7 @@ import { syncGoogleDoc } from '../data/gdocSync';
 import { loadGoogleSignIn } from '../data/google';
 import { parseDocId } from '../domain/gdoc';
 import { Button } from './Button';
+import { useI18n } from './i18n';
 import { Note } from './Note';
 import { describePlan } from './syncMessage';
 
@@ -16,6 +17,7 @@ interface Props {
 }
 
 export function GoogleSection({ onChanged, onMessage }: Props) {
+  const { lang, t } = useI18n();
   const [clientId, setClientId] = useState('');
   const [savedClientId, setSavedClientId] = useState('');
   const [docs, setDocs] = useState<LinkedDoc[]>([]);
@@ -39,7 +41,7 @@ export function GoogleSection({ onChanged, onMessage }: Props) {
     setClientId(id);
     setSavedClientId(id);
     if (id) loadGoogleSignIn().catch(() => {});
-    onMessage(id ? 'クライアント ID を保存した' : 'クライアント ID を消した');
+    onMessage(id ? t.google.clientIdSaved : t.google.clientIdCleared);
   };
 
   const sync = async (docIds: string[]) => {
@@ -53,13 +55,13 @@ export function GoogleSection({ onChanged, onMessage }: Props) {
           docId,
           new Date().toISOString(),
         );
-        messages.push(describePlan(doc.title, plan));
+        messages.push(describePlan(t, doc.title, plan));
       }
       await onChanged();
       onMessage(messages.join('\n'));
       return true;
     } catch (error) {
-      onMessage(`同期できなかった。${error instanceof Error ? error.message : ''}`);
+      onMessage(t.sync.failed(error instanceof Error ? error.message : ''));
       return false;
     } finally {
       setDocs(await repository.listLinkedDocs());
@@ -70,7 +72,7 @@ export function GoogleSection({ onChanged, onMessage }: Props) {
   const addDoc = async () => {
     const docId = parseDocId(url);
     if (!docId) {
-      onMessage('Google ドキュメントの URL として読めない');
+      onMessage(t.google.badUrl);
       return;
     }
     if (await sync([docId])) setUrl('');
@@ -86,22 +88,18 @@ export function GoogleSection({ onChanged, onMessage }: Props) {
   if (!savedClientId) {
     return (
       <div>
-        <Note>
-          Google
-          ドキュメントに書いた木を、ボタン1つで取り込めるようにする。最初に1度だけ、自分用のクライアント
-          ID をここに貼る（作り方は docs/GOOGLE.md）。ID はこの端末の中だけに保存する
-        </Note>
+        <Note>{t.google.setupNote}</Note>
         <input
           value={clientId}
           onChange={(event) => setClientId(event.target.value)}
           placeholder="xxxxxxxx.apps.googleusercontent.com"
-          aria-label="Google のクライアント ID"
+          aria-label={t.google.clientIdLabel}
           autoCapitalize="off"
           spellCheck={false}
           className={`mt-2 ${INPUT_CLASS}`}
         />
         <Button className="mt-3" onClick={saveClientId} disabled={clientId.trim() === ''}>
-          クライアント ID を保存
+          {t.google.saveClientId}
         </Button>
       </div>
     );
@@ -109,10 +107,7 @@ export function GoogleSection({ onChanged, onMessage }: Props) {
 
   return (
     <div>
-      <Note>
-        Google ドキュメントに「見出しの行 +
-        その下の箇条書き」で書いておくと、見出しごとに1本の木になる。文書を直したら「同期」を押すだけで、木が増えたり更新されたりする。何度押しても木は重複せず、落ちた回数も残る。文書から消した木は、アプリからも消える。文書の側は書き換えない
-      </Note>
+      <Note>{t.google.linkedNote}</Note>
 
       {docs.length > 0 && (
         <ul className="mt-3">
@@ -125,16 +120,21 @@ export function GoogleSection({ onChanged, onMessage }: Props) {
                 <div className="font-mincho text-base leading-[1.6] text-sumi">{doc.title}</div>
                 <div className="font-gothic text-xs text-usuzumi">
                   {doc.lastSyncedAt
-                    ? `前回の同期 ${new Date(doc.lastSyncedAt).toLocaleString('ja-JP', { dateStyle: 'short', timeStyle: 'short' })}`
-                    : 'まだ同期していない'}
+                    ? t.google.lastSynced(
+                        new Date(doc.lastSyncedAt).toLocaleString(
+                          lang === 'ja' ? 'ja-JP' : 'en-US',
+                          { dateStyle: 'short', timeStyle: 'short' },
+                        ),
+                      )
+                    : t.google.neverSynced}
                 </div>
               </div>
               <div className="flex shrink-0 items-center gap-3">
                 <Button kind="text" onClick={() => unlink(doc.docId)} disabled={busy}>
-                  外す
+                  {t.google.unlink}
                 </Button>
                 <Button onClick={() => sync([doc.docId])} disabled={busy}>
-                  同期
+                  {t.sync.one}
                 </Button>
               </div>
             </li>
@@ -149,7 +149,7 @@ export function GoogleSection({ onChanged, onMessage }: Props) {
           onClick={() => sync(docs.map((d) => d.docId))}
           disabled={busy}
         >
-          すべて同期
+          {t.sync.all}
         </Button>
       )}
 
@@ -157,14 +157,14 @@ export function GoogleSection({ onChanged, onMessage }: Props) {
         value={url}
         onChange={(event) => setUrl(event.target.value)}
         placeholder="https://docs.google.com/document/d/..."
-        aria-label="Google ドキュメントの URL"
+        aria-label={t.google.urlLabel}
         autoCapitalize="off"
         spellCheck={false}
         className={`mt-4 ${INPUT_CLASS}`}
       />
       <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
         <Button kind="solid" onClick={addDoc} disabled={busy || url.trim() === ''}>
-          {busy ? '同期中' : 'この文書を登録して同期'}
+          {busy ? t.sync.syncing : t.google.addAndSync}
         </Button>
         <Button
           kind="text"
@@ -174,7 +174,7 @@ export function GoogleSection({ onChanged, onMessage }: Props) {
           }}
           disabled={busy}
         >
-          クライアント ID を変える
+          {t.google.changeClientId}
         </Button>
       </div>
     </div>

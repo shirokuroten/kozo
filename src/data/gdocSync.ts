@@ -16,7 +16,7 @@ export async function syncGoogleDoc(
 ): Promise<SyncResult> {
   const token = await getAccessToken(clientId);
   const googleDoc = await fetchGoogleDoc(docId, token);
-  const title = googleDoc.title ?? '無題の文書';
+  const title = googleDoc.title ?? 'Untitled document';
   const plan = planSync(await repo.listTrees(), docId, docToTrees(googleDoc), now, title);
   await repo.applySync(
     plan.put,

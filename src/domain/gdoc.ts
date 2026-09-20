@@ -104,7 +104,7 @@ export function docToTrees(doc: GoogleDoc): DocTree[] {
   // In a document with only one tab, including the tab name (usually "Tab 1") in the location adds nothing
   const single = doc.tabs.length === 1 && !doc.tabs[0].childTabs?.length;
   const walk = (tab: GoogleDocTab, parents: string[]): DocTree[] => {
-    const path = single ? [] : [...parents, tab.tabProperties?.title ?? '無題のタブ'];
+    const path = single ? [] : [...parents, tab.tabProperties?.title ?? 'Untitled tab'];
     return [
       ...bodyToTrees(tab.documentTab?.body, path),
       ...(tab.childTabs ?? []).flatMap((child) => walk(child, path)),

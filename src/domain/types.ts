@@ -1,3 +1,6 @@
+// The UI language. Lives here so that domain helpers that format text do not depend on React
+export type Lang = 'ja' | 'en';
+
 export type NodeId = string;
 
 export interface Node {

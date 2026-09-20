@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { ShelfGroup } from '../domain/shelf';
+import { useI18n } from './i18n';
 import { TreeRow } from './TreeRow';
 import { Indent } from './TreeView';
 
@@ -33,6 +34,7 @@ interface GroupProps {
 }
 
 function Group({ group, depth, today, openKeys, onToggle }: GroupProps) {
+  const { t } = useI18n();
   const open = openKeys.has(group.key);
   return (
     <Indent depth={depth}>
@@ -44,8 +46,8 @@ function Group({ group, depth, today, openKeys, onToggle }: GroupProps) {
       >
         <span className="font-mincho text-base leading-[1.6] text-sumi">{group.name}</span>
         <span className="flex shrink-0 gap-3 font-gothic text-xs text-usuzumi">
-          <span>{group.count} 本</span>
-          <span>{open ? '閉じる' : '開く'}</span>
+          <span>{t.shelf.treeCount(group.count)}</span>
+          <span>{open ? t.shelf.close : t.shelf.open}</span>
         </span>
       </button>
       {open && <Contents group={group} depth={depth + 1} {...{ today, openKeys, onToggle }} />}

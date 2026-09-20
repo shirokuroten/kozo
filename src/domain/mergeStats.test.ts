@@ -7,7 +7,7 @@ function find(root: Node, ...path: string[]): Node {
   let node = root;
   for (const text of path) {
     const child = node.children.find((c) => c.text === text);
-    if (!child) throw new Error(`節が見つからない: ${text}`);
+    if (!child) throw new Error(`Node not found: ${text}`);
     node = child;
   }
   return node;

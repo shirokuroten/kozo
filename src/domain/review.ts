@@ -53,7 +53,7 @@ export function applyReview(
 ): { tree: Tree; log: ReviewLog } {
   const { total, correct, finished } = summarize(tree.root, grades);
   // Moving the interval on a partial result would treat unopened nodes as "recalled"
-  if (!finished) throw new Error('採点が終わっていない展開は保存できない');
+  if (!finished) throw new Error('Cannot save a review before every node is graded');
 
   const ratio = correct / total;
   return {

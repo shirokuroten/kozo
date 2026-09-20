@@ -95,7 +95,7 @@ describe('buildShelf', () => {
 
   it('groups older synced trees that have no document title under an untitled document', () => {
     const tree: Tree = { ...manual('根'), source: { kind: 'gdoc', docId: 'd', path: ['章'] } };
-    expect(shape(buildShelf([tree])).groups[0].name).toBe('無題の文書');
+    expect(shape(buildShelf([tree])).groups[0].name).toBe('Untitled document');
   });
 });
 

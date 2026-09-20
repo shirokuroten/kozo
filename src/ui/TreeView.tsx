@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { shelfPath } from '../domain/shelf';
 import { nodeTone, type NodeTone } from '../domain/tree';
 import type { Node, Tree } from '../domain/types';
+import { useI18n } from './i18n';
 
 export const TONE_CLASS: Record<NodeTone, string> = {
   shu: 'text-shu',
@@ -27,12 +28,15 @@ export function nodeTextClass(depth: number): string {
 }
 
 export function TreeView({ node, depth = 0 }: { node: Node; depth?: number }) {
+  const { t } = useI18n();
   return (
     <Indent depth={depth}>
       <div className={`py-1 ${nodeTextClass(depth)} ${TONE_CLASS[nodeTone(node)]}`}>
         {node.text}
         {node.missCount > 0 && (
-          <span className="ml-2 font-gothic text-xs text-usuzumi">落 {node.missCount}</span>
+          <span className="ml-2 font-gothic text-xs text-usuzumi">
+            {t.view.missCount(node.missCount)}
+          </span>
         )}
       </div>
       {node.children.map((child) => (

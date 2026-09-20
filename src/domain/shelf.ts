@@ -11,7 +11,7 @@ export interface ShelfGroup {
   count: number;
 }
 
-const UNTITLED_DOC = '無題の文書';
+const UNTITLED_DOC = 'Untitled document';
 const KEY_SEPARATOR = '\n';
 
 export function shelfPath(tree: Tree): string[] {

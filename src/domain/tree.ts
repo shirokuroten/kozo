@@ -1,6 +1,6 @@
 import { mergeStats } from './mergeStats';
 import { initialSrs } from './schedule';
-import type { Node, Tree } from './types';
+import type { Lang, Node, Tree } from './types';
 
 // The root is not graded, so it is not counted
 export function countNodes(root: Node): number {
@@ -48,11 +48,32 @@ export function toLocalDate(date: Date): string {
   return `${y}-${m}-${d}`;
 }
 
+const MONTHS_EN = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
+];
+
 // The "next due date" shown on screen. The year is omitted for dates in the current year.
-export function formatDue(due: string, today: string): string {
+// Month names are a fixed table rather than Intl, so the output does not vary with the runtime.
+export function formatDue(due: string, today: string, lang: Lang): string {
   const [y, m, d] = due.split('-').map(Number);
-  const monthDay = `${m}月${d}日`;
-  return due.slice(0, 4) === today.slice(0, 4) ? monthDay : `${y}年${monthDay}`;
+  const sameYear = due.slice(0, 4) === today.slice(0, 4);
+  if (lang === 'ja') {
+    const monthDay = `${m}月${d}日`;
+    return sameYear ? monthDay : `${y}年${monthDay}`;
+  }
+  const monthDay = `${MONTHS_EN[m - 1]} ${d}`;
+  return sameYear ? monthDay : `${monthDay}, ${y}`;
 }
 
 // Saving an edit. The spaced repetition state belongs to the tree, so it carries over even when

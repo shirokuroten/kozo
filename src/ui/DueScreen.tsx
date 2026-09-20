@@ -1,25 +1,25 @@
 import { partitionByDue } from '../domain/tree';
 import type { Tree } from '../domain/types';
 import { Button } from './Button';
+import { useI18n } from './i18n';
 import { Note } from './Note';
 import { navigate } from './route';
 import { TreeRow } from './TreeRow';
 
 // A list ordered by spaced repetition. This screen is for deciding which tree to open first when the user wants to review
 export function DueScreen({ trees, today }: { trees: Tree[]; today: string }) {
+  const { t } = useI18n();
   const { dueToday, later } = partitionByDue(trees, today);
   return (
     <div>
       <Button kind="text" className="mb-2" onClick={() => navigate({ name: 'home' })}>
-        戻る
+        {t.common.back}
       </Button>
-      <h1 className="font-mincho text-[20px] leading-[1.6] text-sumi">出番</h1>
-      <Note>
-        前に落ちた節が多い木ほど早く出番が来る。全部やる必要はない。時間のあるときに上から開く
-      </Note>
+      <h1 className="font-mincho text-[20px] leading-[1.6] text-sumi">{t.due.title}</h1>
+      <Note>{t.due.note}</Note>
 
       <section className="mt-6 mb-6">
-        <h2 className="mb-1 font-gothic text-sm text-sumi">出番が来ている {dueToday.length} 本</h2>
+        <h2 className="mb-1 font-gothic text-sm text-sumi">{t.due.dueNow(dueToday.length)}</h2>
         <ul>
           {dueToday.map((tree) => (
             <TreeRow key={tree.id} tree={tree} today={today} showPath emphasizeReview />
@@ -29,7 +29,7 @@ export function DueScreen({ trees, today }: { trees: Tree[]; today: string }) {
 
       {later.length > 0 && (
         <section className="mb-6">
-          <h2 className="mb-1 font-gothic text-sm text-usuzumi">この先</h2>
+          <h2 className="mb-1 font-gothic text-sm text-usuzumi">{t.due.later}</h2>
           <ul>
             {later.map((tree) => (
               <TreeRow key={tree.id} tree={tree} today={today} showPath />

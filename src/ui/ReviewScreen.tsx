@@ -3,6 +3,7 @@ import { repository } from '../data';
 import { applyReview, summarize, type Grades } from '../domain/review';
 import type { Node, Tree } from '../domain/types';
 import { Button } from './Button';
+import { useI18n } from './i18n';
 import { NotFound } from './Note';
 import { navigate } from './route';
 import { Indent, nodeTextClass, TreePath } from './TreeView';
@@ -25,6 +26,7 @@ function GradeButton({
   selected: boolean;
   onClick: () => void;
 }) {
+  const { t } = useI18n();
   const tone = value
     ? selected
       ? 'border-koke bg-koke text-white'
@@ -36,7 +38,7 @@ function GradeButton({
     <button
       type="button"
       onClick={onClick}
-      aria-label={value ? '言えた' : '言えなかった'}
+      aria-label={value ? t.review.recalled : t.review.missed}
       aria-pressed={selected}
       className={`h-9 w-9 rounded-full border text-base leading-none ${tone}`}
     >
@@ -46,6 +48,7 @@ function GradeButton({
 }
 
 function ReviewNode({ node, depth, opened, grades, onOpen, onGrade }: NodeProps) {
+  const { t } = useI18n();
   const grade = grades[node.id];
   const hasChildren = node.children.length > 0;
   const isOpen = opened.has(node.id);
@@ -80,7 +83,7 @@ function ReviewNode({ node, depth, opened, grades, onOpen, onGrade }: NodeProps)
           onClick={() => onOpen(node.id)}
           className="my-1 ml-[14px] rounded border border-dashed border-rule bg-white px-3 py-2 text-left font-gothic text-sm text-usuzumi"
         >
-          枝が {node.children.length} 本。思い出してから開く
+          {t.review.expand(node.children.length)}
         </button>
       )}
 
@@ -107,12 +110,13 @@ interface Props {
 }
 
 export function ReviewScreen({ tree, today, onChanged }: Props) {
+  const { t } = useI18n();
   const [opened, setOpened] = useState<ReadonlySet<string>>(new Set());
   const [grades, setGrades] = useState<Grades>({});
   const [saving, setSaving] = useState(false);
   const { total, graded, correct, finished } = summarize(tree.root, grades);
 
-  if (total === 0) return <NotFound>この木にはまだ節がない。編集で枝を書いてから展開する</NotFound>;
+  if (total === 0) return <NotFound>{t.review.noNodes}</NotFound>;
 
   const save = async () => {
     setSaving(true);
@@ -125,11 +129,11 @@ export function ReviewScreen({ tree, today, onChanged }: Props) {
   return (
     <div>
       <div className="mb-4 flex items-center justify-between font-gothic text-sm text-usuzumi">
-        <span aria-label={`採点済み ${graded}、全 ${total} 節`}>
+        <span aria-label={t.review.progressLabel(graded, total)}>
           {graded} / {total}
         </span>
         <Button kind="text" onClick={() => navigate({ name: 'home' })}>
-          中断
+          {t.review.stop}
         </Button>
       </div>
 
@@ -146,12 +150,10 @@ export function ReviewScreen({ tree, today, onChanged }: Props) {
       {finished && (
         <div className="mt-8 border-t border-rule pt-4">
           <p className="font-mincho text-base leading-[1.6] text-sumi">
-            {correct === total
-              ? `${total} / ${total} が言えた。木が丸ごと再現できている`
-              : `${correct} / ${total} が言えた。落ちた節は次回、木の上で朱色で表示される`}
+            {correct === total ? t.review.allRecalled(total) : t.review.someMissed(correct, total)}
           </p>
           <Button kind="solid" className="mt-3" onClick={save} disabled={saving}>
-            結果を保存
+            {t.review.saveResult}
           </Button>
         </div>
       )}

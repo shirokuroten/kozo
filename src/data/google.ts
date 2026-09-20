@@ -48,7 +48,7 @@ export function loadGoogleSignIn(): Promise<void> {
     script.onload = () => resolve();
     script.onerror = () => {
       gisLoading = null;
-      reject(new Error('Google に接続できない。通信できる場所で試す'));
+      reject(new Error('Could not reach Google. Try again when online'));
     };
     document.head.appendChild(script);
   });
@@ -68,7 +68,7 @@ export async function getAccessToken(clientId: string): Promise<string> {
       scope: SCOPE,
       callback: (response) => {
         if (!response.access_token) {
-          reject(new Error(`Google の許可が得られなかった（${response.error ?? '不明'}）`));
+          reject(new Error(`Google did not grant access (${response.error ?? 'unknown'})`));
           return;
         }
         cached = {
@@ -82,8 +82,8 @@ export async function getAccessToken(clientId: string): Promise<string> {
         reject(
           new Error(
             error.type === 'popup_closed'
-              ? 'ログインの窓が閉じられた'
-              : 'ログインの窓を開けなかった。ポップアップの禁止を解除する',
+              ? 'The sign-in window was closed'
+              : 'Could not open the sign-in window. Allow pop-ups for this site',
           ),
         );
       },
@@ -99,10 +99,10 @@ export async function fetchGoogleDoc(docId: string, token: string): Promise<Goog
   const response = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
   if (response.status === 401) {
     cached = null;
-    throw new Error('ログインの期限が切れた。もう一度同期する');
+    throw new Error('Sign-in expired. Sync again');
   }
-  if (response.status === 403) throw new Error('この文書を読む権限がない');
-  if (response.status === 404) throw new Error('文書が見つからない');
-  if (!response.ok) throw new Error(`Google から読めなかった（${response.status}）`);
+  if (response.status === 403) throw new Error('No permission to read this document');
+  if (response.status === 404) throw new Error('Document not found');
+  if (!response.ok) throw new Error(`Could not read from Google (${response.status})`);
   return (await response.json()) as GoogleDoc;
 }

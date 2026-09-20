@@ -17,8 +17,8 @@ export default defineConfig({
         name: 'Outline Recall',
         // The label under a home screen icon is cut off at around 12 characters, so the short name is a single word
         short_name: 'Recall',
-        description: '知識を木として書き、上から展開して再現する',
-        lang: 'ja',
+        description: 'Write what you study as outline trees, then recall them from the top',
+        lang: 'en',
         display: 'standalone',
         start_url: '.',
         scope: '.',

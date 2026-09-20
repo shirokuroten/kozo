@@ -6,12 +6,13 @@ import { DataScreen } from './ui/DataScreen';
 import { DueScreen } from './ui/DueScreen';
 import { EditScreen } from './ui/EditScreen';
 import { Home } from './ui/Home';
+import { useI18n, type Messages } from './ui/i18n';
 import { NotFound, Note } from './ui/Note';
 import { ReviewScreen } from './ui/ReviewScreen';
 import { useRoute, type Route } from './ui/route';
 import { ViewScreen } from './ui/ViewScreen';
 
-function renderScreen(route: Route, trees: Tree[], reload: () => Promise<void>) {
+function renderScreen(route: Route, trees: Tree[], reload: () => Promise<void>, t: Messages) {
   // Recompute today on every screen change, in case the app stays open across midnight
   const today = toLocalDate(new Date());
   if (route.name === 'home') return <Home trees={trees} today={today} onChanged={reload} />;
@@ -20,7 +21,7 @@ function renderScreen(route: Route, trees: Tree[], reload: () => Promise<void>) 
   if (route.name === 'data') return <DataScreen today={today} onChanged={reload} />;
 
   const tree = trees.find((t) => t.id === route.id);
-  if (!tree) return <NotFound>この木は見つからない</NotFound>;
+  if (!tree) return <NotFound>{t.common.treeNotFound}</NotFound>;
   if (route.name === 'view') return <ViewScreen tree={tree} today={today} onChanged={reload} />;
   if (route.name === 'edit') return <EditScreen key={tree.id} tree={tree} onChanged={reload} />;
   return <ReviewScreen key={tree.id} tree={tree} today={today} onChanged={reload} />;
@@ -28,6 +29,7 @@ function renderScreen(route: Route, trees: Tree[], reload: () => Promise<void>) 
 
 export default function App() {
   const route = useRoute();
+  const { t } = useI18n();
   const [trees, setTrees] = useState<Tree[] | null>(null);
   const [failed, setFailed] = useState(false);
 
@@ -45,11 +47,11 @@ export default function App() {
   return (
     <main className="mx-auto min-h-screen max-w-[520px] px-5 pt-[max(1.5rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))]">
       {failed ? (
-        <Note>端末内のデータを開けなかった。ブラウザの設定で保存が禁止されていないか確認する</Note>
+        <Note>{t.common.dbFailed}</Note>
       ) : trees === null ? (
-        <Note>読み込み中</Note>
+        <Note>{t.common.loading}</Note>
       ) : (
-        renderScreen(route, trees, reload)
+        renderScreen(route, trees, reload, t)
       )}
     </main>
   );

@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { countLastMissed, countNodes, formatDue } from '../domain/tree';
 import type { Tree } from '../domain/types';
 import { Button } from './Button';
+import { useI18n } from './i18n';
 import { navigate } from './route';
 import { TreePath } from './TreeView';
 
@@ -22,6 +23,7 @@ export function TreeRow({
   emphasizeReview = false,
   children,
 }: Props) {
+  const { lang, t } = useI18n();
   const missed = countLastMissed(tree.root);
   const { due } = tree.srs;
   return (
@@ -34,10 +36,10 @@ export function TreeRow({
         {showPath && <TreePath tree={tree} />}
         <div className="font-mincho text-[17px] leading-[1.6] text-sumi">{tree.root.text}</div>
         <div className="mt-0.5 flex flex-wrap gap-x-3 font-gothic text-xs text-usuzumi">
-          <span>{countNodes(tree.root)} 節</span>
-          {missed > 0 && <span className="text-shu">前回 {missed} 節で落ちた</span>}
-          {due === null && <span>まだ一度も展開していない</span>}
-          {due !== null && due > today && <span>次の出番 {formatDue(due, today)}</span>}
+          <span>{t.common.nodeCount(countNodes(tree.root))}</span>
+          {missed > 0 && <span className="text-shu">{t.row.missedLast(missed)}</span>}
+          {due === null && <span>{t.row.neverReviewed}</span>}
+          {due !== null && due > today && <span>{t.row.nextDue(formatDue(due, today, lang))}</span>}
         </div>
         {children}
       </button>
@@ -46,7 +48,7 @@ export function TreeRow({
         className="shrink-0"
         onClick={() => navigate({ name: 'review', id: tree.id })}
       >
-        展開
+        {t.row.review}
       </Button>
     </li>
   );

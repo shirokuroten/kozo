@@ -87,16 +87,16 @@ export function parseImport(json: string): { trees: Tree[]; reviewLogs: ReviewLo
   try {
     data = JSON.parse(json);
   } catch {
-    throw new Error('JSON として読めない');
+    throw new Error('Not valid JSON');
   }
-  if (!isObject(data) || data.app !== APP) throw new Error('このアプリの書き出しファイルではない');
-  if (data.version !== VERSION) throw new Error('このファイルの版には対応していない');
+  if (!isObject(data) || data.app !== APP) throw new Error('Not an Outline Recall export file');
+  if (data.version !== VERSION) throw new Error('Unsupported export version');
 
   const trees = data.trees;
   const reviewLogs = data.reviewLogs ?? [];
-  if (!Array.isArray(trees) || !trees.every(isTree)) throw new Error('木の形が壊れている');
+  if (!Array.isArray(trees) || !trees.every(isTree)) throw new Error('Tree data is malformed');
   if (!Array.isArray(reviewLogs) || !reviewLogs.every(isReviewLog)) {
-    throw new Error('履歴の形が壊れている');
+    throw new Error('Review log data is malformed');
   }
   return { trees, reviewLogs };
 }

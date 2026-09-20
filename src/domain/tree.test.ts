@@ -89,8 +89,14 @@ describe('toLocalDate', () => {
 
 describe('formatDue', () => {
   it('shows only month and day for dates this year, and includes the year otherwise', () => {
-    expect(formatDue('2026-09-05', '2026-09-19')).toBe('9月5日');
-    expect(formatDue('2027-01-05', '2026-12-28')).toBe('2027年1月5日');
+    expect(formatDue('2026-09-05', '2026-09-19', 'ja')).toBe('9月5日');
+    expect(formatDue('2027-01-05', '2026-12-28', 'ja')).toBe('2027年1月5日');
+  });
+
+  it('uses abbreviated month names in English', () => {
+    expect(formatDue('2026-09-25', '2026-09-19', 'en')).toBe('Sep 25');
+    expect(formatDue('2027-09-25', '2026-09-19', 'en')).toBe('Sep 25, 2027');
+    expect(formatDue('2027-01-05', '2026-12-28', 'en')).toBe('Jan 5, 2027');
   });
 });
 

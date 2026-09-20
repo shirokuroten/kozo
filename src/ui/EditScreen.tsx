@@ -5,15 +5,10 @@ import { parseOutline, toOutline } from '../domain/outline';
 import { applyEdit, createTree } from '../domain/tree';
 import type { Tree } from '../domain/types';
 import { Button } from './Button';
+import { useI18n } from './i18n';
 import { Note } from './Note';
 import { navigate, setNavigationGuard } from './route';
 import { TreeView } from './TreeView';
-
-const PLACEHOLDER = `見出し
-  枝
-    内容
-  枝
-    内容`;
 
 interface Props {
   tree?: Tree;
@@ -21,6 +16,7 @@ interface Props {
 }
 
 export function EditScreen({ tree, onChanged }: Props) {
+  const { t } = useI18n();
   const initialText = useMemo(() => (tree ? toOutline(tree.root) : ''), [tree]);
   const [text, setText] = useState(initialText);
   const parsed = useMemo(() => parseOutline(text), [text]);
@@ -33,9 +29,11 @@ export function EditScreen({ tree, onChanged }: Props) {
   // Do not show the confirmation for the navigation that happens right after saving
   const saved = useRef(false);
 
+  const confirmLeaveText = t.edit.confirmLeave;
+
   useEffect(() => {
     if (!dirty) return;
-    const confirmLeave = () => saved.current || window.confirm('保存していない。このまま離れる');
+    const confirmLeave = () => saved.current || window.confirm(confirmLeaveText);
     const onBeforeUnload = (event: BeforeUnloadEvent) => {
       if (!saved.current) event.preventDefault();
     };
@@ -45,7 +43,7 @@ export function EditScreen({ tree, onChanged }: Props) {
       setNavigationGuard(null);
       window.removeEventListener('beforeunload', onBeforeUnload);
     };
-  }, [dirty]);
+  }, [dirty, confirmLeaveText]);
 
   const back = () => navigate(tree ? { name: 'view', id: tree.id } : { name: 'home' });
 
@@ -61,13 +59,13 @@ export function EditScreen({ tree, onChanged }: Props) {
 
   return (
     <div>
-      <Note>1行目が見出し。行頭の空白2つ（または全角空白）で1段深くなる</Note>
+      <Note>{t.edit.hint}</Note>
       <textarea
         value={text}
         onChange={(event) => setText(event.target.value)}
         rows={12}
-        placeholder={PLACEHOLDER}
-        aria-label="アウトライン"
+        placeholder={t.edit.placeholder}
+        aria-label={t.edit.outlineLabel}
         spellCheck={false}
         autoCapitalize="off"
         className="mt-2 w-full rounded border border-rule bg-white p-3 font-gothic text-base leading-[1.7] text-sumi placeholder:text-rule"
@@ -79,9 +77,9 @@ export function EditScreen({ tree, onChanged }: Props) {
       )}
       <div className="mt-4 flex gap-2">
         <Button kind="solid" onClick={save} disabled={!preview}>
-          この木を保存
+          {t.edit.save}
         </Button>
-        <Button onClick={back}>戻る</Button>
+        <Button onClick={back}>{t.common.back}</Button>
       </div>
     </div>
   );
