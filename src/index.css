@@ -1,6 +1,6 @@
 @import 'tailwindcss';
 
-/* 色と書体は docs/DESIGN.md の表をそのまま写す。ここ以外で色の値を直書きしない */
+/* Colors and typefaces are copied as is from the table in docs/DESIGN.md. Do not hard-code color values anywhere else */
 @theme {
   --color-paper: #fafbf9;
   --color-sumi: #22304a;

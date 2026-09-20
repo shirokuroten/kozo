@@ -14,14 +14,14 @@ beforeEach(() => {
 });
 
 describe('repository', () => {
-  it('木を保存して読み出せる', async () => {
+  it('saves and reads back a tree', async () => {
     const tree = createTree(parseOutline('根\n  枝')!, NOW);
     await repo.saveTree(tree);
     expect(await repo.getTree(tree.id)).toEqual(tree);
     expect(await repo.listTrees()).toEqual([tree]);
   });
 
-  it('同じ id で保存すると置き換える', async () => {
+  it('replaces a tree when saved with the same id', async () => {
     const tree = createTree(parseOutline('根\n  枝')!, NOW);
     await repo.saveTree(tree);
     await repo.saveTree({ ...tree, root: parseOutline('別の根')! });
@@ -30,14 +30,14 @@ describe('repository', () => {
     expect(all[0].root.text).toBe('別の根');
   });
 
-  it('木を削除できる', async () => {
+  it('deletes a tree', async () => {
     const tree = createTree(parseOutline('根')!, NOW);
     await repo.saveTree(tree);
     await repo.deleteTree(tree.id);
     expect(await repo.listTrees()).toEqual([]);
   });
 
-  it('展開の保存で木の更新と履歴の追記を同時に行う', async () => {
+  it('updates the tree and appends the history together when saving a review', async () => {
     const tree = createTree(parseOutline('根\n  枝')!, NOW);
     await repo.saveTree(tree);
     const log = { id: 'log1', treeId: tree.id, date: '2026-09-19', ratio: 1, missedNodeIds: [] };
@@ -46,7 +46,7 @@ describe('repository', () => {
     expect(await repo.listReviewLogs()).toEqual([log]);
   });
 
-  it('読み込みは既存の木を消さず、同じ id は新しい方を残す', async () => {
+  it('imports without deleting existing trees, keeping the newer one for the same id', async () => {
     const mine = createTree(parseOutline('手元の木')!, NOW);
     const shared = createTree(parseOutline('共有の木')!, NOW);
     await repo.addTrees([mine, shared]);
@@ -60,7 +60,7 @@ describe('repository', () => {
     const log = { id: 'log1', treeId: added.id, date: '2026-09-19', ratio: 1, missedNodeIds: [] };
 
     expect(await repo.importData([older, added], [log])).toEqual({ trees: 1 });
-    // 同じ履歴をもう一度読み込んでも増えない
+    // Importing the same history again does not add duplicates
     await repo.importData([], [log]);
 
     const texts = (await repo.listTrees()).map((t) => t.root.text).sort();
@@ -68,7 +68,7 @@ describe('repository', () => {
     expect(await repo.listReviewLogs()).toHaveLength(1);
   });
 
-  it('同期の反映で、書き込みと削除を一度に行う', async () => {
+  it('writes and deletes at once when applying a sync', async () => {
     const stay = createTree(parseOutline('残る木')!, NOW);
     const gone = createTree(parseOutline('消える木')!, NOW);
     await repo.addTrees([stay, gone]);
@@ -79,7 +79,7 @@ describe('repository', () => {
     expect(all.find((t) => t.id === stay.id)!.updatedAt).toBe('later');
   });
 
-  it('Google の設定と登録した文書を覚える', async () => {
+  it('remembers the Google settings and the linked documents', async () => {
     expect(await repo.getGoogleClientId()).toBe('');
     expect(await repo.listLinkedDocs()).toEqual([]);
     await repo.setGoogleClientId('abc.apps.googleusercontent.com');
@@ -90,7 +90,7 @@ describe('repository', () => {
   });
 
   describe('ensureSample', () => {
-    it('初回はサンプルの木を1本だけ入れる', async () => {
+    it('inserts exactly one sample tree on first launch', async () => {
       await repo.ensureSample(NOW);
       const all = await repo.listTrees();
       expect(all).toHaveLength(1);
@@ -98,12 +98,12 @@ describe('repository', () => {
       expect(all[0].root.children).toHaveLength(3);
     });
 
-    it('同時に2回呼ばれても1本しか入れない', async () => {
+    it('inserts only one tree even when called twice at the same time', async () => {
       await Promise.all([repo.ensureSample(NOW), repo.ensureSample(NOW)]);
       expect(await repo.listTrees()).toHaveLength(1);
     });
 
-    it('サンプルを消した後は入れ直さない', async () => {
+    it('does not reinsert the sample after it was deleted', async () => {
       await repo.ensureSample(NOW);
       const [sample] = await repo.listTrees();
       await repo.deleteTree(sample.id);

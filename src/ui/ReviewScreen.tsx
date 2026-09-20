@@ -49,7 +49,7 @@ function ReviewNode({ node, depth, opened, grades, onOpen, onGrade }: NodeProps)
   const grade = grades[node.id];
   const hasChildren = node.children.length > 0;
   const isOpen = opened.has(node.id);
-  // 採点前の節の下には子を出さない。上から順に展開する動きを崩さないため
+  // Children are not shown under a node that has not been graded yet, to preserve the top-down order of the review
   const canOpen = depth === 0 || grade !== undefined;
 
   return (

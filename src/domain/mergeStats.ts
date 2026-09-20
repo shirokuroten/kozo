@@ -1,12 +1,12 @@
 import type { Node } from './types';
 
-// 文言に改行は入らない（アウトラインの1行が1節）ので、パスの区切りに使える
+// Node text never contains a newline (one outline line is one node), so it is safe as a path separator
 const SEPARATOR = '\n';
 
-// 編集後の木に、編集前の木の id と統計を引き継ぐ。
-// 「根からのパス上の文言の並び」が一致する節を同一とみなす
+// Carry the ids and stats of the tree before the edit over to the tree after the edit.
+// Nodes whose "sequence of texts along the path from the root" matches are treated as the same node.
 export function mergeStats(oldRoot: Node, newRoot: Node): Node {
-  // 同じパスの節が複数あるときは、上から順に1つずつ対応させる
+  // When several nodes share the same path, they are paired one by one from the top
   const oldByPath = new Map<string, Node[]>();
   const collect = (node: Node, parentPath: string) => {
     const path = parentPath + SEPARATOR + node.text;

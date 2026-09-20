@@ -7,7 +7,7 @@ export interface SyncResult {
   plan: SyncPlan;
 }
 
-// 文書を1つ読み、木に反映する。文書からアプリへの一方向で、文書には何も書き込まない
+// Reads one document and applies it to the trees. It is one-way, from the document to the app, and nothing is written to the document
 export async function syncGoogleDoc(
   repo: Repository,
   clientId: string,

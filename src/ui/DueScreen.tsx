@@ -5,7 +5,7 @@ import { Note } from './Note';
 import { navigate } from './route';
 import { TreeRow } from './TreeRow';
 
-// 間隔反復の順に並べた一覧。復習したいときに、どの木から開くかを決めるための画面
+// A list ordered by spaced repetition. This screen is for deciding which tree to open first when the user wants to review
 export function DueScreen({ trees, today }: { trees: Tree[]; today: string }) {
   const { dueToday, later } = partitionByDue(trees, today);
   return (

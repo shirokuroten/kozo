@@ -5,13 +5,13 @@ import { Indent } from './TreeView';
 
 const STORAGE_KEY = 'kozo:openGroups';
 
-// 開閉はその端末の見た目の好みなので、木のデータとは別に軽く覚えておく
+// Which groups are open is a display preference of this device, so it is remembered lightly, apart from the tree data
 function loadOpenKeys(fallback: string[]): Set<string> {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) return new Set(JSON.parse(saved) as string[]);
   } catch {
-    // 保存が使えない環境では、毎回はじめの状態から始める
+    // Where storage is unavailable, start from the initial state every time
   }
   return new Set(fallback);
 }
@@ -20,7 +20,7 @@ function saveOpenKeys(keys: Set<string>): void {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify([...keys]));
   } catch {
-    // 覚えられなくても動作には困らない
+    // Failing to remember this does not break anything
   }
 }
 
@@ -73,7 +73,7 @@ function Contents({ group, depth, today, openKeys, onToggle }: GroupProps) {
 }
 
 export function Shelf({ shelf, today }: { shelf: ShelfGroup; today: string }) {
-  // はじめは文書の段だけ開き、編の並びが見えるようにする
+  // Initially only the document level is open, so the list of tabs (the parts of the book) is visible
   const [openKeys, setOpenKeys] = useState(() => loadOpenKeys(shelf.groups.map((g) => g.key)));
 
   const toggle = (key: string) => {

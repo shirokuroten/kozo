@@ -1,4 +1,4 @@
-// 同梱する木はこの1本だけ。使い方を示すためのもので、利用者が書き換える前提
+// This is the only tree bundled with the app. It exists to show how the app is used, and the user is expected to rewrite it
 export const SAMPLE_OUTLINE = `人権の三要素
   固有性
     人間であることにより当然に有する権利

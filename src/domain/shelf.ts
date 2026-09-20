@@ -1,13 +1,13 @@
 import type { Node, Tree } from './types';
 
-// 一覧の入れ子。文書 > タブ > 見出し > 木 の順にまとめる
+// The nesting of the list. Grouped in the order document > tab > heading > tree.
 export interface ShelfGroup {
   name: string;
-  // 開閉の状態を覚えるための一意な名前。根からの道筋をつないだもの
+  // A unique name used to remember the open or closed state. It joins the trail from the root.
   key: string;
   groups: ShelfGroup[];
   trees: Tree[];
-  // 下の階層も含めた木の本数
+  // Number of trees, including those in the levels below
   count: number;
 }
 
@@ -23,8 +23,9 @@ function compare<T>(a: T, b: T): number {
   return a < b ? -1 : a > b ? 1 : 0;
 }
 
-// 同期した木は文書ごとに、文書の中の順番どおりに。手で作った木は作った順に。
-// 文書どうしは利用者が登録した順。登録を外した文書の木は、その後ろに文書名の順で置く
+// Synced trees go document by document, in their order within the document. Trees made by hand go in creation order.
+// Documents themselves follow the order the user registered them in. Trees of documents that were
+// unregistered come after those, ordered by document title.
 function shelfOrder(a: Tree, b: Tree, docOrder: string[]): number {
   if (a.source && b.source) {
     const rank = (docId: string) => {
@@ -48,7 +49,7 @@ export function buildShelf(trees: Tree[], docOrder: string[] = []): ShelfGroup {
   for (const tree of [...trees].sort((a, b) => shelfOrder(a, b, docOrder))) {
     let group = root;
     group.count += 1;
-    // 同じ名前のタブが別の文書にあっても混ざらないよう、文書の段は id で見分ける
+    // The document level is told apart by id, so tabs with the same name in different documents do not get mixed
     const names = shelfPath(tree);
     names.forEach((name, depth) => {
       const part = depth === 0 ? `${tree.source!.docId}:${name}` : name;
@@ -68,11 +69,11 @@ export function buildShelf(trees: Tree[], docOrder: string[] = []): ShelfGroup {
 
 export interface SearchHit {
   tree: Tree;
-  // 語が当たった節。それぞれ、根の子からその節までの文言の道筋
+  // Nodes that a term matched. Each is the trail of texts from a child of the root down to that node.
   matches: string[][];
 }
 
-// 全角と半角、大文字と小文字の違いで取りこぼさないようにそろえる
+// Normalize so matches are not lost to full-width vs half-width or upper vs lower case differences
 function normalize(text: string): string {
   return text.normalize('NFKC').toLowerCase();
 }

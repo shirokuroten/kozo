@@ -12,10 +12,10 @@ export type KozoDb = Dexie & {
   meta: EntityTable<MetaEntry, 'key'>;
 };
 
-// 名前は旧名のまま。変えると、端末に入っている木が見えなくなる
+// The name stays as the old app name. Changing it would hide the trees already stored on the device
 export function openDb(name = 'kozo'): KozoDb {
   const db = new Dexie(name) as KozoDb;
-  // 木は丸ごと1レコード。節を索引にしない
+  // A whole tree is one record. Nodes are not indexed
   db.version(1).stores({
     trees: 'id',
     reviewLogs: 'id, treeId, date',

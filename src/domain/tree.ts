@@ -2,7 +2,7 @@ import { mergeStats } from './mergeStats';
 import { initialSrs } from './schedule';
 import type { Node, Tree } from './types';
 
-// 根は採点の対象ではないので数えない
+// The root is not graded, so it is not counted
 export function countNodes(root: Node): number {
   return root.children.reduce((sum, child) => sum + 1 + countNodes(child), 0);
 }
@@ -39,7 +39,8 @@ export function partitionByDue(trees: Tree[], today: string): { dueToday: Tree[]
   };
 }
 
-// 期日は利用者の暦日で数える。toISOString は UTC なので、日本では朝9時まで前日になってしまう
+// Due dates are counted in the user's calendar days. toISOString is UTC, so in Japan it would
+// still be the previous day until 9 a.m.
 export function toLocalDate(date: Date): string {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, '0');
@@ -47,14 +48,15 @@ export function toLocalDate(date: Date): string {
   return `${y}-${m}-${d}`;
 }
 
-// 画面に出す「次の出番」。今年の日付なら年は省く
+// The "next due date" shown on screen. The year is omitted for dates in the current year.
 export function formatDue(due: string, today: string): string {
   const [y, m, d] = due.split('-').map(Number);
   const monthDay = `${m}月${d}日`;
   return due.slice(0, 4) === today.slice(0, 4) ? monthDay : `${y}年${monthDay}`;
 }
 
-// 編集の保存。間隔反復の状態は木のものなので、中身を書き換えても引き継ぐ
+// Saving an edit. The spaced repetition state belongs to the tree, so it carries over even when
+// the content is rewritten.
 export function applyEdit(tree: Tree, newRoot: Node, now: string): Tree {
   return { ...tree, root: mergeStats(tree.root, newRoot), updatedAt: now };
 }

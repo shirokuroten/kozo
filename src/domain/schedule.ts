@@ -14,7 +14,7 @@ export function ratioToQuality(ratio: number): number {
   return 1;
 }
 
-// 端末のタイムゾーンや夏時間で日付がずれないよう、UTC の暦日として足す
+// Add as UTC calendar days so the date does not shift with the device's time zone or daylight saving time
 export function addDays(date: string, days: number): string {
   const [y, m, d] = date.split('-').map(Number);
   return new Date(Date.UTC(y, m - 1, d + days)).toISOString().slice(0, 10);
@@ -35,7 +35,8 @@ export function schedule(srs: Srs, ratio: number, today: string): Srs {
 
   const ease = Math.max(MIN_EASE, srs.ease + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02)));
 
-  // 落ちた節がある木は前倒しする。弱点は出題の中身ではなく間隔で効かせる
+  // A tree with missed nodes comes due sooner. Weak points are addressed through the interval,
+  // not through what gets asked.
   if (ratio < 1 && interval > 1) {
     interval = Math.max(1, Math.round(interval * ratio));
   }

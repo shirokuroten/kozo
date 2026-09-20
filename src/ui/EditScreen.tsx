@@ -24,13 +24,13 @@ export function EditScreen({ tree, onChanged }: Props) {
   const initialText = useMemo(() => (tree ? toOutline(tree.root) : ''), [tree]);
   const [text, setText] = useState(initialText);
   const parsed = useMemo(() => parseOutline(text), [text]);
-  // 保存後にどの節の統計が残るかを、書きながら色で確かめられるようにする
+  // Lets the user check by color, while writing, which nodes will keep their stats after saving
   const preview = useMemo(
     () => (parsed && tree ? mergeStats(tree.root, parsed) : parsed),
     [parsed, tree],
   );
   const dirty = text !== initialText;
-  // 保存した直後の画面移動では確認を出さない
+  // Do not show the confirmation for the navigation that happens right after saving
   const saved = useRef(false);
 
   useEffect(() => {

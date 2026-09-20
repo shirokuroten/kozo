@@ -1,7 +1,7 @@
 import { hasBullet, indentWidth } from './outline';
 import type { Node, ReviewLog, Srs, Tree } from './types';
 
-// 旧名のまま。変えると、前に書き出した控えを読み込めなくなる
+// Kept as the old name. Changing it would make previously exported backups unreadable.
 const APP = 'kozo';
 const VERSION = 1;
 
@@ -81,7 +81,7 @@ function isReviewLog(v: unknown): v is ReviewLog {
   );
 }
 
-// 壊れたファイルを入れると一覧ごと開けなくなるので、形を確かめてから渡す
+// Importing a broken file would make the whole list impossible to open, so check the shape before handing it over
 export function parseImport(json: string): { trees: Tree[]; reviewLogs: ReviewLog[] } {
   let data: unknown;
   try {
@@ -101,7 +101,7 @@ export function parseImport(json: string): { trees: Tree[]; reviewLogs: ReviewLo
   return { trees, reviewLogs };
 }
 
-// 読み込みは追加。同じ id の木は新しい方を残す
+// Import is additive. For trees with the same id, the newer one is kept.
 export function pickNewer(existing: Tree[], incoming: Tree[]): Tree[] {
   const updatedAt = new Map(existing.map((t) => [t.id, t.updatedAt]));
   return incoming.filter((t) => {
@@ -120,8 +120,9 @@ export function toMarkdown(root: Node): string {
   return lines.join('\n');
 }
 
-// まとめて取り込むときの切り分け。字下げも箇条書きの記号もない行を、新しい木の見出しとみなす。
-// 文書作成ソフトで「見出しの段落 + その下の箇条書き」を並べた文書を、そのまま貼れるようにするため
+// How a bulk import is split. A line with neither indentation nor a bullet marker is treated as
+// the heading of a new tree. This lets a document laid out in a word processor as
+// "heading paragraph + bullet list below it" be pasted as is.
 export function splitOutlines(text: string): string[] {
   const chunks: string[][] = [];
   for (const line of text.split(/\r?\n/)) {

@@ -9,13 +9,13 @@ export const TONE_CLASS: Record<NodeTone, string> = {
   sumi: 'text-sumi',
 };
 
-// 縦罫線だけで「誰の子か」を示す。番号や点は付けない
+// Vertical rules alone show whose child a node is. No numbers or bullets are added
 export function Indent({ depth, children }: { depth: number; children: ReactNode }) {
   if (depth === 0) return <div>{children}</div>;
   return <div className="ml-[14px] border-l border-rule pl-[14px]">{children}</div>;
 }
 
-// 同期した木の、文書の中での場所。同じ見出し（「要件」など）の木を見分けるために根の上に添える
+// The location of a synced tree within its document. Shown above the root to tell apart trees with the same heading (such as "Requirements")
 export function TreePath({ tree }: { tree: Tree }) {
   const path = shelfPath(tree);
   if (path.length === 0) return null;

@@ -9,14 +9,14 @@ const SEEDED_KEY = 'seeded';
 const GOOGLE_CLIENT_ID_KEY = 'googleClientId';
 const LINKED_DOCS_KEY = 'linkedDocs';
 
-// 同期の対象として登録した Google ドキュメント
+// A Google Doc the user linked as a sync source
 export interface LinkedDoc {
   docId: string;
   title: string;
   lastSyncedAt: string | null;
 }
 
-// UI はこの層だけを通してデータに触る
+// The UI touches data only through this layer
 export function createRepository(db: KozoDb = openDb()) {
   return {
     listTrees(): Promise<Tree[]> {
@@ -31,12 +31,12 @@ export function createRepository(db: KozoDb = openDb()) {
       await db.trees.put(tree);
     },
 
-    // 展開の履歴は残す。木を消しても「その日に展開した」事実は変わらない
+    // Keep the review history. Deleting a tree does not change the fact that it was reviewed that day
     async deleteTree(id: string): Promise<void> {
       await db.trees.delete(id);
     },
 
-    // 木の更新と履歴の追記が片方だけ成功することがないよう、1つのトランザクションで行う
+    // Use a single transaction so the tree update and the history append can never succeed one without the other
     async saveReview(tree: Tree, log: ReviewLog): Promise<void> {
       await db.transaction('rw', db.trees, db.reviewLogs, async () => {
         await db.trees.put(tree);
@@ -52,8 +52,8 @@ export function createRepository(db: KozoDb = openDb()) {
       await db.trees.bulkAdd(trees);
     },
 
-    // 同期の反映。足す、書き直す、消すを、途中で止まって半端な棚にならないよう一度に行う。
-    // 展開の履歴は残す（deleteTree と同じ考え方）
+    // Applies a sync. Adds, rewrites and deletes happen at once, so stopping midway cannot leave a half-updated shelf.
+    // The review history is kept (same reasoning as deleteTree)
     async applySync(put: Tree[], removeIds: string[]): Promise<void> {
       await db.transaction('rw', db.trees, async () => {
         await db.trees.bulkPut(put);
@@ -61,7 +61,7 @@ export function createRepository(db: KozoDb = openDb()) {
       });
     },
 
-    // 設定は端末の中だけに置く。書き出しファイルにも含めない
+    // Settings live only on the device. They are not included in the export file either
     async getGoogleClientId(): Promise<string> {
       return (await db.meta.get(GOOGLE_CLIENT_ID_KEY))?.value ?? '';
     },
@@ -79,7 +79,7 @@ export function createRepository(db: KozoDb = openDb()) {
       await db.meta.put({ key: LINKED_DOCS_KEY, value: JSON.stringify(docs) });
     },
 
-    // 既存のデータは消さない。同じ id の木は新しい方を残し、履歴は手元にないものだけ足す
+    // Never delete existing data. For trees with the same id keep the newer one, and add only the history entries not already on the device
     async importData(trees: Tree[], logs: ReviewLog[]): Promise<{ trees: number }> {
       return db.transaction('rw', db.trees, db.reviewLogs, async () => {
         const accepted = pickNewer(await db.trees.toArray(), trees);
@@ -89,7 +89,7 @@ export function createRepository(db: KozoDb = openDb()) {
       });
     },
 
-    // 初回起動のときだけサンプルを入れる。消した後に復活させないため、入れた事実を記録する
+    // Insert the sample only on first launch. Record that it was inserted, so it does not come back after the user deletes it
     async ensureSample(now: string): Promise<void> {
       await db.transaction('rw', db.trees, db.meta, async () => {
         if (await db.meta.get(SEEDED_KEY)) return;

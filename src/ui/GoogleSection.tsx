@@ -28,7 +28,7 @@ export function GoogleSection({ onChanged, onMessage }: Props) {
       setClientId(id);
       setSavedClientId(id);
       setDocs(await repository.listLinkedDocs());
-      // 通信できないときは同期のときに改めて知らせる
+      // If there is no connection, the user is told again at sync time
       if (id) loadGoogleSignIn().catch(() => {});
     })();
   }, []);
@@ -76,7 +76,7 @@ export function GoogleSection({ onChanged, onMessage }: Props) {
     if (await sync([docId])) setUrl('');
   };
 
-  // 登録を外すだけ。すでに取り込んだ木は消さない
+  // Only removes the link. Trees already imported are not deleted
   const unlink = async (docId: string) => {
     const next = docs.filter((d) => d.docId !== docId);
     await repository.saveLinkedDocs(next);

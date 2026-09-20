@@ -1,4 +1,4 @@
-// public/icon.svg から PWA 用の PNG を作る。アイコンを描き直したときだけ手で実行する
+// Builds the PNGs for the PWA from public/icon.svg. Run by hand, only when the icon has been redrawn
 import sharp from 'sharp';
 
 for (const [size, name] of [

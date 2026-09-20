@@ -24,7 +24,7 @@ const shape = (g: ShelfGroup): Shape => ({
 });
 
 describe('shelfPath', () => {
-  it('文書名、タブ名、見出しの順に並べる。手で作った木は空', () => {
+  it('lists document title, tab names, then headings, and is empty for trees made by hand', () => {
     expect(shelfPath(synced('根', '憲法', ['第1編', '第2章'], 0))).toEqual([
       '憲法',
       '第1編',
@@ -35,7 +35,7 @@ describe('shelfPath', () => {
 });
 
 describe('buildShelf', () => {
-  it('文書 > タブ > 見出し > 木 の入れ子にし、文書の中の順番どおりに並べる', () => {
+  it('nests as document > tab > heading > tree, in the order within the document', () => {
     const trees = [
       synced('統治の木', '憲法', ['第2編 統治', '国会'], 2),
       manual('手書きの木'),
@@ -68,7 +68,7 @@ describe('buildShelf', () => {
     });
   });
 
-  it('文書どうしは登録した順に並べ、登録のない文書は後ろに置く', () => {
+  it('orders documents by registration order and puts unregistered documents last', () => {
     const trees = [
       synced('A', '憲法', [], 0),
       synced('B', '民法', [], 0),
@@ -78,12 +78,12 @@ describe('buildShelf', () => {
     expect(names).toEqual(['民法', '憲法', '刑法']);
   });
 
-  it('まとまりごとに、下にある木の本数と一意なキーを持つ', () => {
+  it('gives each group the number of trees below it and a unique key', () => {
     const shelf = buildShelf([
       synced('A', '憲法', ['第1編'], 0),
       synced('B', '憲法', ['第1編'], 1),
       synced('C', '憲法', ['第2編'], 2),
-      // 別の文書に同じ名前のタブがあっても混ざらない
+      // Tabs with the same name in different documents do not get mixed
       synced('D', '民法', ['第1編'], 0),
     ]);
     const [kenpo, minpo] = shelf.groups;
@@ -93,7 +93,7 @@ describe('buildShelf', () => {
     expect(kenpo.groups[0].key).not.toBe(minpo.groups[0].key);
   });
 
-  it('文書名のない古い同期の木は、名前のない文書としてまとめる', () => {
+  it('groups older synced trees that have no document title under an untitled document', () => {
     const tree: Tree = { ...manual('根'), source: { kind: 'gdoc', docId: 'd', path: ['章'] } };
     expect(shape(buildShelf([tree])).groups[0].name).toBe('無題の文書');
   });
@@ -106,31 +106,31 @@ describe('searchTrees', () => {
     manual('人権の三要素\n  固有性\n    生来の権利\n  不可侵性'),
   ];
 
-  it('根、節、場所のどこに語があっても見つける', () => {
+  it('finds a term whether it is in the root, a node, or the location', () => {
     expect(searchTrees(trees, '原始').map((h) => h.tree.root.text)).toEqual(['効果']);
     expect(searchTrees(trees, '三要素').map((h) => h.tree.root.text)).toEqual(['人権の三要素']);
     expect(searchTrees(trees, '即時取得').map((h) => h.tree.root.text)).toEqual(['要件', '効果']);
   });
 
-  it('空白で区切った語はすべて含む木だけにする', () => {
+  it('keeps only trees that contain every whitespace-separated term', () => {
     expect(searchTrees(trees, '即時取得 動産').map((h) => h.tree.root.text)).toEqual(['要件']);
     expect(searchTrees(trees, '即時取得　原始').map((h) => h.tree.root.text)).toEqual(['効果']);
     expect(searchTrees(trees, '動産 原始')).toEqual([]);
   });
 
-  it('語が当たった節を、親からの道筋つきで返す', () => {
+  it('returns the nodes a term matched, with the trail from their parents', () => {
     const [hit] = searchTrees(trees, '生来');
     expect(hit.matches).toEqual([['固有性', '生来の権利']]);
-    // 場所にしか当たらなければ、節の一覧は空
+    // When only the location matches, the list of nodes is empty
     expect(searchTrees(trees, '物権')[0].matches).toEqual([]);
   });
 
-  it('全角と半角、大文字と小文字を区別しない', () => {
+  it('ignores full-width vs half-width and upper vs lower case differences', () => {
     const t = [manual('ＬＲＡの基準\n  より制限的でない他の手段')];
     expect(searchTrees(t, 'lra')).toHaveLength(1);
   });
 
-  it('空の検索は何も返さない', () => {
+  it('returns nothing for an empty query', () => {
     expect(searchTrees(trees, '  ')).toEqual([]);
   });
 });

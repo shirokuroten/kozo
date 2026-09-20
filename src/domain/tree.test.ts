@@ -20,14 +20,14 @@ function treeWith(id: string, due: string | null, createdAt = '2026-09-01T00:00:
 }
 
 describe('countNodes', () => {
-  it('根を除いた節の数を返す', () => {
+  it('returns the number of nodes excluding the root', () => {
     expect(countNodes(root())).toBe(3);
     expect(countNodes(parseOutline('根だけ')!)).toBe(0);
   });
 });
 
 describe('countLastMissed', () => {
-  it('前回落ちた節だけを数える', () => {
+  it('counts only the nodes missed last time', () => {
     const r = root();
     r.children[0].lastResult = false;
     r.children[0].children[0].lastResult = false;
@@ -38,7 +38,7 @@ describe('countLastMissed', () => {
 });
 
 describe('nodeTone', () => {
-  it('前回落ちた節は朱、過去に落ちた節は黄土、それ以外は墨', () => {
+  it('gives shu (vermilion) to nodes missed last time, oudo (ochre) to nodes missed in the past, and sumi (ink) to the rest', () => {
     const n = root();
     expect(nodeTone(n)).toBe('sumi');
     expect(nodeTone({ ...n, missCount: 2, lastResult: true })).toBe('oudo');
@@ -48,7 +48,7 @@ describe('nodeTone', () => {
 });
 
 describe('createTree', () => {
-  it('未展開の木を作る', () => {
+  it('creates a tree that has never been reviewed', () => {
     const tree = createTree(root(), '2026-09-19T01:02:03.000Z');
     expect(tree.srs.due).toBeNull();
     expect(tree.createdAt).toBe('2026-09-19T01:02:03.000Z');
@@ -58,7 +58,7 @@ describe('createTree', () => {
 });
 
 describe('partitionByDue', () => {
-  it('期日が今日以前の木と未展開の木を「今日」に、それ以外を「この先」に分ける', () => {
+  it('puts trees due today or earlier and never-reviewed trees in "today", and the rest in "later"', () => {
     const trees = [
       treeWith('future', '2026-09-25'),
       treeWith('today', '2026-09-19'),
@@ -67,12 +67,12 @@ describe('partitionByDue', () => {
       treeWith('tomorrow', '2026-09-20'),
     ];
     const { dueToday, later } = partitionByDue(trees, '2026-09-19');
-    // 遅れている木を先に、未展開の木は最後に
+    // Overdue trees first, never-reviewed trees last
     expect(dueToday.map((t) => t.id)).toEqual(['overdue', 'today', 'never']);
     expect(later.map((t) => t.id)).toEqual(['tomorrow', 'future']);
   });
 
-  it('未展開の木どうしは作った順に並べる', () => {
+  it('orders never-reviewed trees by creation time', () => {
     const trees = [
       treeWith('b', null, '2026-09-02T00:00:00.000Z'),
       treeWith('a', null, '2026-09-01T00:00:00.000Z'),
@@ -82,20 +82,20 @@ describe('partitionByDue', () => {
 });
 
 describe('toLocalDate', () => {
-  it('端末の暦日を YYYY-MM-DD で返す', () => {
+  it("returns the device's calendar day as YYYY-MM-DD", () => {
     expect(toLocalDate(new Date(2026, 0, 5, 23, 59))).toBe('2026-01-05');
   });
 });
 
 describe('formatDue', () => {
-  it('今年の日付は月日だけ、年が違えば年も出す', () => {
+  it('shows only month and day for dates this year, and includes the year otherwise', () => {
     expect(formatDue('2026-09-05', '2026-09-19')).toBe('9月5日');
     expect(formatDue('2027-01-05', '2026-12-28')).toBe('2027年1月5日');
   });
 });
 
 describe('applyEdit', () => {
-  it('節の統計と間隔反復の状態を引き継ぎ、更新日時だけ進める', () => {
+  it('carries over node stats and spaced repetition state, advancing only updatedAt', () => {
     const tree = createTree(root(), '2026-09-01T00:00:00.000Z');
     tree.root.children[0].missCount = 2;
     tree.srs = { interval: 3, ease: 2.4, reps: 2, due: '2026-09-22', lastRatio: 0.8 };

@@ -10,7 +10,7 @@ import { navigate } from './route';
 import { Shelf } from './Shelf';
 import { TreeRow } from './TreeRow';
 
-// 検索結果の1行に添える、語が当たった節。多すぎると一覧が読めなくなる
+// The nodes that matched the query, shown under each search result row. Too many would make the list unreadable
 const MAX_MATCHES = 4;
 
 interface Props {
@@ -19,8 +19,8 @@ interface Props {
   onChanged: () => Promise<void>;
 }
 
-// 一覧の主役は棚（文書 > タブ > 見出し > 木）。
-// 出番の木は数だけ知らせ、一覧は別の画面に置く。毎日は開かない使い方でも、たまった出番に追われないようにする
+// The shelf (document > tab > heading > tree) is the centerpiece of the list.
+// Due trees are reported only as a count, and their list lives on a separate screen. Even a user who does not open the app every day should not feel chased by piled-up due trees
 export function Home({ trees, today, onChanged }: Props) {
   const [query, setQuery] = useState('');
   const [docOrder, setDocOrder] = useState<string[]>([]);
@@ -29,7 +29,7 @@ export function Home({ trees, today, onChanged }: Props) {
   const dueCount = useMemo(() => partitionByDue(trees, today).dueToday.length, [trees, today]);
   const searching = query.trim() !== '';
 
-  // 文書どうしの並びは登録した順。同期で文書が増えることがあるので、木が変わるたびに読み直す
+  // Documents are ordered by when they were linked. A sync can add a document, so reload whenever the trees change
   useEffect(() => {
     void repository.listLinkedDocs().then((docs) => setDocOrder(docs.map((d) => d.docId)));
   }, [trees]);

@@ -16,13 +16,13 @@ export interface Srs {
   lastRatio: number | null;
 }
 
-// 外の文書から同期した木の出どころ。手で作った木にはない
+// Where a tree synced from an external document came from. Trees made by hand do not have it.
 export interface TreeSource {
   kind: 'gdoc';
   docId: string;
-  // 文書の中での場所（タブ名、章の見出しなど）。根の上に小さく添える
+  // Location within the document (tab names, chapter headings, etc.). Shown small above the root.
   path?: string[];
-  // 一覧で「文書 > タブ > 見出し > 木」と並べるための文書名と、文書の中での並び順
+  // Document title and order within the document, used to lay out the list as "document > tab > heading > tree"
   docTitle?: string;
   order?: number;
 }

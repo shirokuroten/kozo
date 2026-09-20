@@ -14,7 +14,7 @@ function fixture() {
 }
 
 describe('summarize', () => {
-  it('根を除いた節を母数にして採点の進み具合を数える', () => {
+  it('counts grading progress with the nodes excluding the root as the total', () => {
     const { tree, a, leaf } = fixture();
     expect(summarize(tree.root, {})).toEqual({ total: 3, graded: 0, correct: 0, finished: false });
     expect(summarize(tree.root, { [a.id]: true, [leaf.id]: false })).toEqual({
@@ -25,7 +25,7 @@ describe('summarize', () => {
     });
   });
 
-  it('すべての節に付いたら完了', () => {
+  it('is finished once every node is graded', () => {
     const { tree, a, b, leaf } = fixture();
     const grades: Grades = { [a.id]: true, [b.id]: true, [leaf.id]: true };
     expect(summarize(tree.root, grades)).toEqual({
@@ -36,18 +36,18 @@ describe('summarize', () => {
     });
   });
 
-  it('木にない id の採点は数えない', () => {
+  it('does not count grades for ids that are not in the tree', () => {
     const { tree } = fixture();
     expect(summarize(tree.root, { ghost: true }).graded).toBe(0);
   });
 
-  it('節のない木は完了にしない', () => {
+  it('never marks a tree without nodes as finished', () => {
     expect(summarize(parseOutline('根だけ')!, {}).finished).toBe(false);
   });
 });
 
 describe('applyReview', () => {
-  it('節の統計、間隔反復、履歴をまとめて更新する', () => {
+  it('updates node stats, spaced repetition, and the log together', () => {
     const { tree, a, b, leaf } = fixture();
     a.missCount = 1;
     const grades: Grades = { [a.id]: false, [b.id]: true, [leaf.id]: true };
@@ -59,7 +59,7 @@ describe('applyReview', () => {
     expect(nextB.lastResult).toBe(true);
     expect(nextB.missCount).toBe(0);
     expect(nextA.children[0].lastResult).toBe(true);
-    // 根は採点しない
+    // The root is not graded
     expect(next.root.lastResult).toBeNull();
 
     expect(next.srs.lastRatio).toBeCloseTo(2 / 3);
@@ -73,7 +73,7 @@ describe('applyReview', () => {
     expect(log.id).not.toBe('');
   });
 
-  it('引数の木を書き換えない', () => {
+  it('does not mutate the tree passed in', () => {
     const { tree, a, b, leaf } = fixture();
     applyReview(tree, { [a.id]: false, [b.id]: false, [leaf.id]: false }, TODAY, NOW);
     expect(a.missCount).toBe(0);
@@ -81,7 +81,7 @@ describe('applyReview', () => {
     expect(tree.srs.due).toBeNull();
   });
 
-  it('採点が終わっていなければ例外にする', () => {
+  it('throws when grading is not finished', () => {
     const { tree, a } = fixture();
     expect(() => applyReview(tree, { [a.id]: true }, TODAY, NOW)).toThrow();
   });

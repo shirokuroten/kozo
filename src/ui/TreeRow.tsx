@@ -8,9 +8,9 @@ import { TreePath } from './TreeView';
 interface Props {
   tree: Tree;
   today: string;
-  // 棚の中では場所が入れ子で見えているので、行には添えない
+  // Inside the shelf the location is already visible from the nesting, so the row does not show it
   showPath?: boolean;
-  // 出番の一覧では展開が主役。棚では引くのが主役なので、展開のボタンは控えめにする
+  // In the due list, reviewing is the main action. In the shelf, looking things up is the main action, so the review button is toned down
   emphasizeReview?: boolean;
   children?: ReactNode;
 }

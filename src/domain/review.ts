@@ -1,7 +1,7 @@
 import { schedule } from './schedule';
 import type { Node, NodeId, ReviewLog, Tree } from './types';
 
-// 展開中の ○×。まだ付けていない節は載っていない
+// The ○× marks given during a review. Nodes not graded yet are absent.
 export type Grades = Record<NodeId, boolean>;
 
 export interface ReviewSummary {
@@ -52,7 +52,7 @@ export function applyReview(
   now: string,
 ): { tree: Tree; log: ReviewLog } {
   const { total, correct, finished } = summarize(tree.root, grades);
-  // 途中の結果で間隔を動かすと、開いていない節が「言えた」扱いになってしまう
+  // Moving the interval on a partial result would treat unopened nodes as "recalled"
   if (!finished) throw new Error('採点が終わっていない展開は保存できない');
 
   const ratio = correct / total;

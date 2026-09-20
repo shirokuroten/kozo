@@ -4,18 +4,18 @@ import tailwindcss from '@tailwindcss/vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
-  // どのパスに置いても動くよう相対にする（GitHub Pages などのサブディレクトリ配信を想定）
+  // Relative, so the app works under any path (serving from a subdirectory such as GitHub Pages is expected)
   base: './',
   plugins: [
     react(),
     tailwindcss(),
     VitePWA({
-      // データは端末内にあり、古い版が動き続けても困らない。更新は次に開いたときに自動で入れる
+      // The data lives on the device, so an old version that keeps running does no harm. Updates are applied automatically the next time the app is opened
       registerType: 'autoUpdate',
       includeAssets: ['icon.svg', 'apple-touch-icon.png'],
       manifest: {
         name: 'Outline Recall',
-        // ホーム画面のアイコンの下は12文字ほどで切れるので、短い方は一語にする
+        // The label under a home screen icon is cut off at around 12 characters, so the short name is a single word
         short_name: 'Recall',
         description: '知識を木として書き、上から展開して再現する',
         lang: 'ja',

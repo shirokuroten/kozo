@@ -5,8 +5,8 @@ import { loadGoogleSignIn } from '../data/google';
 import { Button } from './Button';
 import { describePlan } from './syncMessage';
 
-// ふだんの同期を一覧から1回押すだけで済ませる。
-// 文書を登録し終えた人にだけ出す。設定は「取り込みとバックアップ」で行う
+// Lets the everyday sync be done with a single press from the list.
+// Shown only to users who have already linked a document. Setup is done on the import and backup screen
 export function HomeSync({ onChanged }: { onChanged: () => Promise<void> }) {
   const [ready, setReady] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -20,7 +20,7 @@ export function HomeSync({ onChanged }: { onChanged: () => Promise<void> }) {
       ]);
       if (!clientId || docs.length === 0) return;
       setReady(true);
-      // ログインの小窓は押した直後でないと開けないブラウザがあるので、先に読み込んでおく
+      // Some browsers only allow the sign-in popup right after a press, so load the script ahead of time
       loadGoogleSignIn().catch(() => {});
     })();
   }, []);

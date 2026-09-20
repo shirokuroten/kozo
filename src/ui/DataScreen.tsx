@@ -50,7 +50,7 @@ export function DataScreen({ today, onChanged }: Props) {
 
   const importFile = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    // 同じファイルを続けて選べるよう、選択を空に戻す
+    // Clear the selection so the same file can be chosen again right after
     event.target.value = '';
     if (!file) return;
     try {

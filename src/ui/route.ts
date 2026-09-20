@@ -26,25 +26,25 @@ export function toHash(route: Route): string {
   return `#/${route.name}`;
 }
 
-// スマホの「戻る」で前の画面に戻れるよう、画面の状態を URL のハッシュに置く。
-// 画面は6つだけなので、ルーターのライブラリは入れない
+// The screen state lives in the URL hash so the phone's back button returns to the previous screen.
+// There are only a handful of screens, so no router library is added
 
 type Guard = () => boolean;
 let guard: Guard | null = null;
 let currentHash = typeof window === 'undefined' ? '#/' : window.location.hash || '#/';
 const listeners = new Set<() => void>();
 
-// 未保存の編集があるとき、画面を離れてよいかを尋ねる関数を登録する。false を返すと移動を取り消す
+// Registers a function that asks whether it is OK to leave the screen while there are unsaved edits. Returning false cancels the navigation
 export function setNavigationGuard(next: Guard | null): void {
   guard = next;
 }
 
 function handleHashChange(): void {
   const nextHash = window.location.hash || '#/';
-  // 下で元の画面に戻したときの通知もここで捨てる
+  // The event fired when we restore the original screen below is also discarded here
   if (nextHash === currentHash) return;
   if (guard && !guard()) {
-    // ブラウザの「戻る」は止められないので、移動した後で元の画面に戻す
+    // The browser's back navigation cannot be blocked, so go back to the original screen after it has moved
     window.location.hash = currentHash;
     return;
   }

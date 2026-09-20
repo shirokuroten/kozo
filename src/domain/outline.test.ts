@@ -4,7 +4,7 @@ import type { Node } from './types';
 
 type Shape = { text: string; children: Shape[] };
 
-// id は毎回変わるので、構造と文言だけを比べる
+// Ids change on every run, so only structure and text are compared
 function shape(node: Node): Shape {
   return { text: node.text, children: node.children.map(shape) };
 }
@@ -18,12 +18,12 @@ const SAMPLE = [
 ].join('\n');
 
 describe('parseOutline', () => {
-  it('空の入力は null', () => {
+  it('returns null for empty input', () => {
     expect(parseOutline('')).toBeNull();
     expect(parseOutline('\n  \n　\n')).toBeNull();
   });
 
-  it('1行目を根、字下げを深さとして木を作る', () => {
+  it('builds a tree with the first line as the root and indentation as depth', () => {
     const root = parseOutline(SAMPLE)!;
     expect(shape(root)).toEqual({
       text: '人権の三要素',
@@ -37,7 +37,7 @@ describe('parseOutline', () => {
     });
   });
 
-  it('新しい節は未展開の統計で始まる', () => {
+  it('starts new nodes with never-reviewed stats', () => {
     const root = parseOutline(SAMPLE)!;
     expect(root.missCount).toBe(0);
     expect(root.lastResult).toBeNull();
@@ -45,7 +45,7 @@ describe('parseOutline', () => {
     expect(root.children[0].lastResult).toBeNull();
   });
 
-  it('節ごとに異なる id を振る', () => {
+  it('assigns a different id to each node', () => {
     const root = parseOutline(SAMPLE)!;
     const ids = new Set<string>();
     const walk = (n: Node) => {
@@ -56,7 +56,7 @@ describe('parseOutline', () => {
     expect(ids.size).toBe(5);
   });
 
-  it('空行は捨てる', () => {
+  it('drops blank lines', () => {
     const root = parseOutline('根\n\n  枝\n   \n    葉\n')!;
     expect(shape(root)).toEqual({
       text: '根',
@@ -64,7 +64,7 @@ describe('parseOutline', () => {
     });
   });
 
-  it('タブと全角空白はそれぞれ1段', () => {
+  it('counts a tab and a full-width space as one level each', () => {
     const root = parseOutline('根\n\t枝A\n\t\t葉A\n　枝B\n　　葉B')!;
     expect(shape(root)).toEqual({
       text: '根',
@@ -75,7 +75,7 @@ describe('parseOutline', () => {
     });
   });
 
-  it('奇数個の空白は切り捨てる', () => {
+  it('rounds an odd number of spaces down', () => {
     const root = parseOutline('根\n   枝\n     葉')!;
     expect(shape(root)).toEqual({
       text: '根',
@@ -83,7 +83,7 @@ describe('parseOutline', () => {
     });
   });
 
-  it('2行目以降が深さ0で書かれても深さ1に丸める', () => {
+  it('puts lines after the first under the root even when they have no indentation', () => {
     const root = parseOutline('根\n枝A\n枝B')!;
     expect(shape(root)).toEqual({
       text: '根',
@@ -94,12 +94,12 @@ describe('parseOutline', () => {
     });
   });
 
-  it('1行目が字下げされていても根として扱う', () => {
+  it('treats the first line as the root even when it is indented', () => {
     const root = parseOutline('    根\n  枝')!;
     expect(shape(root)).toEqual({ text: '根', children: [{ text: '枝', children: [] }] });
   });
 
-  it('直前より2段以上深い行は直前の節の子にする', () => {
+  it('makes a line two or more levels deeper than the previous one a child of the previous node', () => {
     const root = parseOutline('根\n  枝\n        葉\n    葉2')!;
     expect(shape(root)).toEqual({
       text: '根',
@@ -115,8 +115,8 @@ describe('parseOutline', () => {
     });
   });
 
-  it('深い行から浅い行に戻るときは、字下げの量が同じ行を兄弟にする', () => {
-    // 1段を空白4つで書いた場合でも形が崩れない
+  it('makes lines with the same indentation width siblings when going back from a deep line to a shallow one', () => {
+    // The shape holds even when one level is written as four spaces
     const root = parseOutline('根\n    枝\n        葉A\n        葉B\n    枝2')!;
     expect(shape(root)).toEqual({
       text: '根',
@@ -133,8 +133,8 @@ describe('parseOutline', () => {
     });
   });
 
-  it('行頭の箇条書きの記号は文言に含めない', () => {
-    // 文書作成ソフトや Markdown から貼り付けたアウトラインをそのまま使えるようにする
+  it('leaves leading bullet markers out of the text', () => {
+    // So that an outline pasted from a word processor or Markdown can be used as is
     const root = parseOutline('根\n- 枝A\n  - 葉A\n* 枝B\n   * 葉B\n・枝C\n● 枝D')!;
     expect(shape(root)).toEqual({
       text: '根',
@@ -147,7 +147,7 @@ describe('parseOutline', () => {
     });
   });
 
-  it('記号だけの行は空行として捨て、文中のハイフンは残す', () => {
+  it('drops marker-only lines as blank lines and keeps hyphens inside text', () => {
     const root = parseOutline('- 根\n  -\n  A-B 間の関係\n  -1 は負の数')!;
     expect(shape(root)).toEqual({
       text: '根',
@@ -158,7 +158,7 @@ describe('parseOutline', () => {
     });
   });
 
-  it('行末の空白は文言に含めない', () => {
+  it('leaves trailing whitespace out of the text', () => {
     const root = parseOutline('根  \n  枝　 ')!;
     expect(root.text).toBe('根');
     expect(root.children[0].text).toBe('枝');
@@ -166,11 +166,11 @@ describe('parseOutline', () => {
 });
 
 describe('toOutline', () => {
-  it('半角空白2つで1段のアウトラインに戻す', () => {
+  it('turns a tree back into an outline with two half-width spaces per level', () => {
     expect(toOutline(parseOutline(SAMPLE)!)).toBe(SAMPLE);
   });
 
-  it('parseOutline(toOutline(n)) が構造を保つ', () => {
+  it('preserves structure through parseOutline(toOutline(n))', () => {
     const original = parseOutline('根\n\t枝A\n　　葉A\n        深い葉\n枝B\n\n   枝C')!;
     const again = parseOutline(toOutline(original))!;
     expect(shape(again)).toEqual(shape(original));

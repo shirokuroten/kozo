@@ -1,5 +1,5 @@
-# main に push したら、テストを通してから GitHub Pages に置く。
-# 置かれるのはアプリのコードだけ。木の中身は各端末の中にあり、ここには含まれない
+# On a push to main, run the tests and then deploy to GitHub Pages.
+# Only the app code is deployed. The contents of the trees live on each device and are not included here
 name: deploy
 
 on:

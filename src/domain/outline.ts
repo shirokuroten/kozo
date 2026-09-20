@@ -3,15 +3,15 @@ import type { Node } from './types';
 const INDENT = '  ';
 const FULLWIDTH_SPACE = String.fromCharCode(0x3000);
 
-// 文書作成ソフトや Markdown から貼り付けた行の頭に付く記号。
-// ハイフンなどは文中でも使うので、直後に空白があるときだけ記号とみなす
+// Markers found at the start of lines pasted from a word processor or Markdown.
+// Hyphens and the like also appear inside text, so they count as markers only when followed by whitespace.
 const BULLET = /^(?:[-*+](?:\s+|$)|[•●○◦▪■・]\s*)/;
 
 export function createNode(text: string): Node {
   return { id: crypto.randomUUID(), text, children: [], missCount: 0, lastResult: null };
 }
 
-// タブと全角空白は半角空白2つ分として数える
+// A tab and a full-width space each count as two half-width spaces
 export function indentWidth(line: string): number {
   let width = 0;
   for (const ch of line) {
@@ -32,7 +32,8 @@ function lineText(line: string): string {
 
 export function parseOutline(text: string): Node | null {
   let root: Node | null = null;
-  // 根の下から、いま読んでいる節までの道筋。字下げの量を覚えておき、同じ量の行を兄弟にする
+  // The trail from below the root to the node being read. The indentation width is remembered so
+  // that lines with the same width become siblings.
   const path: { depth: number; node: Node }[] = [];
 
   for (const line of text.split(/\r?\n/)) {
@@ -45,9 +46,11 @@ export function parseOutline(text: string): Node | null {
       continue;
     }
 
-    // 書きかけの字下げで保存できなくなると困るので、深すぎる行も浅すぎる行も例外にしない。
-    // 字下げなしの行も根の子になる。見出しの下に字下げなしの箇条書きが続く貼り付けを受けるため、
-    // 1 に丸めずに量のまま比べる（丸めると、その下の空白2つの行が子ではなく兄弟になる）
+    // Being unable to save because of half-finished indentation would be a problem, so neither
+    // lines that are too deep nor lines that are too shallow throw.
+    // A line with no indentation also becomes a child of the root. To accept pasted text where a
+    // heading is followed by a bullet list with no indentation, the width is compared as is rather
+    // than rounded up to 1 (rounding would make a line with two spaces below it a sibling instead of a child).
     const depth = Math.floor(indentWidth(line) / 2);
     while (path.length > 0 && path[path.length - 1].depth >= depth) path.pop();
     const parent = path.length > 0 ? path[path.length - 1].node : root;

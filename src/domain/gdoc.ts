@@ -2,10 +2,10 @@ import { parseOutline, toOutline } from './outline';
 import { applyEdit, createTree } from './tree';
 import type { Tree } from './types';
 
-// Google Docs API (documents.get, includeTabsContent=true) の応答のうち、使う部分だけ
+// Only the parts we use of the Google Docs API response (documents.get, includeTabsContent=true)
 export interface GoogleDocBody {
   content?: {
-    // 表や区切りなど、段落以外の要素は読み飛ばす
+    // Elements other than paragraphs, such as tables and breaks, are skipped
     [other: string]: unknown;
     paragraph?: {
       elements?: { textRun?: { content?: string } }[];
@@ -23,12 +23,12 @@ export interface GoogleDocTab {
 
 export interface GoogleDoc {
   title?: string;
-  // タブを持たない古い応答の形。tabs があればそちらを使う
+  // The older response shape without tabs. If tabs is present, that is used instead.
   body?: GoogleDocBody;
   tabs?: GoogleDocTab[];
 }
 
-// 文書から切り出した木1本分。path は木の置かれた場所（タブ名、章の見出しなど）
+// One tree cut out of a document. path is the location of the tree (tab names, chapter headings, etc.).
 export interface DocTree {
   path: string[];
   outline: string;
@@ -41,11 +41,11 @@ export function parseDocId(input: string): string | null {
   return /^[\w-]{20,}$/.test(text) ? text : null;
 }
 
-// 段落内の改行（Shift+Enter）は縦タブで届く
+// A line break inside a paragraph (Shift+Enter) arrives as a vertical tab
 const SOFT_BREAK = String.fromCharCode(0x0b);
 
 const SKIPPED_STYLES = new Set(['TITLE', 'SUBTITLE']);
-// 見出しのスタイルがない普通の段落は、どの見出しよりも下の段として扱う
+// A plain paragraph with no heading style is treated as a level below every heading
 const PLAIN_LEVEL = 7;
 
 function headingLevel(style: string | undefined): number {
@@ -53,12 +53,12 @@ function headingLevel(style: string | undefined): number {
   return match ? Number(match[1]) : PLAIN_LEVEL;
 }
 
-// 本文1つ分を木に分ける。
-// 箇条書きの直前にある見出し（または普通の段落）が根になり、その下の箇条書きが節になる。
-// 下に箇条書きを持たない見出しは木にせず、木の場所を示す path に回す
+// Split one body into trees.
+// The heading (or plain paragraph) right before a bullet list becomes the root, and the bullet list below it becomes the nodes.
+// A heading with no bullet list below it does not become a tree. It goes into path, which shows the location of a tree.
 function bodyToTrees(body: GoogleDocBody | undefined, basePath: string[]): DocTree[] {
   const trees: DocTree[] = [];
-  // いまいる場所。見出しの段が浅い順に積む
+  // The current location. Headings are stacked from the shallowest level down.
   const headings: { level: number; text: string }[] = [];
   let lines: string[] | null = null;
 
@@ -87,7 +87,7 @@ function bodyToTrees(body: GoogleDocBody | undefined, basePath: string[]): DocTr
     if (lines === null) {
       const root = headings[headings.length - 1];
       const path = [...basePath, ...headings.slice(0, -1).map((h) => h.text)];
-      // 見出しより前に箇条書きが来たら、その最初の行を根にする
+      // If a bullet list comes before any heading, its first line becomes the root
       lines = root ? [root.text, '  '.repeat(depth) + text] : [text];
       trees.push({ path, outline: '' });
     } else {
@@ -101,7 +101,7 @@ function bodyToTrees(body: GoogleDocBody | undefined, basePath: string[]): DocTr
 export function docToTrees(doc: GoogleDoc): DocTree[] {
   if (!doc.tabs || doc.tabs.length === 0) return bodyToTrees(doc.body, []);
 
-  // タブが1つだけの文書では、タブ名（たいてい「タブ 1」）を場所に含めても意味がない
+  // In a document with only one tab, including the tab name (usually "Tab 1") in the location adds nothing
   const single = doc.tabs.length === 1 && !doc.tabs[0].childTabs?.length;
   const walk = (tab: GoogleDocTab, parents: string[]): DocTree[] => {
     const path = single ? [] : [...parents, tab.tabProperties?.title ?? '無題のタブ'];
@@ -115,7 +115,7 @@ export function docToTrees(doc: GoogleDoc): DocTree[] {
 
 export interface SyncPlan {
   put: Tree[];
-  // 文書から消えたので、アプリからも消す木
+  // Trees to remove from the app because they are gone from the document
   remove: Tree[];
   created: number;
   updated: number;
@@ -125,11 +125,13 @@ export interface SyncPlan {
 const samePath = (a: string[], b: string[]) =>
   a.length === b.length && a.every((v, i) => v === b[i]);
 
-// 同期は文書からアプリへの一方向。
-// 同じ文書の、同じ場所の、同じ見出しの木を同一とみなして中身だけ差し替える（記録は mergeStats で引き継ぐ）。
-// 文書が正で、アプリはその写し。文書から消えた見出しの木はアプリからも消す。
-// ただし文書から木が1本も読めなかったときは何も消さない。
-// 文書を誤って空にしたときや、読み取りがおかしいときに、全部を失わせないため
+// Sync is one way, from the document to the app.
+// A tree in the same document, at the same location, with the same heading is treated as the same tree,
+// and only its content is replaced (stats carry over through mergeStats).
+// The document is the source of truth and the app is its copy. A tree whose heading is gone from the
+// document is removed from the app too.
+// However, when not a single tree could be read from the document, nothing is removed.
+// This keeps the user from losing everything when the document is emptied by mistake or the read goes wrong.
 export function planSync(
   existing: Tree[],
   docId: string,
@@ -154,7 +156,7 @@ export function planSync(
     take(match);
   }
 
-  // タブ名や章の見出しを変えても、中身がそっくり同じなら同じ木
+  // Even if a tab name or chapter heading was changed, a tree with exactly the same content is the same tree
   for (const item of incoming) {
     if (matches.has(item)) continue;
     const outline = toOutline(item.root);
@@ -164,8 +166,8 @@ export function planSync(
     take(match);
   }
 
-  // タブ名や章の見出しを変えただけで木が二重にならないよう、
-  // 同じ見出しが双方に1つずつしか残っていなければ、場所が違っても同じ木とみなす
+  // So that merely renaming a tab or chapter heading does not duplicate a tree,
+  // if exactly one tree with the same heading remains on each side, treat them as the same tree even though the location differs
   for (const item of incoming) {
     if (matches.has(item)) continue;
     const sameText = candidates.filter((t) => t.root.text === item.root.text);
@@ -175,7 +177,7 @@ export function planSync(
     take(sameText[0]);
   }
 
-  // ここまでで相手が見つからなかった candidates が、文書から消えた木
+  // The candidates still unmatched at this point are the trees that are gone from the document
   const plan: SyncPlan = {
     put: [],
     remove: incoming.length > 0 ? [...candidates] : [],
@@ -184,7 +186,7 @@ export function planSync(
     unchanged: 0,
   };
   incoming.forEach((item, order) => {
-    // order は文書の中での並び順。一覧を文書どおりに並べるために持つ
+    // order is the position within the document. Kept so the list can follow the document's order.
     const source = { kind: 'gdoc' as const, docId, docTitle, path: item.path, order };
     const match = matches.get(item);
     if (!match) {
@@ -197,8 +199,8 @@ export function planSync(
       plan.put.push({ ...applyEdit(match, item.root, now), source });
       plan.updated += 1;
     } else {
-      // 並び順や文書名だけが変わった木は、書き直すが「更新」には数えない。
-      // 上に1本足しただけで、下の木がすべて更新と報告されるのを避ける
+      // A tree whose order or document title alone changed is rewritten but not counted as "updated".
+      // This avoids reporting every tree below as updated just because one tree was added above.
       const moved = match.source?.order !== order || match.source?.docTitle !== docTitle;
       if (moved) plan.put.push({ ...match, source, updatedAt: now });
       plan.unchanged += 1;

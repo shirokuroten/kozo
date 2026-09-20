@@ -1,12 +1,12 @@
 import type { GoogleDoc } from '../domain/gdoc';
 
-// Google との通信はここに閉じ込める。
-// ブラウザだけで完結するトークンフローを使う。必要なのは公開前提のクライアント ID だけで、
-// 秘密鍵は存在しない。トークンは保存せず、メモリ上に期限まで持つだけにする
+// All communication with Google is confined to this file.
+// It uses the token flow that completes entirely in the browser. The only thing needed is a client ID,
+// which is meant to be public, and there is no secret key. The token is never stored, only held in memory until it expires
 
 const GIS_SRC = 'https://accounts.google.com/gsi/client';
 const SCOPE = 'https://www.googleapis.com/auth/documents.readonly';
-// 入れ子のタブ（childTabs）には細かい絞り込みが効かないので、段落は丸ごと受け取る
+// Fine-grained field filtering does not work on nested tabs (childTabs), so paragraphs are fetched whole
 const FIELDS = 'title,tabs(tabProperties(title),documentTab(body(content(paragraph))),childTabs)';
 
 interface TokenResponse {
@@ -38,7 +38,7 @@ declare global {
 
 let gisLoading: Promise<void> | null = null;
 
-// ログインの小窓は利用者の操作の直後でないと開けないブラウザがあるので、画面を開いた時点で先に読み込んでおく
+// Some browsers only allow the sign-in popup right after a user action, so load the script ahead of time when the screen opens
 export function loadGoogleSignIn(): Promise<void> {
   if (window.google?.accounts) return Promise.resolve();
   gisLoading ??= new Promise<void>((resolve, reject) => {
@@ -93,7 +93,7 @@ export async function getAccessToken(clientId: string): Promise<string> {
 }
 
 export async function fetchGoogleDoc(docId: string, token: string): Promise<GoogleDoc> {
-  // includeTabsContent を付けないと、最初のタブの本文しか返ってこない
+  // Without includeTabsContent, only the body of the first tab is returned
   const query = `includeTabsContent=true&fields=${encodeURIComponent(FIELDS)}`;
   const url = `https://docs.googleapis.com/v1/documents/${encodeURIComponent(docId)}?${query}`;
   const response = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
