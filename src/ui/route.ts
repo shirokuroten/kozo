@@ -6,12 +6,14 @@ export type Route =
   | { name: 'view'; id: string }
   | { name: 'edit'; id: string }
   | { name: 'review'; id: string }
-  | { name: 'data' };
+  | { name: 'data' }
+  | { name: 'due' };
 
 export function parseHash(hash: string): Route {
   const [name, id] = hash.replace(/^#\/?/, '').split('/');
   if (name === 'new') return { name: 'new' };
   if (name === 'data') return { name: 'data' };
+  if (name === 'due') return { name: 'due' };
   if ((name === 'view' || name === 'edit' || name === 'review') && id) {
     return { name, id: decodeURIComponent(id) };
   }

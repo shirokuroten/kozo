@@ -144,15 +144,21 @@ describe('planSync', () => {
   const NOW = '2026-09-19T00:00:00.000Z';
   const DOC_ID = 'doc1';
   const docTree = (outline: string, path: string[] = []): DocTree => ({ path, outline });
-  const synced = (outline: string, path: string[] = [], docId = DOC_ID): Tree => ({
+  const synced = (outline: string, path: string[] = [], docId = DOC_ID, order = 0): Tree => ({
     ...createTree(parseOutline(outline)!, '2026-09-01T00:00:00.000Z'),
-    source: { kind: 'gdoc', docId, path },
+    source: { kind: 'gdoc', docId, docTitle: '', path, order },
   });
 
   it('新しい見出しは新しい木にして、出どころと場所を記録する', () => {
     const plan = planSync([], DOC_ID, [docTree('根\n  枝', ['憲法'])], NOW);
     expect(plan.created).toBe(1);
-    expect(plan.put[0].source).toEqual({ kind: 'gdoc', docId: DOC_ID, path: ['憲法'] });
+    expect(plan.put[0].source).toEqual({
+      kind: 'gdoc',
+      docId: DOC_ID,
+      docTitle: '',
+      path: ['憲法'],
+      order: 0,
+    });
     expect(plan.put[0].srs.due).toBeNull();
   });
 
@@ -233,6 +239,18 @@ describe('planSync', () => {
     expect(plan.created).toBe(1);
     expect(plan.put[0].id).not.toBe(manual.id);
     expect(plan.put[0].id).not.toBe(other.id);
+  });
+
+  it('上に木が増えて並び順がずれた木は、書き直すが更新には数えない', () => {
+    const tree = synced('根\n  枝');
+    tree.srs = { ...tree.srs, due: '2026-09-25' };
+    const incoming = [docTree('新しい根\n  枝'), docTree('根\n  枝')];
+    const plan = planSync([tree], DOC_ID, incoming, NOW, '憲法');
+    expect(plan).toMatchObject({ created: 1, updated: 0, unchanged: 1 });
+    const moved = plan.put.find((t) => t.id === tree.id)!;
+    expect(moved.source).toMatchObject({ order: 1, docTitle: '憲法' });
+    expect(moved.srs).toEqual(tree.srs);
+    expect(moved.root).toEqual(tree.root);
   });
 
   it('文書から消えた見出しの木は残す', () => {

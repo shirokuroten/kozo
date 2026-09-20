@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { shelfPath } from '../domain/shelf';
 import { nodeTone, type NodeTone } from '../domain/tree';
 import type { Node, Tree } from '../domain/types';
 
@@ -16,7 +17,7 @@ export function Indent({ depth, children }: { depth: number; children: ReactNode
 
 // 同期した木の、文書の中での場所。同じ見出し（「要件」など）の木を見分けるために根の上に添える
 export function TreePath({ tree }: { tree: Tree }) {
-  const path = tree.source?.path ?? [];
+  const path = shelfPath(tree);
   if (path.length === 0) return null;
   return <div className="font-gothic text-xs text-usuzumi">{path.join(' / ')}</div>;
 }

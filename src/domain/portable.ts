@@ -61,6 +61,8 @@ function isSource(v: unknown): boolean {
     isObject(v) &&
     v.kind === 'gdoc' &&
     typeof v.docId === 'string' &&
+    (v.docTitle === undefined || typeof v.docTitle === 'string') &&
+    (v.order === undefined || typeof v.order === 'number') &&
     (v.path === undefined ||
       (Array.isArray(v.path) && v.path.every((part) => typeof part === 'string')))
   );

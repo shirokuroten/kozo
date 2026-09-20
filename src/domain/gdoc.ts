@@ -131,6 +131,7 @@ export function planSync(
   docId: string,
   docTrees: DocTree[],
   now: string,
+  docTitle = '',
 ): SyncPlan {
   const candidates = existing.filter((t) => t.source?.kind === 'gdoc' && t.source.docId === docId);
   const incoming = docTrees.flatMap((docTree) => {
@@ -171,21 +172,26 @@ export function planSync(
   }
 
   const plan: SyncPlan = { put: [], created: 0, updated: 0, unchanged: 0 };
-  for (const item of incoming) {
-    const source = { kind: 'gdoc' as const, docId, path: item.path };
+  incoming.forEach((item, order) => {
+    // order は文書の中での並び順。一覧を文書どおりに並べるために持つ
+    const source = { kind: 'gdoc' as const, docId, docTitle, path: item.path, order };
     const match = matches.get(item);
     if (!match) {
       plan.put.push({ ...createTree(item.root, now), source });
       plan.created += 1;
     } else if (
-      toOutline(match.root) === toOutline(item.root) &&
-      samePath(match.source?.path ?? [], item.path)
+      toOutline(match.root) !== toOutline(item.root) ||
+      !samePath(match.source?.path ?? [], item.path)
     ) {
-      plan.unchanged += 1;
-    } else {
       plan.put.push({ ...applyEdit(match, item.root, now), source });
       plan.updated += 1;
+    } else {
+      // 並び順や文書名だけが変わった木は、書き直すが「更新」には数えない。
+      // 上に1本足しただけで、下の木がすべて更新と報告されるのを避ける
+      const moved = match.source?.order !== order || match.source?.docTitle !== docTitle;
+      if (moved) plan.put.push({ ...match, source, updatedAt: now });
+      plan.unchanged += 1;
     }
-  }
+  });
   return plan;
 }

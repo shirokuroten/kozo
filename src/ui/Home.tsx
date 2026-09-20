@@ -1,39 +1,16 @@
-import { countLastMissed, countNodes, formatDue, partitionByDue } from '../domain/tree';
+import { useMemo, useState } from 'react';
+import { buildShelf, searchTrees } from '../domain/shelf';
+import { partitionByDue } from '../domain/tree';
 import type { Tree } from '../domain/types';
 import { Button } from './Button';
 import { HomeSync } from './HomeSync';
+import { Note } from './Note';
 import { navigate } from './route';
-import { TreePath } from './TreeView';
+import { Shelf } from './Shelf';
+import { TreeRow } from './TreeRow';
 
-function Row({ tree, today }: { tree: Tree; today: string }) {
-  const missed = countLastMissed(tree.root);
-  const { due } = tree.srs;
-  return (
-    <li className="flex items-center justify-between gap-3 border-b border-rule py-3">
-      <button
-        type="button"
-        className="min-w-0 flex-1 text-left"
-        onClick={() => navigate({ name: 'view', id: tree.id })}
-      >
-        <TreePath tree={tree} />
-        <div className="font-mincho text-[17px] leading-[1.6] text-sumi">{tree.root.text}</div>
-        <div className="mt-0.5 flex flex-wrap gap-x-3 font-gothic text-xs text-usuzumi">
-          <span>{countNodes(tree.root)} 節</span>
-          {missed > 0 && <span className="text-shu">前回 {missed} 節で落ちた</span>}
-          {due === null && <span>まだ一度も展開していない</span>}
-          {due !== null && due > today && <span>次の出番 {formatDue(due, today)}</span>}
-        </div>
-      </button>
-      <Button
-        kind="solid"
-        className="shrink-0"
-        onClick={() => navigate({ name: 'review', id: tree.id })}
-      >
-        展開
-      </Button>
-    </li>
-  );
-}
+// 検索結果の1行に添える、語が当たった節。多すぎると一覧が読めなくなる
+const MAX_MATCHES = 4;
 
 interface Props {
   trees: Tree[];
@@ -41,8 +18,15 @@ interface Props {
   onChanged: () => Promise<void>;
 }
 
+// 一覧の主役は棚（文書 > タブ > 見出し > 木）。
+// 出番の木は数だけ知らせ、一覧は別の画面に置く。毎日は開かない使い方でも、たまった出番に追われないようにする
 export function Home({ trees, today, onChanged }: Props) {
-  const { dueToday, later } = partitionByDue(trees, today);
+  const [query, setQuery] = useState('');
+  const shelf = useMemo(() => buildShelf(trees), [trees]);
+  const hits = useMemo(() => searchTrees(trees, query), [trees, query]);
+  const dueCount = useMemo(() => partitionByDue(trees, today).dueToday.length, [trees, today]);
+  const searching = query.trim() !== '';
+
   return (
     <div>
       <h1 className="font-mincho text-[26px] tracking-[2px] text-sumi">構造</h1>
@@ -52,30 +36,52 @@ export function Home({ trees, today, onChanged }: Props) {
 
       <HomeSync onChanged={onChanged} />
 
-      {trees.length === 0 && (
+      {trees.length === 0 ? (
         <p className="mb-4 font-mincho text-base text-sumi">まだ木がない。最初の1本を作る</p>
-      )}
+      ) : (
+        <>
+          <input
+            type="search"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="木をさがす"
+            aria-label="木をさがす"
+            autoCapitalize="off"
+            spellCheck={false}
+            className="mb-4 w-full rounded border border-rule bg-white px-3 py-2 font-gothic text-base text-sumi placeholder:text-usuzumi"
+          />
 
-      {dueToday.length > 0 && (
-        <section className="mb-6">
-          <h2 className="mb-1 font-gothic text-sm text-sumi">今日展開する {dueToday.length} 本</h2>
-          <ul>
-            {dueToday.map((tree) => (
-              <Row key={tree.id} tree={tree} today={today} />
-            ))}
-          </ul>
-        </section>
-      )}
-
-      {later.length > 0 && (
-        <section className="mb-6">
-          <h2 className="mb-1 font-gothic text-sm text-usuzumi">この先</h2>
-          <ul>
-            {later.map((tree) => (
-              <Row key={tree.id} tree={tree} today={today} />
-            ))}
-          </ul>
-        </section>
+          {searching ? (
+            <section className="mb-6">
+              <Note>{hits.length > 0 ? `${hits.length} 本の木にあった` : '見つからなかった'}</Note>
+              <ul>
+                {hits.map(({ tree, matches }) => (
+                  <TreeRow key={tree.id} tree={tree} today={today} showPath>
+                    {matches.slice(0, MAX_MATCHES).map((match, index) => (
+                      <div key={index} className="mt-1 font-mincho text-sm leading-[1.6] text-sumi">
+                        {match.join(' / ')}
+                      </div>
+                    ))}
+                    {matches.length > MAX_MATCHES && (
+                      <div className="mt-1 font-gothic text-xs text-usuzumi">
+                        ほか {matches.length - MAX_MATCHES} 節
+                      </div>
+                    )}
+                  </TreeRow>
+                ))}
+              </ul>
+            </section>
+          ) : (
+            <section className="mb-6">
+              {dueCount > 0 && (
+                <Button kind="text" className="mb-2" onClick={() => navigate({ name: 'due' })}>
+                  出番の木 {dueCount} 本
+                </Button>
+              )}
+              <Shelf shelf={shelf} today={today} />
+            </section>
+          )}
+        </>
       )}
 
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">

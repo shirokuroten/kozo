@@ -22,6 +22,9 @@ export interface TreeSource {
   docId: string;
   // 文書の中での場所（タブ名、章の見出しなど）。根の上に小さく添える
   path?: string[];
+  // 一覧で「文書 > タブ > 見出し > 木」と並べるための文書名と、文書の中での並び順
+  docTitle?: string;
+  order?: number;
 }
 
 export interface Tree {

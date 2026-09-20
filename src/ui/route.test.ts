@@ -14,6 +14,7 @@ describe('parseHash', () => {
       { name: 'home' },
       { name: 'new' },
       { name: 'data' },
+      { name: 'due' },
       { name: 'view', id: 'abc-123' },
       { name: 'edit', id: 'abc-123' },
       { name: 'review', id: 'a/b c' },
