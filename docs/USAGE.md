@@ -56,6 +56,12 @@ Use this before changing phones, and for occasional backups. The data exists onl
 
 A review opens the whole tree from the top. If a single tree is too large, each review becomes heavy and the result becomes coarse. Keep each tree to around 5 to 20 nodes, and split a large topic into several trees.
 
+## Labels: lines that are not asked
+
+End a line with a colon to make it a label, for example `理由：` (reason) or `必要となるもの：` (what is needed). Use it for a category you want to answer under, or for words that only connect one level to the next.
+
+In a review a label is visible from the start, in pale ink, and has no ○ ×. The branches under it are still hidden behind "N branches", so you recall them as usual. Labels are not counted in "a / b recalled" or anywhere else. A label with nothing under it works as an ungraded note.
+
 ## Linking trees
 
 Write another tree's root text in double brackets inside a node, for example `See [[即時取得]]` (good-faith acquisition). On the tree view the words become a link to that tree. This works the same in the editor, in pasted text and in Google Docs. If several trees have the same root text, the one from the same document is chosen. During a review the brackets are hidden and nothing is clickable.

@@ -46,6 +46,49 @@ describe('summarize', () => {
   });
 });
 
+describe('labels', () => {
+  const labelled = () => {
+    const tree = createTree(
+      parseOutline('根\n  枝A\n  理由：\n    葉1\n    葉2')!,
+      '2026-09-01T00:00:00.000Z',
+    );
+    const [a, label] = tree.root.children;
+    const [leaf1, leaf2] = label.children;
+    return { tree, a, label, leaf1, leaf2 };
+  };
+
+  it('leaves labels out of the count but keeps the nodes under them', () => {
+    const { tree, a, leaf1 } = labelled();
+    expect(summarize(tree.root, {})).toMatchObject({ total: 3, finished: false });
+    expect(summarize(tree.root, { [a.id]: true, [leaf1.id]: false })).toMatchObject({
+      graded: 2,
+      correct: 1,
+    });
+  });
+
+  it('finishes without a grade for the label, and records nothing about it', () => {
+    const { tree, a, label, leaf1, leaf2 } = labelled();
+    const grades: Grades = { [a.id]: true, [leaf1.id]: false, [leaf2.id]: true };
+    const { tree: next, log } = applyReview(tree, grades, TODAY, NOW);
+    expect(log.ratio).toBeCloseTo(2 / 3);
+    expect(log.nodeIds).toEqual([a.id, leaf1.id, leaf2.id]);
+    expect(log.missedNodeIds).toEqual([leaf1.id]);
+    const nextLabel = next.root.children[1];
+    expect(nextLabel.id).toBe(label.id);
+    expect(nextLabel.lastResult).toBeNull();
+    expect(nextLabel.missCount).toBe(0);
+    expect(nextLabel.children[0].missCount).toBe(1);
+  });
+
+  it('ignores a stray grade given to a label', () => {
+    const { tree, a, label, leaf1, leaf2 } = labelled();
+    const grades: Grades = { [a.id]: true, [label.id]: false, [leaf1.id]: true, [leaf2.id]: true };
+    const { tree: next, log } = applyReview(tree, grades, TODAY, NOW);
+    expect(log.ratio).toBe(1);
+    expect(next.root.children[1].missCount).toBe(0);
+  });
+});
+
 describe('applyReview', () => {
   it('updates node stats, spaced repetition, and the log together', () => {
     const { tree, a, b, leaf } = fixture();

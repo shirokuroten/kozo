@@ -60,6 +60,7 @@ export function EditScreen({ tree, onChanged }: Props) {
   return (
     <div>
       <Note>{t.edit.hint}</Note>
+      <Note>{t.edit.labelHint}</Note>
       <textarea
         value={text}
         onChange={(event) => setText(event.target.value)}

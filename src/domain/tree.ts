@@ -1,17 +1,16 @@
+import { gradedNodes } from './label';
 import { mergeStats } from './mergeStats';
 import { initialSrs } from './schedule';
 import type { Lang, Node, Tree } from './types';
 
-// The root is not graded, so it is not counted
+// Counts what a review asks for. The root and labels are not graded, so they are not counted
 export function countNodes(root: Node): number {
-  return root.children.reduce((sum, child) => sum + 1 + countNodes(child), 0);
+  return gradedNodes(root).length;
 }
 
+// A node that was turned into a label later may still carry an old result, so labels are left out here too
 export function countLastMissed(root: Node): number {
-  return root.children.reduce(
-    (sum, child) => sum + (child.lastResult === false ? 1 : 0) + countLastMissed(child),
-    0,
-  );
+  return gradedNodes(root).filter((node) => node.lastResult === false).length;
 }
 
 export type NodeTone = 'shu' | 'oudo' | 'sumi';

@@ -20,7 +20,7 @@ The Japanese color names are kept because they are used as the CSS token names (
 | Ochre (黄土, oudo): nodes that have been missed in the past | `oudo` | `#B08A2E` |
 | Moss (苔, koke): ○ | `koke` | `#3E7C59` |
 
-How the color of a node is decided: vermilion (shu) if `lastResult === false`, otherwise ochre (oudo) if `missCount > 0`, otherwise ink (sumi).
+How the color of a node is decided: vermilion (shu) if `lastResult === false`, otherwise ochre (oudo) if `missCount > 0`, otherwise ink (sumi). A label (a node ending with a colon, see `SPEC.md`) is always pale ink (usuzumi), on the tree view and in a review, so that the nodes to recall stand out.
 
 ### Dark theme
 

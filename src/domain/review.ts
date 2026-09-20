@@ -1,3 +1,4 @@
+import { gradedNodes, isLabel } from './label';
 import { schedule } from './schedule';
 import type { Node, NodeId, ReviewLog, Tree } from './types';
 
@@ -12,41 +13,23 @@ export interface ReviewSummary {
 }
 
 export function summarize(root: Node, grades: Grades): ReviewSummary {
-  let total = 0;
-  let graded = 0;
-  let correct = 0;
-  const walk = (node: Node) => {
-    for (const child of node.children) {
-      total += 1;
-      const grade = grades[child.id];
-      if (grade !== undefined) graded += 1;
-      if (grade === true) correct += 1;
-      walk(child);
-    }
-  };
-  walk(root);
+  // Labels are scaffolding, not something to recall, so they are outside the count
+  const nodes = gradedNodes(root);
+  const total = nodes.length;
+  const graded = nodes.filter((node) => grades[node.id] !== undefined).length;
+  const correct = nodes.filter((node) => grades[node.id] === true).length;
   return { total, graded, correct, finished: total > 0 && graded === total };
 }
 
 function applyGrades(node: Node, grades: Grades): Node {
-  const grade = grades[node.id];
+  // A stray grade for a label (or the root) must not leave a result on it
+  const grade = isLabel(node) ? undefined : grades[node.id];
   return {
     ...node,
     lastResult: grade === undefined ? node.lastResult : grade,
     missCount: node.missCount + (grade === false ? 1 : 0),
     children: node.children.map((child) => applyGrades(child, grades)),
   };
-}
-
-function missedIds(node: Node, grades: Grades): NodeId[] {
-  return node.children.flatMap((child) => [
-    ...(grades[child.id] === false ? [child.id] : []),
-    ...missedIds(child, grades),
-  ]);
-}
-
-function gradedIds(node: Node): NodeId[] {
-  return node.children.flatMap((child) => [child.id, ...gradedIds(child)]);
 }
 
 export function applyReview(
@@ -60,6 +43,7 @@ export function applyReview(
   if (!finished) throw new Error('Cannot save a review before every node is graded');
 
   const ratio = correct / total;
+  const nodes = gradedNodes(tree.root);
   return {
     tree: {
       ...tree,
@@ -72,9 +56,9 @@ export function applyReview(
       treeId: tree.id,
       date: today,
       ratio,
-      missedNodeIds: missedIds(tree.root, grades),
+      missedNodeIds: nodes.filter((node) => grades[node.id] === false).map((node) => node.id),
       // The tree can gain or lose nodes later, so the history needs the node set as it was today
-      nodeIds: gradedIds(tree.root),
+      nodeIds: nodes.map((node) => node.id),
       at: now,
     },
   };

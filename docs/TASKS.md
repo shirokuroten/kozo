@@ -92,6 +92,13 @@ Everything that the first spec listed as "later", plus the dark theme.
 - [x] Review history calendar
 - [x] Past reviews and per-node history marks on the tree view
 
+## Phase 10: Refinements from daily use
+
+- [x] Press a row to review. Secondary actions behind a three-dot menu
+- [x] Theme switch (match device, light, dark)
+- [x] Nest Google Docs bullets by their visible indentation
+- [x] Labels: nodes ending with a colon are shown from the start and never graded
+
 ## After that
 
 Nothing is planned. See "Later ideas" at the end of `SPEC.md`, and consult the user before starting anything new.

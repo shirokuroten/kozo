@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { nodeHistory, type NodeMark } from '../domain/history';
+import { isLabel, labelText } from '../domain/label';
 import { parseLinks } from '../domain/links';
 import { shelfPath } from '../domain/shelf';
 import { nodeTone, type NodeTone } from '../domain/tree';
@@ -97,18 +98,25 @@ interface TreeViewProps {
 export function TreeView({ node, depth = 0, linkTo, history }: TreeViewProps) {
   const { t } = useI18n();
   // The root is never graded, so it has no history of its own
+  // A label is never graded either. It is set in pale ink so the nodes to recall stand out, and any
+  // result left from before it became a label is not shown
+  const label = depth > 0 && isLabel(node);
   const marks =
-    history && depth > 0 ? nodeHistory(history.logs, history.treeId, node.id, HISTORY_LIMIT) : [];
+    history && depth > 0 && !label
+      ? nodeHistory(history.logs, history.treeId, node.id, HISTORY_LIMIT)
+      : [];
   const hasMarks = marks.some((mark) => mark !== 'absent');
+  const missCount = label ? 0 : node.missCount;
+  const tone = label ? 'text-usuzumi' : TONE_CLASS[nodeTone(node)];
   return (
     <Indent depth={depth}>
-      <div className={`py-1 ${nodeTextClass(depth)} ${TONE_CLASS[nodeTone(node)]}`}>
-        <NodeText text={node.text} linkTo={linkTo} />
-        {(node.missCount > 0 || hasMarks) && (
+      <div className={`py-1 ${nodeTextClass(depth)} ${tone}`}>
+        <NodeText text={label ? labelText(node.text) : node.text} linkTo={linkTo} />
+        {(missCount > 0 || hasMarks) && (
           // An inline-flex box wraps as one unit, so on a narrow screen the counter and the marks
           // drop under the text together instead of squeezing it
           <span className="ml-2 inline-flex items-center gap-2 align-middle font-gothic text-xs text-usuzumi">
-            {node.missCount > 0 && <span>{t.view.missCount(node.missCount)}</span>}
+            {missCount > 0 && <span>{t.view.missCount(missCount)}</span>}
             <NodeMarks marks={marks} />
           </span>
         )}

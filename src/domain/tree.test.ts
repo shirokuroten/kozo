@@ -27,6 +27,13 @@ describe('countNodes', () => {
   });
 });
 
+describe('countNodes with labels', () => {
+  it('does not count labels, but counts what hangs under them', () => {
+    expect(countNodes(parseOutline('根\n  理由：\n    葉A\n    葉B\n  枝')!)).toBe(3);
+    expect(countNodes(parseOutline('根\n  メモ：')!)).toBe(0);
+  });
+});
+
 describe('countLastMissed', () => {
   it('counts only the nodes missed last time', () => {
     const r = root();

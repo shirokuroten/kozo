@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { repository } from '../data';
+import { isLabel, labelText } from '../domain/label';
 import { plainText } from '../domain/links';
 import { nextInQueue, queuePosition } from '../domain/queue';
 import { applyReview, summarize, type Grades } from '../domain/review';
@@ -53,18 +54,23 @@ function GradeButton({
 function ReviewNode({ node, depth, opened, grades, onOpen, onGrade }: NodeProps) {
   const { t } = useI18n();
   const grade = grades[node.id];
-  const hasChildren = node.children.length > 0;
+  // A label is scaffolding: it is shown without being recalled, and it is not graded
+  const label = depth > 0 && isLabel(node);
   const isOpen = opened.has(node.id);
-  // Children are not shown under a node that has not been graded yet, to preserve the top-down order of the review
-  const canOpen = depth === 0 || grade !== undefined;
+  // Children are not shown under a node that has not been graded yet, to preserve the top-down order of the review.
+  // A label has nothing to grade, so what hangs under it is available at once
+  const canOpen = depth === 0 || label || grade !== undefined;
+  const hiddenCount = node.children.filter((child) => !isLabel(child)).length;
+  const firstHidden = node.children.findIndex((child) => !isLabel(child));
+  const tone = label ? 'text-usuzumi' : grade === false ? 'text-shu' : 'text-sumi';
 
   return (
     <Indent depth={depth}>
       <div className="flex items-start justify-between gap-3 py-1">
-        <div className={`${nodeTextClass(depth)} ${grade === false ? 'text-shu' : 'text-sumi'}`}>
-          {plainText(node.text)}
+        <div className={`${nodeTextClass(depth)} ${tone}`}>
+          {plainText(label ? labelText(node.text) : node.text)}
         </div>
-        {depth > 0 && (
+        {depth > 0 && !label && (
           <div className="flex shrink-0 gap-2">
             <GradeButton
               value={true}
@@ -80,28 +86,36 @@ function ReviewNode({ node, depth, opened, grades, onOpen, onGrade }: NodeProps)
         )}
       </div>
 
-      {hasChildren && canOpen && !isOpen && (
-        <button
-          type="button"
-          onClick={() => onOpen(node.id)}
-          className="my-1 ml-[14px] rounded border border-dashed border-rule bg-surface px-3 py-2 text-left font-gothic text-sm text-usuzumi"
-        >
-          {t.review.expand(node.children.length)}
-        </button>
-      )}
-
-      {isOpen &&
-        node.children.map((child) => (
-          <ReviewNode
-            key={child.id}
-            node={child}
-            depth={depth + 1}
-            opened={opened}
-            grades={grades}
-            onOpen={onOpen}
-            onGrade={onGrade}
-          />
-        ))}
+      {/* Until the branches are opened, labels are already visible and everything to recall hides behind
+          one button. The button stands where the first hidden branch is, so nothing jumps when it opens.
+          The count leaves labels out: they are not something to recall */}
+      {canOpen &&
+        node.children.map((child, index) => {
+          if (isOpen || isLabel(child)) {
+            return (
+              <ReviewNode
+                key={child.id}
+                node={child}
+                depth={depth + 1}
+                opened={opened}
+                grades={grades}
+                onOpen={onOpen}
+                onGrade={onGrade}
+              />
+            );
+          }
+          if (index !== firstHidden) return null;
+          return (
+            <button
+              key="expand"
+              type="button"
+              onClick={() => onOpen(node.id)}
+              className="my-1 ml-[14px] block rounded border border-dashed border-rule bg-surface px-3 py-2 text-left font-gothic text-sm text-usuzumi"
+            >
+              {t.review.expand(hiddenCount)}
+            </button>
+          );
+        })}
     </Indent>
   );
 }

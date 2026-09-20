@@ -19,6 +19,7 @@ The name: law students call their self-made summaries of a subject outlines, and
 - Whole-tree review with spaced repetition per tree (SM-2 based). Trees with missed nodes come back sooner
 - Review a whole chapter or part in a row, straight from the shelf
 - Links between trees: write `[[root text]]` in a node
+- Labels: end a line with a colon (`Reason:`) and it becomes scaffolding that is shown but never asked
 - Review history: a calendar, and per-node marks showing where you keep missing
 - One-way sync from Google Docs. The app never writes to your documents
 - Paste import for outlines written anywhere else
