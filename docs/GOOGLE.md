@@ -65,6 +65,7 @@ There is only one rule. **The line right above a bullet list becomes the root, a
 
 - The line that becomes the root may be a heading (Heading 1, Heading 2 and so on) or an ordinary line
 - A heading with no bullet list under it does not become a tree. It is shown in small type above the root, as the "location" of the trees below it
+- Nesting follows what you see. A bullet belongs to the nearest bullet above it that is indented less, judged by the visible indentation. So if you press Enter twice and start a new list, then indent it under an earlier item, it still hangs under that item (Docs itself numbers the new list from level 0 again, which is why a copy and paste of the text can look flatter than the document)
 - All tabs are read. In a document with two or more tabs, the tab name is put at the front of the location
 - Press Tab to nest a bullet deeper. The nesting depth becomes the depth in the tree as is
 - Paragraphs in the "Title" style, blank lines, and ordinary text that is not followed by a bullet list are ignored. You can write free-form notes

@@ -10,7 +10,10 @@ export interface GoogleDocBody {
     paragraph?: {
       elements?: { textRun?: { content?: string } }[];
       bullet?: { listId?: string; nestingLevel?: number };
-      paragraphStyle?: { namedStyleType?: string };
+      paragraphStyle?: {
+        namedStyleType?: string;
+        indentStart?: { magnitude?: number; unit?: string };
+      };
     };
   }[];
 }
@@ -45,6 +48,21 @@ export function parseDocId(input: string): string | null {
 const SOFT_BREAK = String.fromCharCode(0x0b);
 
 const SKIPPED_STYLES = new Set(['TITLE', 'SUBTITLE']);
+// Docs indents a list by 36pt per nesting level, starting at 36pt for level 0
+const INDENT_STEP_PT = 36;
+
+// How deep a bullet sits, counted from 1.
+// The visible indentation wins over the nesting level. A list that was restarted (Enter twice, then a new
+// list) is numbered from level 0 again even when it is indented to sit under a deeper item, and the user
+// structures the document by what they see. The nesting level is the fallback when no indentation is reported
+function bulletDepth(
+  paragraph: NonNullable<NonNullable<GoogleDocBody['content']>[number]['paragraph']>,
+): number {
+  const points = paragraph.paragraphStyle?.indentStart?.magnitude;
+  if (points === undefined) return (paragraph.bullet?.nestingLevel ?? 0) + 1;
+  return Math.max(1, Math.round(points / INDENT_STEP_PT));
+}
+
 // A plain paragraph with no heading style is treated as a level below every heading
 const PLAIN_LEVEL = 7;
 
@@ -83,7 +101,7 @@ function bodyToTrees(body: GoogleDocBody | undefined, basePath: string[]): DocTr
       continue;
     }
 
-    const depth = (paragraph.bullet.nestingLevel ?? 0) + 1;
+    const depth = bulletDepth(paragraph);
     if (lines === null) {
       const root = headings[headings.length - 1];
       const path = [...basePath, ...headings.slice(0, -1).map((h) => h.text)];

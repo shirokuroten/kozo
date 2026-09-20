@@ -98,7 +98,7 @@ Result display:
 ### Sync with Google Docs
 
 - Reads the registered documents and reflects them in the trees. One way, from the document to the app. Nothing is written to the document
-- The line right before a bullet list (a heading or an ordinary paragraph) is the root, and that bullet list is its nodes. Depth follows the nesting level of the bullet list in the document
+- The line right before a bullet list (a heading or an ordinary paragraph) is the root, and that bullet list is its nodes. Depth follows the visible indentation of the bullets, not the list-internal nesting level, so a list that was restarted and indented under an earlier item still hangs where it looks
 - All tabs are read. Headings that have no bullet list under them, and tab names, do not become trees. They are shown in small type above the root as the tree's "location"
 - A tree in the same document, at the same location, with the same heading is considered the same tree, and its content is replaced. A tree whose location was merely renamed is not duplicated. Node statistics are carried over by the same rule as editing, and the spaced repetition state is left as is
 - The document is the source of truth and the app is its copy. A tree whose heading disappeared from the document is also deleted from the app by sync. However, when not a single tree could be read from the document, nothing is deleted

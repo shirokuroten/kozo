@@ -19,6 +19,14 @@ const bullet = (text: string, level = 0) => ({
     bullet: { listId: 'l', ...(level > 0 ? { nestingLevel: level } : {}) },
   },
 });
+// A bullet as Docs returns it when the visible indentation is set on the paragraph (in points)
+const indented = (text: string, level: number, indentStart: number) => ({
+  paragraph: {
+    elements: [{ textRun: { content: `${text}\n` } }],
+    bullet: { listId: 'l2', ...(level > 0 ? { nestingLevel: level } : {}) },
+    paragraphStyle: { indentStart: { magnitude: indentStart, unit: 'PT' } },
+  },
+});
 const body = (...content: NonNullable<GoogleDocBody['content']>): GoogleDocBody => ({ content });
 
 describe('parseDocId', () => {
@@ -130,6 +138,45 @@ describe('docToTrees', () => {
       ),
     };
     expect(docToTrees(doc)).toEqual([{ path: [], outline: '見出しの続き\n  一行目 二行目' }]);
+  });
+
+  it('nests by the visible indentation, so a second list that restarts at level 0 still hangs where it looks', () => {
+    // The user pressed Enter twice and started a new list, indented to sit under 違憲審査基準.
+    // Docs numbers the new list from level 0 again, but on screen it is three levels deep
+    const doc = {
+      body: body(
+        para('違憲審査権'),
+        bullet('形式的審査'),
+        bullet('根拠となる法律があるか', 1),
+        bullet('実質的審査'),
+        bullet('必要となるもの', 1),
+        bullet('違憲審査基準', 2),
+        para(''),
+        indented('中間審査基準', 0, 144),
+        indented('目的が十分に重要である', 1, 180),
+        indented('手段が実質的関連性を有している', 1, 180),
+        indented('LRA', 2, 216),
+      ),
+    };
+    const [tree] = docToTrees(doc);
+    const root = parseOutline(tree.outline)!;
+    expect(root.children.map((c) => c.text)).toEqual(['形式的審査', '実質的審査']);
+    const standard = root.children[1].children[0].children[0];
+    expect(standard.text).toBe('違憲審査基準');
+    expect(standard.children.map((c) => c.text)).toEqual(['中間審査基準']);
+    expect(standard.children[0].children.map((c) => c.text)).toEqual([
+      '目的が十分に重要である',
+      '手段が実質的関連性を有している',
+    ]);
+    expect(standard.children[0].children[1].children[0].text).toBe('LRA');
+  });
+
+  it('gives the same result whether Docs reports the default indentation or leaves it out', () => {
+    const plain = docToTrees({ body: body(para('根'), bullet('枝'), bullet('葉', 1)) });
+    const explicit = docToTrees({
+      body: body(para('根'), indented('枝', 0, 36), indented('葉', 1, 72)),
+    });
+    expect(explicit).toEqual(plain);
   });
 
   it('makes the first line the root for a bullet list that comes before any heading', () => {
