@@ -1,6 +1,7 @@
 import { countLastMissed, countNodes, formatDue, partitionByDue } from '../domain/tree';
 import type { Tree } from '../domain/types';
 import { Button } from './Button';
+import { HomeSync } from './HomeSync';
 import { navigate } from './route';
 import { TreePath } from './TreeView';
 
@@ -34,7 +35,13 @@ function Row({ tree, today }: { tree: Tree; today: string }) {
   );
 }
 
-export function Home({ trees, today }: { trees: Tree[]; today: string }) {
+interface Props {
+  trees: Tree[];
+  today: string;
+  onChanged: () => Promise<void>;
+}
+
+export function Home({ trees, today, onChanged }: Props) {
   const { dueToday, later } = partitionByDue(trees, today);
   return (
     <div>
@@ -42,6 +49,8 @@ export function Home({ trees, today }: { trees: Tree[]; today: string }) {
       <p className="mt-1 mb-6 font-gothic text-sm text-usuzumi">
         木を上から展開して、自分で再現する
       </p>
+
+      <HomeSync onChanged={onChanged} />
 
       {trees.length === 0 && (
         <p className="mb-4 font-mincho text-base text-sumi">まだ木がない。最初の1本を作る</p>

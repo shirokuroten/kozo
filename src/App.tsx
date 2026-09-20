@@ -13,7 +13,7 @@ import { ViewScreen } from './ui/ViewScreen';
 function renderScreen(route: Route, trees: Tree[], reload: () => Promise<void>) {
   // 日付をまたいで開きっぱなしでも、画面を移るたびに今日を取り直す
   const today = toLocalDate(new Date());
-  if (route.name === 'home') return <Home trees={trees} today={today} />;
+  if (route.name === 'home') return <Home trees={trees} today={today} onChanged={reload} />;
   if (route.name === 'new') return <EditScreen key="new" onChanged={reload} />;
   if (route.name === 'data') return <DataScreen today={today} onChanged={reload} />;
 

@@ -2,21 +2,13 @@ import { useEffect, useState } from 'react';
 import { repository, type LinkedDoc } from '../data';
 import { syncGoogleDoc } from '../data/gdocSync';
 import { loadGoogleSignIn } from '../data/google';
-import { parseDocId, type SyncPlan } from '../domain/gdoc';
+import { parseDocId } from '../domain/gdoc';
 import { Button } from './Button';
 import { Note } from './Note';
+import { describePlan } from './syncMessage';
 
 const INPUT_CLASS =
   'w-full rounded border border-rule bg-white px-3 py-2 font-gothic text-base text-sumi placeholder:text-rule';
-
-function describePlan(title: string, plan: SyncPlan): string {
-  if (plan.created === 0 && plan.updated === 0) return `「${title}」に変わったところはなかった`;
-  const parts = [
-    plan.created > 0 ? `新しい木 ${plan.created} 本` : '',
-    plan.updated > 0 ? `更新 ${plan.updated} 本` : '',
-  ].filter(Boolean);
-  return `「${title}」を同期した。${parts.join('、')}`;
-}
 
 interface Props {
   onChanged: () => Promise<void>;
