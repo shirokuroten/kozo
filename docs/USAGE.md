@@ -1,22 +1,24 @@
-# 使い方（木の入れ方）
+# Usage (how to add trees)
 
-木を入れる道は4つある。どれも最後は同じアウトラインになる。
+There are four ways to add trees. All of them end up as the same kind of outline.
 
-## 1. アプリの中で直接書く
+Button names below are the English UI labels. The Japanese UI label is given in parentheses the first time each one appears.
 
-一覧の「新しい木を作る」。1行目が見出し、行頭の空白2つ（または全角空白、タブ）で1段深くなる。書きながら下に木のプレビューが出る。
+## 1. Write directly in the app
 
-1本ずつ、思いついたときに書くならこれが早い。
+"New tree" (新しい木を作る) on the home screen. The first line is the heading, and two leading spaces (or a full-width space, or a tab) go one level deeper. While you write, a preview of the tree appears below.
 
-## 2. Google ドキュメントなどに書きためて、まとめて貼る
+This is the quickest way when you write one tree at a time, as things come to mind.
 
-一覧の「取り込みとバックアップ」にある「貼り付けて取り込む」に貼り付ける。
+## 2. Write trees up in Google Docs or elsewhere, then paste them in bulk
 
-文書側の書き方:
+Paste into "Paste to import" (貼り付けて取り込む), found under "Import and backup" (取り込みとバックアップ) on the home screen.
 
-- 見出しは普通の段落（字下げも箇条書きの記号もない行）で書く。これが根になる
-- その下に箇条書きで枝を書く。Tab で段を下げる
-- 次の見出しを書けば、そこから次の木になる。空行はあってもなくてもよい
+How to write the document:
+
+- Write a heading as an ordinary paragraph (a line with no indentation and no bullet marker). This becomes the root
+- Write the branches under it as a bullet list. Press Tab to go one level deeper
+- Writing the next heading starts the next tree. Blank lines may be present or absent
 
 ```
 人権の三要素
@@ -30,24 +32,26 @@
 - 中間審査
 ```
 
-貼り付けると、取り込まれる木の見出しと節の数が一覧で出る。確かめてから「N 本の木を取り込む」を押す。
+(The example is Japanese study material. 人権の三要素 (the three elements of human rights): 固有性 (inherence), rights a person has by virtue of being human, and 不可侵性 (inviolability), not to be infringed even by public authority. 違憲審査基準 (standards of constitutional review): 厳格審査 (strict scrutiny) and 中間審査 (intermediate scrutiny).)
 
-行頭の `-`、`*`、`・`、`●` などの記号は自動で取り除く。字下げは空白2つ、空白4つ、タブ、全角空白のどれでもよい。
+After pasting, a list shows the heading and node count of each tree that will be imported. Check it, then press "Import N trees" (N 本の木を取り込む).
 
-注意: まとめて取り込みは毎回「新しい木」として追加する。同じ文書をもう一度貼ると同じ木が2本になる。直したいときは、アプリの中でその木を「編集」する（編集なら、落ちた回数などの記録が引き継がれる）。
+Markers at the start of a line such as `-`, `*`, `・` and `●` are removed automatically. Indentation may be two spaces, four spaces, tabs or full-width spaces.
 
-## 3. Google ドキュメントと同期する
+Note: bulk import adds "new trees" every time. Pasting the same document again gives you two copies of the same tree. When you want to fix a tree, use "Edit" on that tree inside the app (with editing, records such as the miss count are carried over).
 
-2 の貼り付けを、ボタン1つにしたもの。文書の書き方は同じ。最初に1度だけ Google 側の設定が要る。手順は `GOOGLE.md`。
+## 3. Sync with Google Docs
 
-貼り付けと違い、何度同期しても木は重複しない。同じ見出しの木は中身だけ更新され、落ちた回数などの記録は引き継がれる。文書を直して「同期」を押す、を繰り返せばよい。
+This turns the pasting of method 2 into a single button. The way to write the document is the same. A one-time setup on the Google side is needed first. The procedure is in `GOOGLE.md`.
 
-## 4. 別の端末から持ってくる
+Unlike pasting, trees are never duplicated no matter how many times you sync. A tree with the same heading only has its content updated, and records such as the miss count are carried over. Just repeat: fix the document, press "Sync".
 
-「取り込みとバックアップ」の「控えを書き出す」で JSON を1つ作り、もう一方の端末で「控えを読み込む」。手元のデータは消えず、同じ木は新しい方が残る。
+## 4. Bring trees over from another device
 
-機種変更の前と、ときどきのバックアップに使う。データは端末の中にしかないので、ブラウザのデータを消すと木も消える。
+Make a single JSON file with "Export backup" (控えを書き出す) under "Import and backup", then use "Import backup" (控えを読み込む) on the other device. The data already on the device is not erased, and for identical trees the newer one remains.
 
-## 木の大きさの目安
+Use this before changing phones, and for occasional backups. The data exists only on the device, so clearing the browser's data also erases the trees.
 
-展開は木を丸ごと上から開く。1本が大きすぎると1回が重くなり、結果も粗くなる。1本あたり 5〜20 節くらいに収め、大きな論点は複数の木に分けるとよい。
+## Rough guide to tree size
+
+A review opens the whole tree from the top. If a single tree is too large, each review becomes heavy and the result becomes coarse. Keep each tree to around 5 to 20 nodes, and split a large topic into several trees.

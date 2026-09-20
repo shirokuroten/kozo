@@ -1,79 +1,87 @@
-# 実装の順番
+# Order of implementation
 
-フェーズを1つずつ進める。各フェーズの終わりに build と test が通ること。
+Proceed one phase at a time. At the end of each phase, build and test must pass.
 
-## フェーズ 0: 土台
+## Phase 0: Foundation
 
-- [x] Vite + React + TypeScript でプロジェクト作成
-- [x] Tailwind、vitest、eslint、prettier を設定
-- [x] `src/domain/` に型（`DATA.md`）を置く
-- [x] `parseOutline` と `toOutline` を実装しテストを書く
-- [x] `schedule` を実装しテストを書く
-- [x] 編集時の統計引き継ぎ `mergeStats(old, new)` を実装しテストを書く
+- [x] Create the project with Vite + React + TypeScript
+- [x] Set up Tailwind, vitest, eslint and prettier
+- [x] Put the types (`DATA.md`) in `src/domain/`
+- [x] Implement `parseOutline` and `toOutline` and write tests
+- [x] Implement `schedule` and write tests
+- [x] Implement `mergeStats(old, new)`, which carries over statistics on edit, and write tests
 
-完了条件: ドメインロジックがUIなしでテストだけで検証できている
+Done when: the domain logic is verified by tests alone, without any UI
 
-## フェーズ 1: 保存と一覧
+## Phase 1: Storage and list
 
-- [x] Dexie で `trees`、`reviewLogs` テーブル
-- [x] リポジトリ層 `src/data/` を作り、UIから IndexedDB を直接触らない
-- [x] ホーム画面。「今日展開する」「この先」の2区分
-- [x] サンプルの木を初回起動時に1本だけ入れる（人権の三要素）
+- [x] `trees` and `reviewLogs` tables with Dexie
+- [x] Create the repository layer `src/data/` so that the UI never touches IndexedDB directly
+- [x] Home screen. Two sections: "review today" and "upcoming"
+- [x] Insert exactly one sample tree on first launch (人権の三要素, the three elements of human rights)
 
-## フェーズ 2: 編集
+## Phase 2: Editing
 
-- [x] アウトラインのテキストエリアとプレビュー
-- [x] 新規作成、既存の編集、削除
-- [x] 編集で統計を引き継ぐ
-- [x] 未保存で離脱するときの確認
+- [x] Outline text area and preview
+- [x] Create new, edit existing, delete
+- [x] Carry over statistics on edit
+- [x] Confirmation when leaving with unsaved changes
 
-## フェーズ 3: 展開
+## Phase 3: Review
 
-これが核。`SPEC.md` の「展開」の7手順を正確に再現する。
+This is the core. Reproduce the seven steps of "Review" in `SPEC.md` exactly.
 
-- [x] 根だけ表示から始まる
-- [x] 「枝が N 本。思い出してから開く」ボタン
-- [x] 子を一度に表示、各節に ○×
-- [x] 採点済みの節の下にだけ次の展開ボタンが出る
-- [x] 進捗表示、中断
-- [x] 結果画面と保存。保存で `schedule` と節の統計を更新し `reviewLogs` に追記
-- [x] 木を見る画面で色分けと落ちた回数の表示
+- [x] Starts with only the root displayed
+- [x] The "N branches. Recall them, then open" button
+- [x] Show the children all at once, with ○ and × on each node
+- [x] The next expand button appears only under nodes that have been marked
+- [x] Progress display, stop
+- [x] Result screen and save. Saving updates `schedule` and the node statistics, and appends to `reviewLogs`
+- [x] Color coding and miss count display on the tree view screen
 
-完了条件: `reference/prototype.jsx` と同じ手触りで展開できる。人権の三要素で通しで動かして確認する
+Done when: a review feels the same as in `reference/prototype.jsx`. Confirm by running through 人権の三要素 from start to finish
 
-## フェーズ 4: 持ち運び
+## Phase 4: Portability
 
-- [x] PWA 化（manifest、service worker、オフライン動作）
-- [x] JSON エクスポート／インポート
-- [x] 木の Markdown コピー
+- [x] Make it a PWA (manifest, service worker, offline operation)
+- [x] JSON export and import
+- [x] Copy a tree as Markdown
 
-## フェーズ 5: 仕上げ
+## Phase 5: Finishing
 
-- [x] `DESIGN.md` に沿って全画面を確認
-- [x] キーボードフォーカスの可視化
+- [x] Check every screen against `DESIGN.md`
+- [x] Visible keyboard focus
 - [x] `prefers-reduced-motion`
-- [ ] スマホ実機で展開画面の親指操作を確認（○× の押しやすさ）
+- [ ] Check thumb operation of the review screen on a real phone (how easy ○ and × are to press)
 
-## フェーズ 6: 文書からの取り込み（利用者の要望で追加）
+## Phase 6: Import from documents (added at the user's request)
 
-- [x] 貼り付けた箇条書き（記号つき、空白4つの字下げ）を解析できるようにする
-- [x] まとめて取り込む
-- [x] Google ドキュメントの解析 `docToOutlines` と同期の計画 `planSync` を実装しテストを書く
-- [x] クライアント ID と登録した文書を端末に保存する
-- [x] ログイン（トークンフロー）と文書の取得、同期の画面
-- [x] 利用者のクライアント ID で、本物の文書を同期して確認する（2026-09-20、利用者が公開版で確認）
-- [x] 一覧に同期ボタンを置く（文書を登録済みのときだけ出す）
-- [x] GitHub Pages に置くためのワークフロー
+- [x] Make pasted bullet lists (with markers, with four-space indentation) parseable
+- [x] Bulk import
+- [x] Implement `docToOutlines`, which parses a Google document, and `planSync`, which plans a sync, and write tests
+- [x] Store the client ID and the registered documents on the device
+- [x] Sign-in (token flow), fetching documents, and the sync screen
+- [x] Sync a real document with the user's client ID and confirm it works (2026-09-20, confirmed by the user on the published version)
+- [x] Put a sync button on the list (shown only when a document is registered)
+- [x] Workflow for hosting on GitHub Pages
 
-## フェーズ 7: 棚と検索（利用者の要望で追加）
+## Phase 7: Shelf and search (added at the user's request)
 
-毎日の暗記よりも、読んだ本をまとめて折に触れて引く使い方を優先する。
+Prioritize the use of summarizing books one has read and looking things up now and then, over daily memorization.
 
-- [x] 同期した木に文書名と並び順を持たせる
-- [x] 棚の組み立て `buildShelf` と検索 `searchTrees` を実装しテストを書く
-- [x] 一覧を棚にする。出番の一覧は別の画面に移す
-- [x] 検索
+- [x] Give synced trees a document title and an order
+- [x] Implement `buildShelf`, which assembles the shelf, and `searchTrees`, which searches, and write tests
+- [x] Turn the list into the shelf. Move the list of due trees to a separate screen
+- [x] Search
 
-## その後
+## Phase 8: English for the public repository
 
-`SPEC.md` 末尾の「フェーズ2以降で検討するもの」。着手前にユーザーと相談する。
+The repository is public on GitHub, so everything a visitor reads is in English, and the app can be used in English.
+
+- [x] English docs and README
+- [x] Comments and test titles in English
+- [x] Selectable UI language (Japanese or English) with English error messages
+
+## After that
+
+"To consider in phase 2 and later" at the end of `SPEC.md`. Consult the user before starting.

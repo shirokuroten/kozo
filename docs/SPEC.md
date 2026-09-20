@@ -1,120 +1,120 @@
-# 機能仕様
+# Functional spec
 
-## 背景
+## Background
 
-法律学習では「人権の三要素は固有性・不可侵性・普遍性」という列挙と、「固有性とは生まれながらに持つ権利である」という各項目の内容を、両方とも答案で再現できる必要がある。既存の暗記アプリはこれを穴埋め問題に切り刻んでしまい、知識の構造が見えなくなる。
+In legal study, you need to be able to reproduce two things in a written answer: an enumeration such as "the three elements of human rights are inherence, inviolability and universality", and the content of each item, such as "inherence means the rights are held from birth". Existing memorization apps chop this into fill-in-the-blank questions, and the structure of the knowledge is no longer visible.
 
-このアプリは知識を木として扱う。見出しから枝が生え、枝の下に内容がぶら下がる。復習ではその木を上から順に展開し、各節が言えたかを記録する。
+This app treats knowledge as a tree. Branches grow from a heading, and content hangs under the branches. In a review, the user expands the tree from the top in order and records whether each node was recalled.
 
-## 原則
+## Principles
 
-1. 構造として捉えられること。木は常に木の形で表示する
-2. 自分で構造を作れること。木はユーザーがアウトラインとして書く
-3. 最適な方法で復習できること。木単位の間隔反復で回し、落ちた節がある木は次の出番を早める
+1. The knowledge can be grasped as a structure. A tree is always displayed in the shape of a tree
+2. The user can build the structure themselves. The user writes each tree as an outline
+3. The user can review in the best way. Trees are cycled with spaced repetition per tree, and a tree with missed nodes comes due sooner
 
-## 用語
+## Terms
 
-- 木（tree）: 1つの知識のまとまり。根が1つ
-- 根（root）: 木の見出し。例「人権の三要素」
-- 節（node）: 根以外のすべての要素。枝も葉も節
-- 枝（branch）: 子を持つ節
-- 葉（leaf）: 子を持たない節
-- 展開（expand）: 復習のこと。木を上から開いていく動作
-- 落ちる（miss）: 展開中にその節を言えなかったこと
+- Tree: one unit of knowledge. It has exactly one root
+- Root: the heading of a tree. Example: 人権の三要素 (the three elements of human rights)
+- Node: every element other than the root. Branches and leaves are both nodes
+- Branch: a node that has children
+- Leaf: a node that has no children
+- Review (expand): expanding a tree from the top to recall it. The action of opening the tree downward
+- Miss: failing to recall a node during a review
 
-## 画面
+## Screens
 
-### 一覧（ホーム）
+### List (home)
 
-- 主役は棚。木を「文書 > タブ > 見出し > 木」の入れ子で、文書の中の順番どおりに並べる。まとまりは開閉でき、開閉の状態は端末に覚える。手で作った木は棚の下に並べる
-- 検索。根、節、場所（文書名、タブ名、見出し）のすべての文言から探す。空白で区切った語はすべて含む木だけ。当たった節を道筋つきで添える
-- 出番が来ている木は本数だけ示し、一覧は別の画面（出番）に置く。毎日は開かない使い方でも、たまった出番に追われないようにする
-- 各行に、根の文言、節の数、前回落ちた節の数、次の期日
-- 各行から「展開」を直接始められる
-- 「新しい木を作る」
-- Google ドキュメントを登録済みなら「Google ドキュメントと同期」。登録した文書をすべて読み直す
+- The main view is the shelf. Trees are nested as "document > tab > heading > tree" and listed in the order they appear in the document. Each group can be opened and closed, and the open or closed state is remembered on the device. Trees made by hand are listed below the shelf
+- Search. It looks through all text: roots, nodes and locations (document title, tab names, headings). Only trees that contain every whitespace-separated word are shown. Matching nodes are shown with the path leading to them
+- For trees that are due, only the count is shown, and their list lives on a separate screen (Due). This keeps the user from being chased by accumulated due trees even when the app is not opened every day
+- Each row shows the root text, the number of nodes, the number of nodes missed last time, and the next due date
+- A review can be started directly from each row
+- "New tree"
+- If a Google document is registered, "Sync with Google Docs". It rereads all registered documents
 
-### 出番
+### Due
 
-- 「出番が来ている」木の一覧。期日が今日以前の木、および一度も展開していない木
-- 「この先」の一覧。期日順
-- 全部やることを求めない。復習したいときに、どの木から開くかを決めるための画面
+- A list of trees that are due: trees whose due date is today or earlier, and trees that have never been reviewed
+- A list of upcoming trees, ordered by due date
+- It does not ask the user to do everything. It is a screen for deciding which tree to open first when the user feels like reviewing
 
-### 木を見る
+### View a tree
 
-- 木を全部開いた状態で表示する
-- 各節の色は前回の結果を反映する（`DESIGN.md` 参照）
-- 落ちた回数がある節にはその数を小さく添える
-- 「今すぐ展開する」「編集」「削除」
+- Shows the tree fully opened
+- The color of each node reflects the last result (see `DESIGN.md`)
+- A node with a miss count shows that number in small type next to it
+- "Review now", "Edit", "Delete"
 
-### 編集
+### Edit
 
-- テキストエリアにアウトライン形式で書く
-- 書きながら右側または下にプレビューの木が出る
-- 1行目が根。行頭の空白で深さを表す（半角空白2つ、タブ1つ、全角空白1つがそれぞれ1段）
-- 2行目以降は深さ1以上として扱う。深さ0で書かれても1に丸める
-- 空行は無視する
-- 既存の木を編集して保存した場合、節の統計（落ちた回数、前回の結果）は文言が同一の節については引き継ぐ。文言が変わった節は新しい節として扱う
-- 保存前に離脱しようとしたら確認する
+- The user writes in outline format in a text area
+- While writing, a preview of the tree appears to the right or below
+- The first line is the root. Leading whitespace expresses depth (two half-width spaces, one tab, or one full-width space each count as one level)
+- The second and later lines are treated as depth 1 or deeper. Even if written at depth 0, they are rounded to 1
+- Blank lines are ignored
+- When an existing tree is edited and saved, node statistics (miss count, last result) are carried over for nodes whose text is identical. A node whose text changed is treated as a new node
+- If the user tries to leave before saving, ask for confirmation
 
-### 展開（復習）
+### Review
 
-これがこの製品の核。動きは次の通り。
+This is the core of the product. It moves as follows.
 
-1. 根だけが表示されている
-2. 根の下に「枝が N 本。思い出してから開く」というボタンが出る
-3. ユーザーは頭の中で N 本の枝を挙げてからボタンを押す
-4. 子の節が一度にすべて表示される。各節の横に ○ と × のボタン
-5. ユーザーは各節に ○ か × を付ける
-6. ○ か × を付けた節にさらに子があれば、その節の下に「枝が M 本」のボタンが出て、2 に戻る
-7. すべての節に ○× が付いたら結果を表示し、「結果を保存」で終了
+1. Only the root is displayed
+2. Under the root, a button appears that says "N branches. Recall them, then open"
+3. The user lists the N branches in their head, then presses the button
+4. All child nodes are displayed at once. Next to each node are a ○ button and a × button
+5. The user marks each node with ○ or ×
+6. If a node marked ○ or × has children of its own, an "M branches" button appears under that node, and the flow returns to step 2
+7. When every node has a ○ or ×, the result is displayed, and "Save result" ends the review
 
-制約:
+Constraints:
 
-- 採点前の節の下には子を出さない。上から順に展開する動きを崩さないため
-- 一度付けた ○× は展開中は変更できる（誤タップ対策）
-- 「中断」で途中終了できる。途中結果は保存しない
-- 進捗を「採点済み / 全節数」で常に表示する
+- Children are never shown under a node that has not been marked yet. This keeps the motion of expanding from the top in order
+- A ○ or × can be changed during the review once given (to guard against mistaps)
+- "Stop" ends the review partway. Partial results are not saved
+- Progress is always displayed as "marked / total nodes"
 
-結果表示:
+Result display:
 
-- 「a / b が言えた」
-- 全問正解のときと、落ちた節があるときで一言変える（`DESIGN.md`）
+- "Recalled a / b"
+- The remark differs between when everything was recalled and when some nodes were missed (`DESIGN.md`)
 
-### エクスポート／インポート
+### Export and import
 
-- 全データを JSON 1ファイルで書き出す
-- 読み込みは既存データに追加する（上書きしない）。同じ id の木は新しい方で置き換える
-- 個別の木を Markdown（アウトライン形式）でコピーできる
+- Writes out all data as a single JSON file
+- Reading a file adds to the existing data (it does not overwrite). For trees with the same id, the newer one replaces the older
+- An individual tree can be copied as Markdown (outline format)
 
-### まとめて取り込む
+### Bulk import
 
-- 文書に書きためた複数の木を、貼り付けて一度に追加する
-- 字下げも箇条書きの記号もない行を見出し（根）とし、次の見出しまでを1本の木にする
-- 取り込む前に、木の見出しと節の数を一覧で見せる
+- Several trees written up in a document can be pasted and added at once
+- A line with no indentation and no bullet marker is a heading (root), and everything up to the next heading becomes one tree
+- Before importing, show a list of the tree headings and their node counts
 
-### Google ドキュメントと同期
+### Sync with Google Docs
 
-- 登録した文書を読み、木に反映する。文書からアプリへの一方向。文書には書き込まない
-- 箇条書きの直前にある行（見出しでも普通の段落でもよい）が根、その箇条書きが節。段の深さは文書の箇条書きの段に従う
-- すべてのタブを読む。下に箇条書きを持たない見出しとタブ名は木にせず、木の「場所」として根の上に小さく表示する
-- 同じ文書の、同じ場所の、同じ見出しの木は同一とみなし、中身を差し替える。場所の名前だけ変わった木は重複させない。節の統計は編集と同じ規則で引き継ぎ、間隔反復の状態はそのまま
-- 文書が正で、アプリはその写し。文書から消えた見出しの木は、同期でアプリからも消す。ただし文書から木が1本も読めなかったときは何も消さない
-- サーバーは持たない。利用者が自分で作ったクライアント ID を端末に保存し、ブラウザから直接 Google を読む。権限は文書の読み取りだけ。トークンは保存しない
-- 手順と、何が公開され何が公開されないかは `GOOGLE.md`
+- Reads the registered documents and reflects them in the trees. One way, from the document to the app. Nothing is written to the document
+- The line right before a bullet list (a heading or an ordinary paragraph) is the root, and that bullet list is its nodes. Depth follows the nesting level of the bullet list in the document
+- All tabs are read. Headings that have no bullet list under them, and tab names, do not become trees. They are shown in small type above the root as the tree's "location"
+- A tree in the same document, at the same location, with the same heading is considered the same tree, and its content is replaced. A tree whose location was merely renamed is not duplicated. Node statistics are carried over by the same rule as editing, and the spaced repetition state is left as is
+- The document is the source of truth and the app is its copy. A tree whose heading disappeared from the document is also deleted from the app by sync. However, when not a single tree could be read from the document, nothing is deleted
+- No server. The user stores a client ID they created themselves on the device, and the browser reads Google directly. The only permission is reading documents. The token is not stored
+- The procedure, and what is and is not made public, are in `GOOGLE.md`
 
-## 間隔反復
+## Spaced repetition
 
-詳細は `DATA.md`。要点:
+Details are in `DATA.md`. Key points:
 
-- スケジュールは木単位
-- 展開の結果は「言えた節の割合」で1つの品質値に変換し、SM-2 系で間隔と難易度を更新する
-- 割合が1未満のときは間隔に割合を掛けて縮める。落ちた節がある木ほど早く戻ってくる
-- 節の統計（落ちた回数、前回の結果）は表示用。出題の中身には使わない
+- The schedule is per tree
+- The result of a review is converted into a single quality value from the ratio of recalled nodes, and the interval and ease are updated with an SM-2 style algorithm
+- When the ratio is below 1, the interval is multiplied by the ratio to shorten it. The more nodes a tree missed, the sooner it comes back
+- Node statistics (miss count, last result) are for display. They are not used to decide what is asked
 
-## フェーズ2以降で検討するもの（今は作らない）
+## To consider in phase 2 and later (do not build now)
 
-- 章の木の葉から論点の木へリンクを張る
-- 展開の履歴をカレンダーで見る
-- 節ごとの落ちた履歴のグラフ
-- 複数の木をまとめて連続展開する「今日の分をすべて展開」
+- Linking from a leaf of a chapter tree to a tree for a specific issue
+- Viewing the review history on a calendar
+- A graph of the miss history for each node
+- "Review everything for today", which reviews several trees in a row

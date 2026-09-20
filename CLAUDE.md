@@ -1,76 +1,81 @@
 # Outline Recall
 
-司法試験・予備試験の学習用アプリ。名前は、ロースクールで科目の体系をまとめた自作ノートを outline と呼ぶことと、このアプリの核である「思い出してから開く」（recall）から。旧名は「構造（kozo）」で、端末内のデータベース名と書き出しファイルの識別子には、互換のため `kozo` が残っている。
+A study app for the Japanese bar exam and its preliminary exam. The name comes from two things: law students call the self-made notes that summarize the system of a subject an outline, and the core of this app is to recall first, then open. The former name was 構造 (kozo, "structure"). For compatibility, `kozo` remains as the on-device database name and as the identifier in the export file.
 
-知識を「木」として自分で作り、上から展開して再現する練習をし、間隔反復で回す。
+The user builds knowledge as "trees", practices reproducing each tree by expanding it from the top, and cycles through them with spaced repetition.
 
-## 使われ方
+## How it is used
 
-利用者は読んだ本を Google ドキュメントにまとめ（タブが編、見出しが章、その下の箇条書きが木）、同期して取り込む。毎日の暗記には使わない。折に触れて引き、ときどき展開する。
+The user summarizes the books they read in Google Docs (tabs are parts, headings are chapters, the bullet lists under them are trees) and brings them in by sync. It is not used for daily memorization. The user looks things up now and then, and reviews a tree from time to time.
 
-このため一覧の主役は棚（文書 > タブ > 見出し > 木）と検索に置く。間隔反復は裏で回し続けるが、たまった出番で利用者を追い立てる見せ方はしない。
+For this reason, the main view of the home screen is the shelf (document > tab > heading > tree) and search. Spaced repetition keeps running in the background, but the app never presents accumulated due trees in a way that pressures the user.
 
-## 最初に読むもの
+## Read these first
 
-作業を始める前に、必ずこの順で読むこと。
+Before starting any work, always read these in this order.
 
-1. `docs/SPEC.md` 機能仕様。何を作るかはすべてここに書いてある
-2. `docs/DATA.md` データ構造と間隔反復アルゴリズム
-3. `docs/DESIGN.md` 見た目と文言の方針
-4. `docs/TASKS.md` 実装の順番。ここに沿って進める
+1. `docs/SPEC.md` Functional spec. Everything about what to build is written here
+2. `docs/DATA.md` Data structures and the spaced repetition algorithm
+3. `docs/DESIGN.md` Policy for appearance and wording
+4. `docs/TASKS.md` Order of implementation. Proceed along this
 
-利用者向けの説明は `docs/USAGE.md`（木の入れ方）と `docs/GOOGLE.md`（Google ドキュメントとの同期、公開と秘密の線引き）。
+Explanations for the user are in `docs/USAGE.md` (how to add trees) and `docs/GOOGLE.md` (sync with Google Docs, and the line between what is public and what is private).
 
-`reference/prototype.jsx` は動作確認済みの試作版。展開の動きの正解例として参照してよいが、コードをそのまま流用する必要はない。
+`reference/prototype.jsx` is a prototype whose behavior has been verified. You may refer to it as the correct example of how a review moves, but there is no need to reuse its code as is.
 
-## この製品の核
+## The core of this product
 
-以下の3つを崩す変更は行わない。迷ったら `docs/SPEC.md` の「原則」に戻る。
+Do not make changes that break the following three points. When in doubt, go back to "Principles" in `docs/SPEC.md`.
 
-- 知識は木として表示する。穴埋め文章にしない
-- 木はユーザーが自分でアウトラインとして書く
-- 復習は木を丸ごと上から展開する。部分的に出題しない。弱点は出題間隔で効かせる
+- Knowledge is displayed as a tree. It is never turned into fill-in-the-blank text
+- The user writes each tree themselves, as an outline
+- A review expands the whole tree from the top. No partial quizzing. Weak spots take effect through the review interval
 
-## 技術スタック
+## Tech stack
 
 - Vite + React + TypeScript
 - Tailwind CSS
-- 永続化は IndexedDB（Dexie を使ってよい）
-- PWA として動かす。オフラインで使えること。スマホのホーム画面に置いて使う想定
-- サーバーは持たない。データはすべて端末内。エクスポート／インポートで移動する
-- 状態管理は React の標準機能で足りる範囲にとどめる。必要になるまでライブラリを増やさない
+- Persistence is IndexedDB (Dexie may be used)
+- Runs as a PWA. It must work offline. The assumed use is from the home screen of a phone
+- No server. All data stays on the device. It is moved by export and import
+- Keep state management within what the standard features of React can handle. Do not add libraries until they become necessary
 
-## コマンド
+## Commands
 
 ```
 npm install
-npm run dev       # 開発サーバー
-npm run build     # 本番ビルド
+npm run dev       # development server
+npm run build     # production build
 npm run test      # vitest
 npm run lint
 ```
 
-## 作業の進め方
+## How to work
 
-- `docs/TASKS.md` のフェーズを1つずつ進める。フェーズをまたいで先に手を出さない
-- 各フェーズの終わりに `npm run build` と `npm run test` が通ることを確認する
-- 純粋関数（アウトラインの解析、間隔反復の計算、採点の集計）には必ずテストを書く
-- UIの見た目を変えるときは `docs/DESIGN.md` に従う。独自のデザイン判断を持ち込まない
-- コミットは小さく。1コミット1目的
+- Proceed through the phases in `docs/TASKS.md` one at a time. Do not reach ahead across phases
+- At the end of each phase, confirm that `npm run build` and `npm run test` pass
+- Always write tests for pure functions (outline parsing, spaced repetition calculation, review result aggregation)
+- When changing the appearance of the UI, follow `docs/DESIGN.md`. Do not bring in your own design judgments
+- Keep commits small. One purpose per commit
 
-## 書き方の約束
+## Writing conventions
 
-- UIの文言は日本語。`docs/DESIGN.md` の文言方針に従う
-- 全角ダッシュ（U+2014）はコード内の文字列、コメント、ドキュメントを含め一切使わない。区切りには読点、括弧、改行を使う
-- コミットメッセージ、コードのコメント、テストの題名（`describe`、`it`）は英語で書く。GitHub で公開しているため。全角ダッシュと同じく、en ダッシュも使わない
-- 日本語のままにするもの: 画面の文言、利用者に見せるエラーメッセージ、`docs/` と `CLAUDE.md`、テストに出てくる木の中身（「人権の三要素」など）
-- 変数名・関数名は英語。ドメイン語の対応は `docs/DATA.md` の用語表に従う
-- コメントは「なぜ」を書く。「何をしているか」はコードで示す
+- The UI language is selectable: Japanese or English. The default follows the browser language (Japanese if it starts with `ja`, otherwise English). The choice is stored on the device (localStorage) and is switched from the bottom of the home screen
+- All UI strings for both languages live in `src/ui/i18n.tsx`. Components must not hardcode user-visible text. Wording in both languages follows the wording policy in `docs/DESIGN.md`
+- Error messages are always in English, regardless of the UI language
+- Commit messages, code comments, test titles (`describe`, `it`) and documentation (`docs/`, `CLAUDE.md`, `README.md`) are written in English, because the repository is public on GitHub
+- Japanese remains only in two places: the Japanese UI strings in `src/ui/i18n.tsx`, and Japanese tree content used as test data (such as 人権の三要素, "the three elements of human rights")
+- Never use the em dash (U+2014) or the en dash (U+2013) anywhere, including strings in code, comments and documentation. Use commas, parentheses, colons, line breaks or separate sentences as separators
+- Variable and function names are in English. The mapping of domain terms follows the glossary in `docs/DATA.md`
+- Comments explain "why". "What it does" is shown by the code
 
-## やらないこと
+## What not to do
 
-- このアプリ自身のログイン、アカウント、端末間の同期機能（例外: Google ドキュメントからの一方向の取り込み。`docs/GOOGLE.md`。利用者自身のクライアント ID でブラウザから直接 Google を読むだけで、サーバーも秘密鍵も持たない）
-- 秘密の値（鍵、トークン、クライアント ID、利用者のデータ）をリポジトリに入れること
-- 教材の内容を同梱すること（サンプルの木は1本だけ、ユーザー自身が書き換える前提）
-- Anki 形式など他アプリとの互換
-- 部分出題モード、クローズ表示、選択式問題
+- Login, accounts, or sync between devices for this app itself (exception: one-way import from Google Docs, see `docs/GOOGLE.md`. It only reads Google directly from the browser with the user's own client ID, and has no server and no secret key)
+- Putting secret values (keys, tokens, client IDs, the user's data) into the repository
+- Bundling study material content (there is only one sample tree, on the premise that the user rewrites it themselves)
+- Compatibility with other apps, such as the Anki format
+- Partial quizzing modes, cloze display, multiple-choice questions
+- Hardcoding user-visible text in components, or adding a UI string in only one of the two languages
+- Showing error messages in Japanese, or writing commit messages, comments, test titles or documentation in Japanese
+- Renaming the `kozo` database name or the `"app": "kozo"` export identifier

@@ -1,20 +1,20 @@
-# データ構造と間隔反復
+# Data structures and spaced repetition
 
-## 用語表（日本語 → 識別子）
+## Glossary (English term, Japanese UI term, identifier)
 
-| 日本語 | 識別子 |
-|---|---|
-| 木 | `Tree` |
-| 根 | `root` |
-| 節 | `Node` |
-| 展開 | `Review` |
-| 落ちた回数 | `missCount` |
-| 前回の結果 | `lastResult` |
-| 次の期日 | `due` |
-| 間隔 | `interval` |
-| 難易度係数 | `ease` |
+| English term | Japanese UI term | Identifier |
+|---|---|---|
+| tree | 木 | `Tree` |
+| root | 根 | `root` |
+| node | 節 | `Node` |
+| review | 展開 | `Review` |
+| miss count | 落ちた回数 | `missCount` |
+| last result | 前回の結果 | `lastResult` |
+| due (next due date) | 次の期日 | `due` |
+| interval | 間隔 | `interval` |
+| ease factor | 難易度係数 | `ease` |
 
-## 型
+## Types
 
 ```ts
 type NodeId = string;
@@ -23,25 +23,25 @@ interface Node {
   id: NodeId;
   text: string;
   children: Node[];
-  missCount: number;            // 累計で落ちた回数
-  lastResult: boolean | null;   // 前回の展開で言えたか。未展開は null
+  missCount: number;            // cumulative number of misses
+  lastResult: boolean | null;   // whether it was recalled in the last review. null if never reviewed
 }
 
 interface Srs {
-  interval: number;   // 日数。未展開は 0
-  ease: number;       // 初期値 2.5、下限 1.3
-  reps: number;       // 連続で q >= 3 だった回数
-  due: string | null; // "YYYY-MM-DD"。未展開は null
+  interval: number;   // in days. 0 if never reviewed
+  ease: number;       // initial value 2.5, lower bound 1.3
+  reps: number;       // number of consecutive reviews with q >= 3
+  due: string | null; // "YYYY-MM-DD". null if never reviewed
   lastRatio: number | null;
 }
 
-// 外の文書から同期した木の出どころ。手で作った木にはない
+// Where a tree synced from an outside document came from. Trees made by hand do not have this
 interface TreeSource {
   kind: 'gdoc';
   docId: string;
-  path?: string[]; // 文書の中での場所（タブ名、章の見出し）。表示と、同期での同一判定に使う
-  docTitle?: string; // 文書名。棚のいちばん上の段になる
-  order?: number; // 文書の中での並び順。棚を文書どおりに並べる
+  path?: string[]; // location within the document (tab name, chapter headings). Used for display and for identity matching in sync
+  docTitle?: string; // document title. Becomes the top level of the shelf
+  order?: number; // position within the document. Lets the shelf follow the document order
 }
 
 interface Tree {
@@ -62,13 +62,13 @@ interface ReviewLog {
 }
 ```
 
-## 永続化
+## Persistence
 
-- IndexedDB。テーブルは `trees` と `reviewLogs`。ほかに、端末ごとの設定を置く `meta`（サンプルの木を入れ済みか、Google のクライアント ID、同期に登録した文書の一覧。エクスポートには含めない）
-- `trees` は木を丸ごと1レコードで持つ。節をテーブルに分解しない（木は数十節までで小さく、丸ごと読み書きするほうが単純）
-- `reviewLogs` は追記のみ。フェーズ2の履歴表示のために最初から記録しておく
+- IndexedDB. The tables are `trees` and `reviewLogs`. In addition there is `meta`, which holds per-device settings (whether the sample tree has been inserted, the Google client ID, the list of documents registered for sync. Not included in the export)
+- `trees` holds each whole tree as one record. Nodes are not broken out into a table (a tree is small, up to a few dozen nodes, and reading and writing it whole is simpler)
+- `reviewLogs` is append only. It is recorded from the start for the history display in phase 2
 
-## アウトライン形式
+## Outline format
 
 ```
 人権の三要素
@@ -78,33 +78,35 @@ interface ReviewLog {
     公権力によっても侵されない
 ```
 
-解析ルール:
+(The example content is Japanese study material: 人権の三要素 (the three elements of human rights), 固有性 (inherence): rights a person has by virtue of being human, 不可侵性 (inviolability): not to be infringed even by public authority.)
 
-- 空行は捨てる
-- 深さ = 行頭の空白量 ÷ 2 を切り捨て。タブと全角空白は空白2つ分
-- 1行目が根。2行目以降は、字下げがなくても根の下に入る
-- 親は「自分より字下げが浅い、直近の行」。字下げが同じ行は兄弟になる。このため1段を空白4つで書いても、直前より2段以上深く書いても形が崩れない（例外にしない）
-- 字下げなしの行の下に空白2つの行が続いたら、その行の子になる（見出しの下に字下げなしの箇条書きが続く貼り付けを受けるため）
-- 行頭の箇条書きの記号（`- `、`* `、`+ `、`・`、`•`、`●` など）は文言に含めない。Google ドキュメントや Markdown からの貼り付けをそのまま受ける
-- 解析は純粋関数 `parseOutline(text: string): Node | null`
-- 逆変換 `toOutline(root: Node): string` も用意し、`parseOutline(toOutline(n))` が構造を保つことをテストする
+Parsing rules:
 
-編集時の統計引き継ぎ: 新旧の木で「根からのパス上の文言の並び」が一致する節は同一とみなし、`id`、`missCount`、`lastResult` を引き継ぐ。
+- Blank lines are discarded
+- Depth = amount of leading whitespace ÷ 2, rounded down. A tab and a full-width space each count as two spaces
+- The first line is the root. The second and later lines go under the root even without indentation
+- The parent is "the nearest preceding line with shallower indentation than this one". Lines with the same indentation become siblings. Because of this, the shape does not break when one level is written with four spaces, or when a line is two or more levels deeper than the one before it (these are not treated as errors)
+- When a line with no indentation is followed by lines indented with two spaces, those lines become its children (to accept pasted text where a heading is followed by unindented bullets)
+- Bullet markers at the start of a line (`- `, `* `, `+ `, `・`, `•`, `●` and so on) are not included in the text. This accepts pastes from Google Docs and Markdown as they are
+- Parsing is the pure function `parseOutline(text: string): Node | null`
+- The inverse `toOutline(root: Node): string` is also provided, and a test confirms that `parseOutline(toOutline(n))` preserves the structure
 
-## 間隔反復（木単位）
+Carrying over statistics on edit: between the old and new trees, nodes whose "sequence of texts along the path from the root" matches are considered the same node, and `id`, `missCount` and `lastResult` are carried over.
 
-入力: 展開の結果 `ratio = 言えた節数 / 全節数`
+## Spaced repetition (per tree)
 
-### 品質値への変換
+Input: the review result `ratio = recalled nodes / total nodes`
+
+### Conversion to a quality value
 
 | ratio | q |
 |---|---|
 | 1.0 | 5 |
-| 0.8 以上 | 4 |
-| 0.5 以上 | 3 |
-| それ未満 | 1 |
+| 0.8 or more | 4 |
+| 0.5 or more | 3 |
+| below that | 1 |
 
-### 更新（SM-2 系）
+### Update (SM-2 style)
 
 ```
 if q < 3:
@@ -116,28 +118,28 @@ else:
 
 ease = max(1.3, ease + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02)))
 
-// 落ちた節がある木は前倒し
+// a tree with missed nodes is pulled forward
 if ratio < 1 and interval > 1:
   interval = max(1, round(interval * ratio))
 
-due = today + interval 日
+due = today + interval days
 ```
 
-この計算は純粋関数 `schedule(srs: Srs, ratio: number, today: string): Srs` とし、テストで以下を確認する。
+This calculation is the pure function `schedule(srs: Srs, ratio: number, today: string): Srs`, and tests confirm the following.
 
-- 初回全問正解で interval 1、二回目で 3
-- q < 3 で reps が 0 に戻る
-- ease が 1.3 を下回らない
-- ratio 0.5 のとき interval が半分に縮む
+- A first review with everything recalled gives interval 1, and the second gives 3
+- With q < 3, reps goes back to 0
+- ease never goes below 1.3
+- With ratio 0.5, the interval shrinks to half
 
-### 節の統計の更新
+### Updating node statistics
 
-展開保存時に全節を走査し、
+When a review is saved, all nodes are traversed, and
 
-- `lastResult` を今回の ○× で上書き
-- × だった節の `missCount` を +1
+- `lastResult` is overwritten with this review's ○ or ×
+- `missCount` is incremented by 1 for nodes marked ×
 
-## エクスポート形式
+## Export format
 
 ```json
 {
@@ -149,6 +151,6 @@ due = today + interval 日
 }
 ```
 
-`version` を見て将来の移行に備える。
+`version` is checked to prepare for future migrations.
 
-`app` の値とデータベース名の `kozo` は旧名のまま変えない。変えると、端末に入っている木が見えなくなり、前に取った控えも読めなくなる。
+The `app` value and the database name `kozo` keep the former name (the app used to be called 構造, kozo) and must not be changed. Changing them would make the trees already on a device invisible, and backups taken earlier would no longer be readable.

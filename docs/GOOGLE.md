@@ -1,104 +1,108 @@
-# Google ドキュメントとの同期
+# Sync with Google Docs
 
-Google ドキュメントに書きためた木を、ボタン1つでアプリに取り込む。文書からアプリへの一方向で、文書には何も書き込まない。
+Trees written up in Google Docs are imported into the app with a single button. It is one way, from the document to the app, and nothing is ever written to the document.
 
-## 何が公開され、何が公開されないか
+Button names below are the English UI labels. The Japanese UI label is given in parentheses the first time each one appears.
 
-| もの | 置き場所 | 公開されるか |
+## What is made public and what is not
+
+| Thing | Where it lives | Is it public? |
 |---|---|---|
-| アプリのコード（この枠） | GitHub のリポジトリと GitHub Pages | される |
-| 木の中身、展開の記録 | 端末のブラウザの中（IndexedDB） | されない |
-| 元の Google ドキュメント | 自分の Google ドライブ | されない（共有設定は変えなくてよい） |
-| クライアント ID | 端末のブラウザの中 | されない。ただし漏れても困らない値（下記） |
-| ログインのトークン | メモリの中だけ。1時間で失効 | されない。保存もしない |
+| The app's code (this framework) | The GitHub repository and GitHub Pages | Yes |
+| Tree content, review records | Inside the browser on the device (IndexedDB) | No |
+| The original Google document | Your own Google Drive | No (the sharing settings do not need to change) |
+| Client ID | Inside the browser on the device | No. But it is a value that does no harm if leaked (see below) |
+| Sign-in token | In memory only. Expires in one hour | No. It is not stored either |
 
-このアプリはサーバーを持たない。通信は「自分のブラウザ」と「Google」の間だけで、間に誰も入らない。
+This app has no server. Communication happens only between "your browser" and "Google", and nobody sits in between.
 
-### クライアント ID は秘密ではない
+### The client ID is not a secret
 
-ブラウザだけで動くログインの方式（トークンフロー）では、秘密鍵（クライアント シークレット）も API キーも使わない。使うのはクライアント ID だけで、これは Google が公開前提として設計している値。守りは ID を隠すことではなく、次の2つで行う。
+The sign-in method that works in the browser alone (the token flow) uses neither a secret key (client secret) nor an API key. It uses only the client ID, which is a value Google designed on the assumption that it is public. Protection does not come from hiding the ID. It comes from the following two things.
 
-- 承認済みの JavaScript 生成元: 登録した URL 以外のサイトからは、その ID でログインを始められない
-- テスト ユーザー: 公開ステータスを「テスト中」にしておくと、登録した Google アカウント（自分）以外はログインできない
+- Authorized JavaScript origins: a site at any URL other than the registered ones cannot start a sign-in with that ID
+- Test users: while the publishing status is "Testing", nobody other than the registered Google accounts (you) can sign in
 
-それでもリポジトリには入れない作りにした。ID はアプリの画面に貼り、端末の中に保存する。
+Even so, the app is built so that the ID never goes into the repository. You paste the ID into the app's screen, and it is stored on the device.
 
-### 求める権限
+### Permission requested
 
-`documents.readonly`（Google ドキュメントの読み取り）だけ。書き込み、削除、ドライブの他のファイルへのアクセスはできない。
+Only `documents.readonly` (read Google Docs documents). It cannot write, delete, or access other files in Drive.
 
-## 最初に1度だけやること（10分ほど）
+## What you do once at the start (about 10 minutes)
 
-Google Cloud の画面は自分のアカウントで操作する。画面の名前はときどき変わるので、見つからなければ上の検索欄で探す。
+You operate the Google Cloud console with your own account. The names of the screens change from time to time, so if you cannot find one, look for it with the search box at the top.
 
-1. https://console.cloud.google.com/ を開き、新しいプロジェクトを作る（名前は何でもよい。例: outline-recall）
-2. 「API とサービス」の「ライブラリ」で **Google Docs API** を探し、「有効にする」
-3. 「OAuth 同意画面」（Google Auth Platform）を設定する
-   - ユーザーの種類: 外部
-   - アプリ名: 何でもよい。サポートのメールと連絡先は自分のアドレス
-   - 公開ステータスは **テスト中** のままにする
-   - 「テスト ユーザー」に自分の Google アカウントを追加する
-4. 「認証情報」（クライアント）で「OAuth クライアント ID を作成」
-   - アプリケーションの種類: **ウェブ アプリケーション**
-   - 承認済みの JavaScript 生成元に、アプリを開く URL の生成元を入れる
-     - 手元で試すとき: `http://localhost:5173`
-     - GitHub Pages に置いたとき: `https://<GitHubのユーザー名>.github.io`（パスは付けない）
-   - リダイレクト URI は空のままでよい
-5. 表示された **クライアント ID**（`....apps.googleusercontent.com`）をコピーする。クライアント シークレットは使わない
-6. アプリの「取り込みとバックアップ」を開き、「Google ドキュメントから取り込む」にクライアント ID を貼って保存する
+1. Open https://console.cloud.google.com/ and create a new project (any name will do. Example: outline-recall)
+2. Under "APIs & Services", in "Library", find **Google Docs API** and press "Enable"
+3. Configure the "OAuth consent screen" (Google Auth Platform)
+   - User type: External
+   - App name: anything. The support email and contact are your own address
+   - Leave the publishing status at **Testing**
+   - Add your own Google account under "Test users"
+4. Under "Credentials" (Clients), choose "Create OAuth client ID"
+   - Application type: **Web application**
+   - In Authorized JavaScript origins, enter the origin of the URL where you open the app
+     - When trying it locally: `http://localhost:5173`
+     - When hosted on GitHub Pages: `https://<your GitHub user name>.github.io` (do not add a path)
+   - Redirect URIs may be left empty
+5. Copy the **client ID** that is displayed (`....apps.googleusercontent.com`). The client secret is not used
+6. Open "Import and backup" (取り込みとバックアップ) in the app, paste the client ID under "Import from Google Docs" (Google ドキュメントから取り込む), and save it
 
-スマホとパソコンの両方で使うなら、6 はそれぞれの端末で1度ずつ行う。
+If you use both a phone and a computer, do step 6 once on each device.
 
-## ふだんの使い方
+## Everyday use
 
-1. Google ドキュメントに書く（書き方は下の「文書の書き方」）
-2. アプリの「取り込みとバックアップ」で、文書の URL を貼って「この文書を登録して同期」
-3. 次からは、一覧のいちばん上に出る「Google ドキュメントと同期」を押すだけ。登録した文書をすべて読み直す
+1. Write in Google Docs (for how, see "How to write a document" below)
+2. In "Import and backup" in the app, paste the document's URL and press "Add this document and sync" (この文書を登録して同期)
+3. From then on, just press "Sync with Google Docs" (Google ドキュメントと同期), which appears at the very top of the home screen. It rereads all registered documents
 
-初回は Google のログイン画面が出る。「このアプリは Google で確認されていません」と出たら、「詳細」から進む（自分で作ったアプリなので問題ない）。
+The first time, Google's sign-in screen appears. If it says "Google hasn't verified this app", continue from "Advanced" (this is fine, because it is an app you made yourself).
 
-## 文書の書き方
+## How to write a document
 
-決まりは1つだけ。**箇条書きのすぐ上にある行が根になり、その箇条書きが1本の木になる。**
+There is only one rule. **The line right above a bullet list becomes the root, and that bullet list becomes one tree.**
 
-- 根になる行は、見出し（見出し1、見出し2 など）でも普通の行でもよい
-- 下に箇条書きがない見出しは、木にならない。その下にある木の「場所」として、根の上に小さく表示される
-- タブはすべて読む。タブが2つ以上ある文書では、タブ名が場所の先頭に付く
-- 箇条書きの段は Tab で下げる。段の深さがそのまま木の深さになる
-- 「タイトル」スタイルの段落、空行、箇条書きが続かない普通の文章は無視する。覚え書きを自由に書いてよい
+- The line that becomes the root may be a heading (Heading 1, Heading 2 and so on) or an ordinary line
+- A heading with no bullet list under it does not become a tree. It is shown in small type above the root, as the "location" of the trees below it
+- All tabs are read. In a document with two or more tabs, the tab name is put at the front of the location
+- Press Tab to nest a bullet deeper. The nesting depth becomes the depth in the tree as is
+- Paragraphs in the "Title" style, blank lines, and ordinary text that is not followed by a bullet list are ignored. You can write free-form notes
 
-本ごとにタブを分け、章を見出し1、論点を見出し2 にした例:
+An example with one tab per book, chapters as Heading 1 and topics as Heading 2:
 
 ```
-（タブ: 民法）
-第2章 物権            ← 見出し1。下に箇条書きがないので木にならない（場所になる）
-即時取得              ← 見出し2。同上
-要件                  ← 見出し3。すぐ下が箇条書きなので、これが根
+(Tab: 民法)
+第2章 物権            <- Heading 1. No bullet list under it, so it does not become a tree (it becomes a location)
+即時取得              <- Heading 2. Same as above
+要件                  <- Heading 3. A bullet list comes right below, so this is a root
   ・動産であること
   ・有効な取引行為
   ・平穏、公然、善意、無過失
-効果                  ← 次の根
+効果                  <- The next root
   ・原始取得
 ```
 
-アプリでは「民法 / 第2章 物権 / 即時取得」の下に「要件」という木が出る。同じ「要件」という見出しが別の章にあっても、場所が違うので別の木として扱う。
+(The example is Japanese study material. 民法 (Civil Code), 第2章 物権 (Chapter 2: Property rights), 即時取得 (good-faith acquisition of movables), 要件 (requirements): it is a movable, a valid transaction, and peaceful, open, in good faith and without negligence. 効果 (effect): original acquisition.)
 
-章の見出しのすぐ下に箇条書きを書けば、章そのものが1本の木になる。ただし展開は木を丸ごと開くので、1本が 5〜20 節くらいに収まるよう、長い章は論点ごとの見出しで分けるとよい。
+In the app, a tree called 要件 appears under "民法 / 第2章 物権 / 即時取得". Even if the same heading 要件 exists in another chapter, the location differs, so it is treated as a separate tree.
 
-## 同期の決まり
+If you write a bullet list right below a chapter heading, the chapter itself becomes one tree. However, a review opens the whole tree, so split long chapters with a heading for each topic so that each tree stays at around 5 to 20 nodes.
 
-- 同じ文書の、同じ場所にある同じ見出しの木は同一とみなし、中身だけ差し替える。文言が変わっていない節は、落ちた回数と前回の結果を引き継ぐ。次の出番もそのまま
-- 文書に増えた見出しは、新しい木として追加する
-- タブ名や章の見出しを変えても、木は重複しない（根の文言が同じで、取り違えようがない場合）。場所の表示だけ変わる
-- 文書が正で、アプリはその写し。文書から消した見出しの木は、次の同期でアプリからも消える。展開の記録もその木と一緒になくなる
-- 根の文言と中身を同時に変えると、古い木は消え、新しい木として入り直す（記録は引き継がれない）。記録を残したいときは、見出しと中身を別々の同期に分けて直す
-- 文書から木が1本も読み取れなかったときは、何も消さない。文書を誤って空にしたときに全部を失わないため
-- 消えるのは、その文書から取り込んだ木だけ。手で作った木、貼り付けで入れた木、別の文書の木には触らない
-- 同期した木をアプリ内で編集してもよいが、次の同期で文書の内容に戻る。直すときは文書の方を直す
+## Sync rules
 
-## うまくいかないとき
+- A tree in the same document, at the same location, with the same heading is considered the same tree, and only its content is replaced. Nodes whose text has not changed keep their miss count and last result. The next due date also stays as is
+- A heading added to the document is added as a new tree
+- Renaming a tab or a chapter heading does not duplicate trees (as long as the root text is the same and there is no way to mix it up with another). Only the displayed location changes
+- The document is the source of truth and the app is its copy. A tree whose heading was removed from the document is also deleted from the app at the next sync. Its review records go away together with the tree
+- If you change the root text and the content at the same time, the old tree is deleted and it comes back in as a new tree (the records are not carried over). When you want to keep the records, change the heading and the content in separate syncs
+- When not a single tree could be read from the document, nothing is deleted. This is so that you do not lose everything when you empty the document by mistake
+- Only trees imported from that document are deleted. Trees made by hand, trees added by pasting, and trees from other documents are not touched
+- You may edit a synced tree inside the app, but the next sync puts it back to the content of the document. When fixing something, fix the document
 
-- 「ログインの窓を開けなかった」: ブラウザのポップアップ禁止を、このサイトだけ解除する
-- `origin_mismatch` や `redirect_uri_mismatch`: 手順 4 の「承認済みの JavaScript 生成元」に、いま開いている URL の生成元が入っていない
-- `access_denied`: 手順 3 のテスト ユーザーに、ログインしたアカウントが入っていない
-- 「この文書を読む権限がない」: ログインしたアカウントで、その文書を開けるか確かめる
+## When it does not work
+
+- "Could not open the sign-in window": allow pop-ups in the browser for this site only
+- `origin_mismatch` or `redirect_uri_mismatch`: the origin of the URL you currently have open is not in "Authorized JavaScript origins" from step 4
+- `access_denied`: the account you signed in with is not among the test users from step 3
+- "No permission to read this document": check that the account you signed in with can open that document

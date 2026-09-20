@@ -1,70 +1,107 @@
-# 見た目と文言
+# Appearance and wording
 
-## 方針
+## Policy
 
-主役は木。飾りは足さない。紙のノートに墨で書いたアウトラインを、指で開いていく感触を目指す。
+The tree is the main character. Add no decoration. Aim for the feel of opening, with a finger, an outline written in ink in a paper notebook.
 
-スマホ縦持ちが基本。幅 520px までは1カラム。それより広い画面では中央に寄せて左右に余白を取る。
+A phone held vertically is the baseline. Up to a width of 520px the layout is a single column. On wider screens it is centered with margins on the left and right.
 
-## 色
+## Colors
 
-| 役割 | 値 |
-|---|---|
-| 背景 | `#FAFBF9` |
-| 墨（本文、根、通常の節） | `#22304A` |
-| 薄墨（補足、進捗、期日） | `#6B7590` |
-| 罫線（枝の縦線、区切り） | `#C9CFDA` |
-| 朱（前回落ちた節、×） | `#C8452B` |
-| 黄土（過去に落ちたことがある節） | `#B08A2E` |
-| 苔（○） | `#3E7C59` |
+The Japanese color names are kept because they are used as the CSS token names (`--color-sumi` and so on).
 
-節の色の決め方: `lastResult === false` なら朱、それ以外で `missCount > 0` なら黄土、それ以外は墨。
+| Role | Token | Value |
+|---|---|---|
+| Background, paper | `paper` | `#FAFBF9` |
+| Ink (墨, sumi): body text, root, ordinary nodes | `sumi` | `#22304A` |
+| Pale ink (薄墨, usuzumi): notes, progress, due dates | `usuzumi` | `#6B7590` |
+| Rule (罫線, rule): vertical lines of branches, dividers | `rule` | `#C9CFDA` |
+| Vermilion (朱, shu): nodes missed last time, × | `shu` | `#C8452B` |
+| Ochre (黄土, oudo): nodes that have been missed in the past | `oudo` | `#B08A2E` |
+| Moss (苔, koke): ○ | `koke` | `#3E7C59` |
 
-ダークモードはフェーズ2まで作らない。
+How the color of a node is decided: vermilion (shu) if `lastResult === false`, otherwise ochre (oudo) if `missCount > 0`, otherwise ink (sumi).
 
-## 文字
+Dark mode is not built until phase 2.
 
-- 木の文言（根、節）は明朝。`"Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif`
-- 操作系（ボタン、進捗、補足）はゴシック。`"Hiragino Sans", "Yu Gothic", "Noto Sans JP", sans-serif`
-- 根は 20px、節は 16px、補足は 12〜13px
-- 行間は木の文言で 1.6、テキストエリアで 1.7
-- 太字や色で単語を強調しない
+## Type
 
-## 木の描き方
+- Tree text (root, nodes) is set in a Mincho (serif) face. `"Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif`
+- Controls (buttons, progress, notes) are set in a Gothic (sans-serif) face. `"Hiragino Sans", "Yu Gothic", "Noto Sans JP", sans-serif`
+- The root is 20px, nodes are 16px, notes are 12 to 13px
+- Line height is 1.6 for tree text and 1.7 for the text area
+- Do not emphasize words with bold or color
 
-- 深さ1段につき左に 14px 余白、`1px` の縦罫線、さらに 14px 余白
-- 縦罫線は「その節が誰の子か」を示す唯一の構造表現。番号、矢印、箇条書きの点は使わない
-- 節の横の ○× は直径 36px の円ボタン。○は苔、×は朱の細い枠線
+## How to draw a tree
 
-## 動き
+- For each level of depth: 14px of left margin, a `1px` vertical rule, then another 14px of margin
+- The vertical rule is the only structural expression of "whose child this node is". Do not use numbers, arrows or bullet dots
+- The ○ and × next to a node are round buttons 36px in diameter. ○ has a thin moss (koke) outline and × has a thin vermilion (shu) outline
 
-- ユーザーの操作への応答（枝が開く、○×が確定する）は 150ms 以内の短い変化でよい
-- 自動で動くアニメーション、画面遷移のフェードは付けない
-- `prefers-reduced-motion` を尊重する
+## Motion
 
-## 文言
+- The response to a user action (a branch opens, a ○ or × is set) may be a short change within 150ms
+- Do not add animations that move on their own, or fades between screens
+- Respect `prefers-reduced-motion`
 
-一貫して使う語:
+## Wording
 
-- 木、根、節、枝
-- 展開する（復習する、とは言わない）
-- 言えた／言えなかった
-- 落ちた（間違えた、とは言わない）
-- 次の出番（期日、とは画面上では言わない）
+The UI is available in Japanese and English. All strings for both languages live in `src/ui/i18n.tsx`. Error messages are always in English, regardless of the UI language.
 
-固定文言:
+### Japanese
 
-- 展開ボタン: 「枝が N 本。思い出してから開く」
-- 全問正解: 「N / N が言えた。木が丸ごと再現できている」
-- 落ちた節あり: 「a / b が言えた。落ちた節は次回、木の上で朱色で表示される」
-- 未展開の木: 「まだ一度も展開していない」
-- 木がない: 「まだ木がない。最初の1本を作る」
-- 編集の説明: 「1行目が見出し。行頭の空白2つ（または全角空白）で1段深くなる」
+Words used consistently:
 
-書き方:
+- 木、根、節、枝 (tree, root, node, branch)
+- 展開する (to review, literally "to expand"). Never say 復習する ("to study again")
+- 言えた／言えなかった (recalled / not recalled, literally "could say it" / "could not say it")
+- 落ちた (missed, literally "dropped"). Never say 間違えた ("got it wrong")
+- 次の出番 (next due, literally "next turn"). On screen, never say 期日 ("deadline")
 
-- 文末の「。」は複数文が続くときだけ付ける。一文だけなら付けない
-- 敬語を使わない。「保存」「戻る」「中断」のように動詞または名詞で止める
-- 全角ダッシュ（U+2014）は使わない
-- 感嘆符は使わない
-- 「おめでとう」「頑張ろう」のような励ましは書かない。結果だけを淡々と示す
+Fixed strings:
+
+- Expand button: 「枝が N 本。思い出してから開く」
+- All recalled: 「N / N が言えた。木が丸ごと再現できている」
+- Some missed: 「a / b が言えた。落ちた節は次回、木の上で朱色で表示される」
+- Never reviewed: 「まだ一度も展開していない」
+- No trees: 「まだ木がない。最初の1本を作る」
+- Editor hint: 「1行目が見出し。行頭の空白2つ（または全角空白）で1段深くなる」
+
+Style:
+
+- Put the sentence-ending 「。」 only when several sentences follow each other. A single sentence gets none
+- Do not use polite forms (keigo). End on a verb or a noun, as in 「保存」 (save), 「戻る」 (back), 「中断」 (stop)
+- Do not use the em dash (U+2014) or the en dash (U+2013)
+- Do not use exclamation marks
+- Do not write encouragement such as 「おめでとう」 (congratulations) or 「頑張ろう」 (keep it up). Show only the result, plainly
+
+### English
+
+Words used consistently:
+
+- tree, root, node, branch
+- review. Never say "study" or "quiz"
+- recalled / missed. Never say "correct" / "wrong"
+- due / next due
+
+Fixed strings:
+
+- Expand button: `N branches. Recall them, then open` (singular: `1 branch. Recall it, then open`)
+- All recalled: `Recalled N / N. The whole tree is intact`
+- Some missed: `Recalled a / b. Missed nodes will show in vermilion on the tree next time`
+- Never reviewed: `Not reviewed yet`
+- No trees: `No trees yet. Make the first one`
+- Editor hint: `First line is the heading. Indent two spaces (or a tab) to go one level deeper`
+
+Style:
+
+- Terse. Sentence case
+- A trailing period only when several sentences follow each other. A single sentence gets none
+- Plain verbs or nouns for buttons, such as `Save`, `Back`, `Stop`
+- Do not use the em dash (U+2014) or the en dash (U+2013)
+- Do not use exclamation marks
+- No encouragement or praise. Show only the result, plainly
+
+### Everywhere
+
+The em dash (U+2014) and the en dash (U+2013) are not used anywhere: not in UI strings, not in strings in code, not in comments, not in documentation. Use commas, parentheses, colons or separate sentences.
