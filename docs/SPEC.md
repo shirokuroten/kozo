@@ -30,7 +30,9 @@ This app treats knowledge as a tree. Branches grow from a heading, and content h
 - Search. It looks through all text: roots, nodes and locations (document title, tab names, headings). Only trees that contain every whitespace-separated word are shown. Matching nodes are shown with the path leading to them
 - For trees that are due, only the count is shown, and their list lives on a separate screen (Due). This keeps the user from being chased by accumulated due trees even when the app is not opened every day
 - Each row shows the root text, the number of nodes, the number of nodes missed last time, and the next due date
-- A review can be started directly from each row
+- Pressing a row starts a review of that tree. Reviewing is what the user does most, so it gets the whole row
+- Each row has a three-dot menu for the rarer actions: "View tree" and "Edit"
+- Search results are the exception: pressing a result opens the whole tree, because someone who searches wants to read the answer, not be asked for it. "Review now" moves into the menu there
 - "New tree"
 - If a Google document is registered, "Sync with Google Docs". It rereads all registered documents
 
@@ -45,7 +47,7 @@ This app treats knowledge as a tree. Branches grow from a heading, and content h
 - Shows the tree fully opened
 - The color of each node reflects the last result (see `DESIGN.md`)
 - A node with a miss count shows that number in small type next to it
-- "Review now", "Edit", "Delete"
+- "Review now" is the only visible action. "Edit", "Copy as Markdown" and "Delete" sit behind a three-dot menu at the top right, so the screen reads as a page of the book rather than a management screen
 
 ### Edit
 

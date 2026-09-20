@@ -2,8 +2,8 @@ import type { ReactNode } from 'react';
 import { plainText } from '../domain/links';
 import { countLastMissed, countNodes, formatDue } from '../domain/tree';
 import type { Tree } from '../domain/types';
-import { Button } from './Button';
 import { useI18n } from './i18n';
+import { Menu } from './Menu';
 import { navigate } from './route';
 import { TreePath } from './TreeView';
 
@@ -12,27 +12,22 @@ interface Props {
   today: string;
   // Inside the shelf the location is already visible from the nesting, so the row does not show it
   showPath?: boolean;
-  // In the due list, reviewing is the main action. In the shelf, looking things up is the main action, so the review button is toned down
-  emphasizeReview?: boolean;
+  // Pressing the row starts a review, because that is what the user does most.
+  // Search results open the whole tree instead: someone who searches wants to read the answer, not be asked for it
+  opens?: 'review' | 'view';
   children?: ReactNode;
 }
 
-export function TreeRow({
-  tree,
-  today,
-  showPath = false,
-  emphasizeReview = false,
-  children,
-}: Props) {
+export function TreeRow({ tree, today, showPath = false, opens = 'review', children }: Props) {
   const { lang, t } = useI18n();
   const missed = countLastMissed(tree.root);
   const { due } = tree.srs;
   return (
-    <li className="flex items-center justify-between gap-3 border-b border-rule py-3">
+    <li className="flex items-center justify-between gap-2 border-b border-rule py-3">
       <button
         type="button"
         className="min-w-0 flex-1 text-left"
-        onClick={() => navigate({ name: 'view', id: tree.id })}
+        onClick={() => navigate({ name: opens, id: tree.id })}
       >
         {showPath && <TreePath tree={tree} />}
         <div className="font-mincho text-[17px] leading-[1.6] text-sumi">
@@ -46,13 +41,17 @@ export function TreeRow({
         </div>
         {children}
       </button>
-      <Button
-        kind={emphasizeReview ? 'solid' : 'ghost'}
-        className="shrink-0"
-        onClick={() => navigate({ name: 'review', id: tree.id })}
-      >
-        {t.row.review}
-      </Button>
+      <Menu
+        items={[
+          opens === 'review'
+            ? { label: t.menu.view, onSelect: () => navigate({ name: 'view', id: tree.id }) }
+            : {
+                label: t.view.reviewNow,
+                onSelect: () => navigate({ name: 'review', id: tree.id }),
+              },
+          { label: t.view.edit, onSelect: () => navigate({ name: 'edit', id: tree.id }) },
+        ]}
+      />
     </li>
   );
 }

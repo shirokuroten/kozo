@@ -35,7 +35,10 @@ export const ja = {
     missedLast: (n: number) => `前回 ${n} 節で落ちた`,
     neverReviewed: 'まだ一度も展開していない',
     nextDue: (date: string) => `次の出番 ${date}`,
-    review: '展開',
+  },
+  menu: {
+    open: 'メニュー',
+    view: '木を見る',
   },
   shelf: {
     treeCount: (n: number) => `${n} 本`,
@@ -216,7 +219,10 @@ export const en: Messages = {
     missedLast: (n) => plural(n, 'Missed 1 node last time', `Missed ${n} nodes last time`),
     neverReviewed: 'Not reviewed yet',
     nextDue: (date) => `Next due ${date}`,
-    review: 'Review',
+  },
+  menu: {
+    open: 'More',
+    view: 'View tree',
   },
   shelf: {
     treeCount: (n) => plural(n, '1 tree', `${n} trees`),

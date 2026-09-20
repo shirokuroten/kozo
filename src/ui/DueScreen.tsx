@@ -30,7 +30,7 @@ export function DueScreen({ trees, today }: { trees: Tree[]; today: string }) {
         )}
         <ul>
           {dueToday.map((tree) => (
-            <TreeRow key={tree.id} tree={tree} today={today} showPath emphasizeReview />
+            <TreeRow key={tree.id} tree={tree} today={today} showPath />
           ))}
         </ul>
       </section>

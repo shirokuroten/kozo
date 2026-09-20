@@ -71,7 +71,7 @@ export function Home({ trees, hasHistory, today, onChanged }: Props) {
               <Note>{t.home.found(hits.length)}</Note>
               <ul>
                 {hits.map(({ tree, matches }) => (
-                  <TreeRow key={tree.id} tree={tree} today={today} showPath>
+                  <TreeRow key={tree.id} tree={tree} today={today} showPath opens="view">
                     {matches.slice(0, MAX_MATCHES).map((match, index) => (
                       <div key={index} className="mt-1 font-mincho text-sm leading-[1.6] text-sumi">
                         {match.join(' / ')}

@@ -8,6 +8,7 @@ import type { ReviewLog, Tree } from '../domain/types';
 import { Button } from './Button';
 import { describeResult } from './historyText';
 import { useI18n } from './i18n';
+import { Menu } from './Menu';
 import { navigate } from './route';
 import { HISTORY_LIMIT, TreePath, TreeView } from './TreeView';
 
@@ -48,9 +49,19 @@ export function ViewScreen({ tree, trees, logs, today, onChanged }: Props) {
 
   return (
     <div>
-      <Button kind="text" className="mb-2" onClick={() => navigate({ name: 'home' })}>
-        {t.common.back}
-      </Button>
+      {/* Editing and deleting are rare, so they sit behind the menu and the screen reads as a page of the book */}
+      <div className="mb-2 flex items-center justify-between">
+        <Button kind="text" onClick={() => navigate({ name: 'home' })}>
+          {t.common.back}
+        </Button>
+        <Menu
+          items={[
+            { label: t.view.edit, onSelect: () => navigate({ name: 'edit', id: tree.id }) },
+            { label: t.view.copyMarkdown, onSelect: copyMarkdown },
+            { label: t.view.remove, onSelect: remove },
+          ]}
+        />
+      </div>
       <TreePath tree={tree} />
       <TreeView
         node={tree.root}
@@ -66,9 +77,11 @@ export function ViewScreen({ tree, trees, logs, today, onChanged }: Props) {
         <Button kind="solid" onClick={() => navigate({ name: 'review', id: tree.id })}>
           {t.view.reviewNow}
         </Button>
-        <Button onClick={() => navigate({ name: 'edit', id: tree.id })}>{t.view.edit}</Button>
-        <Button onClick={copyMarkdown}>{copied ? t.view.copied : t.view.copyMarkdown}</Button>
-        <Button onClick={remove}>{t.view.remove}</Button>
+        {copied && (
+          <span role="status" className="self-center font-gothic text-xs text-usuzumi">
+            {t.view.copied}
+          </span>
+        )}
       </div>
 
       {history.logs.length > 0 && (

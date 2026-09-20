@@ -51,6 +51,7 @@ Components use only the token classes. Never `white`, `black` or a hex value: te
 
 - For each level of depth: 14px of left margin, a `1px` vertical rule, then another 14px of margin
 - The vertical rule is the only structural expression of "whose child this node is". Do not use numbers, arrows or bullet dots
+- The app has exactly one icon: the three dots (the text glyph `⋯`, in pale ink, in a 36px round target) that opens a menu of secondary actions. It exists so that a row can be one large target for the main action. Do not add other icons
 - The ○ and × next to a node are round buttons 36px in diameter. ○ has a thin moss (koke) outline and × has a thin vermilion (shu) outline
 
 ## Motion
