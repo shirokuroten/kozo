@@ -40,7 +40,14 @@ describe('repository', () => {
   it('updates the tree and appends the history together when saving a review', async () => {
     const tree = createTree(parseOutline('根\n  枝')!, NOW);
     await repo.saveTree(tree);
-    const log = { id: 'log1', treeId: tree.id, date: '2026-09-19', ratio: 1, missedNodeIds: [] };
+    const log = {
+      id: 'log1',
+      treeId: tree.id,
+      date: '2026-09-19',
+      ratio: 1,
+      missedNodeIds: [],
+      nodeIds: [tree.root.children[0].id],
+    };
     await repo.saveReview({ ...tree, updatedAt: 'later' }, log);
     expect((await repo.getTree(tree.id))!.updatedAt).toBe('later');
     expect(await repo.listReviewLogs()).toEqual([log]);

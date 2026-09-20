@@ -45,4 +45,10 @@ export interface ReviewLog {
   date: string;
   ratio: number;
   missedNodeIds: NodeId[];
+  // Every node graded in this review (all nodes except the root). Without it an old log cannot
+  // tell "recalled" from "the node did not exist yet". Logs written before this field lack it
+  nodeIds?: NodeId[];
+  // When the review was saved (ISO timestamp). `date` alone cannot order two reviews of the same
+  // day, and the table is keyed by a random id. Logs written before this field lack it
+  at?: string;
 }

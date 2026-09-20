@@ -89,6 +89,23 @@ export const ja = {
     saveAndNext: '結果を保存して次へ',
     skip: 'この木を飛ばす',
   },
+  history: {
+    title: '展開の記録',
+    // Sunday first, matching the calendar grid
+    weekdays: ['日', '月', '火', '水', '木', '金', '土'],
+    // month is 1 to 12
+    monthLabel: (year: number, month: number) => `${year}年${month}月`,
+    prevMonth: '前の月',
+    nextMonth: '次の月',
+    monthSummary: (n: number) => `この月は ${n} 回展開`,
+    dayReviews: (date: string, n: number) => `${date} ${n} 回展開`,
+    deletedTree: '消した木',
+    recalledOf: (recalled: number, total: number) => `${recalled} / ${total} が言えた`,
+    allRecalled: 'すべて言えた',
+    missedNodes: (n: number) => `${n} 節で落ちた`,
+    pastReviews: 'これまでの展開',
+    marksLabel: (missed: number, total: number) => `直近 ${total} 回のうち ${missed} 回落ちた`,
+  },
   data: {
     intro:
       '木は一覧の「新しい木を作る」で1本ずつ書ける。ここは、別の場所に書きためた木をまとめて入れるための画面。下の2つのどちらかを使う。いちばん下は控えを取る機能',
@@ -159,6 +176,22 @@ export type Messages = typeof ja;
 function withReason(head: string, reason: string): string {
   return reason ? `${head}. ${reason}` : head;
 }
+
+// A fixed table rather than Intl, so the month label does not vary with the runtime
+const MONTHS_EN = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+];
 
 export const en: Messages = {
   common: {
@@ -238,6 +271,22 @@ export const en: Messages = {
     position: (position, total) => `Tree ${position} of ${total}`,
     saveAndNext: 'Save and go to next',
     skip: 'Skip this tree',
+  },
+  history: {
+    title: 'Review history',
+    weekdays: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
+    monthLabel: (year, month) => `${MONTHS_EN[month - 1]} ${year}`,
+    prevMonth: 'Previous month',
+    nextMonth: 'Next month',
+    monthSummary: (n) => plural(n, '1 review this month', `${n} reviews this month`),
+    dayReviews: (date, n) => `${date}, ${plural(n, '1 review', `${n} reviews`)}`,
+    deletedTree: 'Deleted tree',
+    recalledOf: (recalled, total) => `Recalled ${recalled} / ${total}`,
+    allRecalled: 'All recalled',
+    missedNodes: (n) => plural(n, 'Missed 1 node', `Missed ${n} nodes`),
+    pastReviews: 'Past reviews',
+    marksLabel: (missed, total) =>
+      `Missed ${missed} of the last ${plural(total, '1 review', `${total} reviews`)}`,
   },
   data: {
     intro:

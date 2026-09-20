@@ -1,8 +1,9 @@
 import type { ReactNode } from 'react';
+import { nodeHistory, type NodeMark } from '../domain/history';
 import { parseLinks } from '../domain/links';
 import { shelfPath } from '../domain/shelf';
 import { nodeTone, type NodeTone } from '../domain/tree';
-import type { Node, Tree } from '../domain/types';
+import type { Node, ReviewLog, Tree } from '../domain/types';
 import { useI18n } from './i18n';
 import { navigate } from './route';
 
@@ -54,26 +55,66 @@ function NodeText({ text, linkTo }: { text: string; linkTo?: LinkResolver }) {
   );
 }
 
+// How many past reviews the marks next to a node cover
+export const HISTORY_LIMIT = 10;
+
+const MARK_CLASS: Record<NodeMark, string> = {
+  recalled: 'border border-koke',
+  missed: 'bg-shu',
+  // An empty slot keeps the later marks in the same column as on the other nodes
+  absent: '',
+};
+
+// One small circle per past review, oldest on the left. Outlined for recalled and filled for
+// missed, so the two can be told apart without relying on color
+function NodeMarks({ marks }: { marks: NodeMark[] }) {
+  const { t } = useI18n();
+  const known = marks.filter((mark) => mark !== 'absent');
+  if (known.length === 0) return null;
+  const missed = known.filter((mark) => mark === 'missed').length;
+  return (
+    <span
+      role="img"
+      aria-label={t.history.marksLabel(missed, known.length)}
+      className="inline-flex items-center gap-[3px]"
+    >
+      {marks.map((mark, index) => (
+        <span key={index} className={`h-[6px] w-[6px] rounded-full ${MARK_CLASS[mark]}`} />
+      ))}
+    </span>
+  );
+}
+
 interface TreeViewProps {
   node: Node;
   depth?: number;
   linkTo?: LinkResolver;
+  // The review logs of this tree, with its id. Passed only by the view screen: the editor
+  // preview has no use for them, and a review must stay free of hints
+  history?: { treeId: string; logs: ReviewLog[] };
 }
 
-export function TreeView({ node, depth = 0, linkTo }: TreeViewProps) {
+export function TreeView({ node, depth = 0, linkTo, history }: TreeViewProps) {
   const { t } = useI18n();
+  // The root is never graded, so it has no history of its own
+  const marks =
+    history && depth > 0 ? nodeHistory(history.logs, history.treeId, node.id, HISTORY_LIMIT) : [];
+  const hasMarks = marks.some((mark) => mark !== 'absent');
   return (
     <Indent depth={depth}>
       <div className={`py-1 ${nodeTextClass(depth)} ${TONE_CLASS[nodeTone(node)]}`}>
         <NodeText text={node.text} linkTo={linkTo} />
-        {node.missCount > 0 && (
-          <span className="ml-2 font-gothic text-xs text-usuzumi">
-            {t.view.missCount(node.missCount)}
+        {(node.missCount > 0 || hasMarks) && (
+          // An inline-flex box wraps as one unit, so on a narrow screen the counter and the marks
+          // drop under the text together instead of squeezing it
+          <span className="ml-2 inline-flex items-center gap-2 align-middle font-gothic text-xs text-usuzumi">
+            {node.missCount > 0 && <span>{t.view.missCount(node.missCount)}</span>}
+            <NodeMarks marks={marks} />
           </span>
         )}
       </div>
       {node.children.map((child) => (
-        <TreeView key={child.id} node={child} depth={depth + 1} linkTo={linkTo} />
+        <TreeView key={child.id} node={child} depth={depth + 1} linkTo={linkTo} history={history} />
       ))}
     </Indent>
   );

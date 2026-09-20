@@ -63,11 +63,11 @@ const MONTHS_EN = [
   'Dec',
 ];
 
-// The "next due date" shown on screen. The year is omitted for dates in the current year.
+// A short date as shown on screen. The year is omitted for dates in the current year.
 // Month names are a fixed table rather than Intl, so the output does not vary with the runtime.
-export function formatDue(due: string, today: string, lang: Lang): string {
-  const [y, m, d] = due.split('-').map(Number);
-  const sameYear = due.slice(0, 4) === today.slice(0, 4);
+export function formatShortDate(date: string, today: string, lang: Lang): string {
+  const [y, m, d] = date.split('-').map(Number);
+  const sameYear = date.slice(0, 4) === today.slice(0, 4);
   if (lang === 'ja') {
     const monthDay = `${m}月${d}日`;
     return sameYear ? monthDay : `${y}年${monthDay}`;
@@ -75,6 +75,10 @@ export function formatDue(due: string, today: string, lang: Lang): string {
   const monthDay = `${MONTHS_EN[m - 1]} ${d}`;
   return sameYear ? monthDay : `${monthDay}, ${y}`;
 }
+
+// The "next due date" and the dates of past reviews are written the same way. The name is kept
+// so that call sites still say which date they show
+export const formatDue = formatShortDate;
 
 // Saving an edit. The spaced repetition state belongs to the tree, so it carries over even when
 // the content is rewritten.

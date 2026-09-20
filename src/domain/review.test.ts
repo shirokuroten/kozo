@@ -73,6 +73,15 @@ describe('applyReview', () => {
     expect(log.id).not.toBe('');
   });
 
+  it('records every graded node in the log, without the root', () => {
+    const { tree, a, b, leaf } = fixture();
+    const grades: Grades = { [a.id]: true, [b.id]: false, [leaf.id]: true };
+    const { log } = applyReview(tree, grades, TODAY, NOW);
+    expect(log.nodeIds).toEqual([a.id, leaf.id, b.id]);
+    expect(log.nodeIds).not.toContain(tree.root.id);
+    expect(log.at).toBe(NOW);
+  });
+
   it('does not mutate the tree passed in', () => {
     const { tree, a, b, leaf } = fixture();
     applyReview(tree, { [a.id]: false, [b.id]: false, [leaf.id]: false }, TODAY, NOW);

@@ -45,6 +45,10 @@ function missedIds(node: Node, grades: Grades): NodeId[] {
   ]);
 }
 
+function gradedIds(node: Node): NodeId[] {
+  return node.children.flatMap((child) => [child.id, ...gradedIds(child)]);
+}
+
 export function applyReview(
   tree: Tree,
   grades: Grades,
@@ -69,6 +73,9 @@ export function applyReview(
       date: today,
       ratio,
       missedNodeIds: missedIds(tree.root, grades),
+      // The tree can gain or lose nodes later, so the history needs the node set as it was today
+      nodeIds: gradedIds(tree.root),
+      at: now,
     },
   };
 }

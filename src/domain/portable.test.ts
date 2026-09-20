@@ -39,6 +39,29 @@ describe('buildExport and parseImport', () => {
     expect(() => parseImport(JSON.stringify(file))).toThrow();
   });
 
+  it('accepts review logs with and without nodeIds and at', () => {
+    const t = tree();
+    const logs = [
+      log(t.id),
+      { ...log(t.id), id: 'log2', nodeIds: ['x', 'y'], at: '2026-09-10T01:00:00.000Z' },
+    ];
+    const parsed = parseImport(JSON.stringify(buildExport([t], logs, '2026-09-19')));
+    expect(parsed.reviewLogs).toEqual(logs);
+  });
+
+  it('rejects review logs whose nodeIds or at has the wrong type', () => {
+    const t = tree();
+    for (const nodeIds of ['x', [1], null]) {
+      const file = {
+        ...buildExport([t], [], '2026-09-19'),
+        reviewLogs: [{ ...log(t.id), nodeIds }],
+      };
+      expect(() => parseImport(JSON.stringify(file))).toThrow();
+    }
+    const badAt = { ...buildExport([t], [], '2026-09-19'), reviewLogs: [{ ...log(t.id), at: 1 }] };
+    expect(() => parseImport(JSON.stringify(badAt))).toThrow();
+  });
+
   it('imports even when reviewLogs is absent', () => {
     const file = { app: 'kozo', version: 1, exportedAt: '2026-09-19', trees: [tree()] };
     expect(parseImport(JSON.stringify(file)).reviewLogs).toEqual([]);

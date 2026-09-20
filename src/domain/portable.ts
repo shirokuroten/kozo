@@ -69,6 +69,8 @@ function isSource(v: unknown): boolean {
   );
 }
 
+const isStringArray = (v: unknown) => Array.isArray(v) && v.every((id) => typeof id === 'string');
+
 function isReviewLog(v: unknown): v is ReviewLog {
   return (
     isObject(v) &&
@@ -76,8 +78,10 @@ function isReviewLog(v: unknown): v is ReviewLog {
     typeof v.treeId === 'string' &&
     typeof v.date === 'string' &&
     typeof v.ratio === 'number' &&
-    Array.isArray(v.missedNodeIds) &&
-    v.missedNodeIds.every((id) => typeof id === 'string')
+    isStringArray(v.missedNodeIds) &&
+    // Backups made before nodeIds existed must stay readable
+    (v.nodeIds === undefined || isStringArray(v.nodeIds)) &&
+    (v.at === undefined || typeof v.at === 'string')
   );
 }
 

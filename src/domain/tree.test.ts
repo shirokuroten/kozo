@@ -6,6 +6,7 @@ import {
   countNodes,
   createTree,
   formatDue,
+  formatShortDate,
   nodeTone,
   partitionByDue,
   toLocalDate,
@@ -97,6 +98,12 @@ describe('formatDue', () => {
     expect(formatDue('2026-09-25', '2026-09-19', 'en')).toBe('Sep 25');
     expect(formatDue('2027-09-25', '2026-09-19', 'en')).toBe('Sep 25, 2027');
     expect(formatDue('2027-01-05', '2026-12-28', 'en')).toBe('Jan 5, 2027');
+  });
+
+  it('writes past dates the same way, with the year when it differs', () => {
+    expect(formatShortDate('2026-03-01', '2026-09-19', 'ja')).toBe('3月1日');
+    expect(formatShortDate('2025-12-31', '2026-01-02', 'ja')).toBe('2025年12月31日');
+    expect(formatShortDate('2025-12-31', '2026-01-02', 'en')).toBe('Dec 31, 2025');
   });
 });
 

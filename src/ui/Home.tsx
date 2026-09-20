@@ -22,13 +22,15 @@ const LANGS: { code: Lang; label: string }[] = [
 
 interface Props {
   trees: Tree[];
+  // The history entry stays hidden until there is something to show
+  hasHistory: boolean;
   today: string;
   onChanged: () => Promise<void>;
 }
 
 // The shelf (document > tab > heading > tree) is the centerpiece of the list.
 // Due trees are reported only as a count, and their list lives on a separate screen. Even a user who does not open the app every day should not feel chased by piled-up due trees
-export function Home({ trees, today, onChanged }: Props) {
+export function Home({ trees, hasHistory, today, onChanged }: Props) {
   const { lang, setLang, t } = useI18n();
   const [query, setQuery] = useState('');
   const [docOrder, setDocOrder] = useState<string[]>([]);
@@ -86,10 +88,19 @@ export function Home({ trees, today, onChanged }: Props) {
             </section>
           ) : (
             <section className="mb-6">
-              {dueCount > 0 && (
-                <Button kind="text" className="mb-2" onClick={() => navigate({ name: 'due' })}>
-                  {t.home.dueCount(dueCount)}
-                </Button>
+              {(dueCount > 0 || hasHistory) && (
+                <div className="mb-2 flex flex-wrap gap-x-4">
+                  {dueCount > 0 && (
+                    <Button kind="text" onClick={() => navigate({ name: 'due' })}>
+                      {t.home.dueCount(dueCount)}
+                    </Button>
+                  )}
+                  {hasHistory && (
+                    <Button kind="text" onClick={() => navigate({ name: 'history' })}>
+                      {t.history.title}
+                    </Button>
+                  )}
+                </div>
               )}
               <Shelf shelf={shelf} today={today} />
             </section>
