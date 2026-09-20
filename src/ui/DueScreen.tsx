@@ -1,8 +1,9 @@
-import { partitionByDue } from '../domain/tree';
+import { countNodes, partitionByDue } from '../domain/tree';
 import type { Tree } from '../domain/types';
 import { Button } from './Button';
 import { useI18n } from './i18n';
 import { Note } from './Note';
+import { startQueue } from './reviewQueue';
 import { navigate } from './route';
 import { TreeRow } from './TreeRow';
 
@@ -10,6 +11,8 @@ import { TreeRow } from './TreeRow';
 export function DueScreen({ trees, today }: { trees: Tree[]; today: string }) {
   const { t } = useI18n();
   const { dueToday, later } = partitionByDue(trees, today);
+  // A tree without nodes has nothing to grade, so it would only interrupt the run
+  const queueIds = dueToday.filter((tree) => countNodes(tree.root) > 0).map((tree) => tree.id);
   return (
     <div>
       <Button kind="text" className="mb-2" onClick={() => navigate({ name: 'home' })}>
@@ -20,6 +23,11 @@ export function DueScreen({ trees, today }: { trees: Tree[]; today: string }) {
 
       <section className="mt-6 mb-6">
         <h2 className="mb-1 font-gothic text-sm text-sumi">{t.due.dueNow(dueToday.length)}</h2>
+        {queueIds.length >= 2 && (
+          <Button kind="text" onClick={() => startQueue(queueIds)}>
+            {t.queue.reviewDue(queueIds.length)}
+          </Button>
+        )}
         <ul>
           {dueToday.map((tree) => (
             <TreeRow key={tree.id} tree={tree} today={today} showPath emphasizeReview />

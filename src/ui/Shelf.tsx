@@ -1,6 +1,9 @@
 import { useState } from 'react';
+import { shelfTreeIds } from '../domain/queue';
 import type { ShelfGroup } from '../domain/shelf';
+import { Button } from './Button';
 import { useI18n } from './i18n';
+import { startQueue } from './reviewQueue';
 import { TreeRow } from './TreeRow';
 import { Indent } from './TreeView';
 
@@ -33,6 +36,22 @@ interface GroupProps {
   onToggle: (key: string) => void;
 }
 
+// Reviewing a whole chapter or part is the main way in, but it is shown only inside an open group,
+// so a shelf of closed rows stays a plain list of names
+function ReviewGroup({ group, depth }: { group: ShelfGroup; depth: number }) {
+  const { t } = useI18n();
+  const ids = shelfTreeIds(group);
+  // A single tree already has its own review button right below
+  if (ids.length < 2) return null;
+  return (
+    <Indent depth={depth}>
+      <Button kind="text" onClick={() => startQueue(ids)}>
+        {t.queue.reviewGroup(ids.length)}
+      </Button>
+    </Indent>
+  );
+}
+
 function Group({ group, depth, today, openKeys, onToggle }: GroupProps) {
   const { t } = useI18n();
   const open = openKeys.has(group.key);
@@ -50,6 +69,7 @@ function Group({ group, depth, today, openKeys, onToggle }: GroupProps) {
           <span>{open ? t.shelf.close : t.shelf.open}</span>
         </span>
       </button>
+      {open && <ReviewGroup group={group} depth={depth + 1} />}
       {open && <Contents group={group} depth={depth + 1} {...{ today, openKeys, onToggle }} />}
     </Indent>
   );

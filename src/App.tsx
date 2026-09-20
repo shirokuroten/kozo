@@ -9,6 +9,7 @@ import { Home } from './ui/Home';
 import { useI18n, type Messages } from './ui/i18n';
 import { NotFound, Note } from './ui/Note';
 import { ReviewScreen } from './ui/ReviewScreen';
+import { clearQueue } from './ui/reviewQueue';
 import { useRoute, type Route } from './ui/route';
 import { ViewScreen } from './ui/ViewScreen';
 
@@ -25,7 +26,7 @@ function renderScreen(route: Route, trees: Tree[], reload: () => Promise<void>, 
   if (route.name === 'view')
     return <ViewScreen tree={tree} trees={trees} today={today} onChanged={reload} />;
   if (route.name === 'edit') return <EditScreen key={tree.id} tree={tree} onChanged={reload} />;
-  return <ReviewScreen key={tree.id} tree={tree} today={today} onChanged={reload} />;
+  return <ReviewScreen key={tree.id} tree={tree} trees={trees} today={today} onChanged={reload} />;
 }
 
 export default function App() {
@@ -44,6 +45,13 @@ export default function App() {
       .then(reload)
       .catch(() => setFailed(true));
   }, [reload]);
+
+  // A queue runs only from review screen to review screen. Leaving that chain (browser back, a
+  // link to another screen) ends it, so it cannot take over a review started later on its own
+  const inReview = route.name === 'review';
+  useEffect(() => {
+    if (!inReview) clearQueue();
+  }, [inReview]);
 
   return (
     <main className="mx-auto min-h-screen max-w-[520px] px-5 pt-[max(1.5rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))]">

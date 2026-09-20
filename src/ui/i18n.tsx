@@ -81,6 +81,14 @@ export const ja = {
       `${correct} / ${total} が言えた。落ちた節は次回、木の上で朱色で表示される`,
     saveResult: '結果を保存',
   },
+  queue: {
+    reviewGroup: (n: number) => (n === 1 ? 'この 1 本を展開' : `この ${n} 本を続けて展開`),
+    reviewDue: (n: number) => `出番の ${n} 本を続けて展開`,
+    // position counts from 1
+    position: (position: number, total: number) => `${total} 本中 ${position} 本目`,
+    saveAndNext: '結果を保存して次へ',
+    skip: 'この木を飛ばす',
+  },
   data: {
     intro:
       '木は一覧の「新しい木を作る」で1本ずつ書ける。ここは、別の場所に書きためた木をまとめて入れるための画面。下の2つのどちらかを使う。いちばん下は控えを取る機能',
@@ -223,6 +231,13 @@ export const en: Messages = {
     someMissed: (correct, total) =>
       `Recalled ${correct} / ${total}. Missed nodes will show in vermilion on the tree next time`,
     saveResult: 'Save result',
+  },
+  queue: {
+    reviewGroup: (n) => plural(n, 'Review this tree', `Review these ${n} trees in a row`),
+    reviewDue: (n) => `Review all ${n} due trees in a row`,
+    position: (position, total) => `Tree ${position} of ${total}`,
+    saveAndNext: 'Save and go to next',
+    skip: 'Skip this tree',
   },
   data: {
     intro:

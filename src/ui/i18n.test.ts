@@ -65,6 +65,10 @@ describe('fixed wording', () => {
     expect(ja.edit.hint).toBe('1行目が見出し。行頭の空白2つ（または全角空白）で1段深くなる');
     expect(ja.home.dueCount(1)).toBe('出番の木 1 本');
     expect(ja.home.dueCount(3)).toBe('出番の木 3 本');
+    expect(ja.queue.reviewGroup(1)).toBe('この 1 本を展開');
+    expect(ja.queue.reviewGroup(3)).toBe('この 3 本を続けて展開');
+    expect(ja.queue.reviewDue(3)).toBe('出番の 3 本を続けて展開');
+    expect(ja.queue.position(2, 3)).toBe('3 本中 2 本目');
   });
 
   it('matches the agreed wording in English, with singular and plural', () => {
@@ -83,6 +87,10 @@ describe('fixed wording', () => {
     expect(en.home.dueCount(3)).toBe('3 trees due');
     expect(en.common.nodeCount(1)).toBe('1 node');
     expect(en.common.nodeCount(3)).toBe('3 nodes');
+    expect(en.queue.reviewGroup(1)).toBe('Review this tree');
+    expect(en.queue.reviewGroup(3)).toBe('Review these 3 trees in a row');
+    expect(en.queue.reviewDue(3)).toBe('Review all 3 due trees in a row');
+    expect(en.queue.position(2, 3)).toBe('Tree 2 of 3');
   });
 });
 
