@@ -42,7 +42,7 @@ export function DataScreen({ today, onChanged }: Props) {
     const url = URL.createObjectURL(new Blob([json], { type: 'application/json' }));
     const link = document.createElement('a');
     link.href = url;
-    link.download = `kozo-${today}.json`;
+    link.download = `outline-recall-${today}.json`;
     link.click();
     URL.revokeObjectURL(url);
     setMessage(`${trees.length} 本の木を書き出した`);

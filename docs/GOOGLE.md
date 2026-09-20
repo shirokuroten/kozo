@@ -31,7 +31,7 @@ Google ドキュメントに書きためた木を、ボタン1つでアプリに
 
 Google Cloud の画面は自分のアカウントで操作する。画面の名前はときどき変わるので、見つからなければ上の検索欄で探す。
 
-1. https://console.cloud.google.com/ を開き、新しいプロジェクトを作る（名前は何でもよい。例: kozo）
+1. https://console.cloud.google.com/ を開き、新しいプロジェクトを作る（名前は何でもよい。例: outline-recall）
 2. 「API とサービス」の「ライブラリ」で **Google Docs API** を探し、「有効にする」
 3. 「OAuth 同意画面」（Google Auth Platform）を設定する
    - ユーザーの種類: 外部

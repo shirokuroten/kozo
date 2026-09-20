@@ -36,7 +36,7 @@ export function Home({ trees, today, onChanged }: Props) {
 
   return (
     <div>
-      <h1 className="font-mincho text-[26px] tracking-[2px] text-sumi">構造</h1>
+      <h1 className="font-mincho text-[26px] tracking-[1px] text-sumi">Outline Recall</h1>
       <p className="mt-1 mb-6 font-gothic text-sm text-usuzumi">
         木を上から展開して、自分で再現する
       </p>

@@ -14,8 +14,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['icon.svg', 'apple-touch-icon.png'],
       manifest: {
-        name: '構造',
-        short_name: '構造',
+        name: 'Outline Recall',
+        // ホーム画面のアイコンの下は12文字ほどで切れるので、短い方は一語にする
+        short_name: 'Recall',
         description: '知識を木として書き、上から展開して再現する',
         lang: 'ja',
         display: 'standalone',

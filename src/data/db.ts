@@ -12,6 +12,7 @@ export type KozoDb = Dexie & {
   meta: EntityTable<MetaEntry, 'key'>;
 };
 
+// 名前は旧名のまま。変えると、端末に入っている木が見えなくなる
 export function openDb(name = 'kozo'): KozoDb {
   const db = new Dexie(name) as KozoDb;
   // 木は丸ごと1レコード。節を索引にしない

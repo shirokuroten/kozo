@@ -1,6 +1,7 @@
 import { hasBullet, indentWidth } from './outline';
 import type { Node, ReviewLog, Srs, Tree } from './types';
 
+// 旧名のまま。変えると、前に書き出した控えを読み込めなくなる
 const APP = 'kozo';
 const VERSION = 1;
 
