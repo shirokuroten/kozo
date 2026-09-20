@@ -52,8 +52,13 @@ export function createRepository(db: KozoDb = openDb()) {
       await db.trees.bulkAdd(trees);
     },
 
-    async putTrees(trees: Tree[]): Promise<void> {
-      await db.trees.bulkPut(trees);
+    // 同期の反映。足す、書き直す、消すを、途中で止まって半端な棚にならないよう一度に行う。
+    // 展開の履歴は残す（deleteTree と同じ考え方）
+    async applySync(put: Tree[], removeIds: string[]): Promise<void> {
+      await db.transaction('rw', db.trees, async () => {
+        await db.trees.bulkPut(put);
+        await db.trees.bulkDelete(removeIds);
+      });
     },
 
     // 設定は端末の中だけに置く。書き出しファイルにも含めない

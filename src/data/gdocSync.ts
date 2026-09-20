@@ -18,7 +18,10 @@ export async function syncGoogleDoc(
   const googleDoc = await fetchGoogleDoc(docId, token);
   const title = googleDoc.title ?? '無題の文書';
   const plan = planSync(await repo.listTrees(), docId, docToTrees(googleDoc), now, title);
-  await repo.putTrees(plan.put);
+  await repo.applySync(
+    plan.put,
+    plan.remove.map((tree) => tree.id),
+  );
 
   const doc: LinkedDoc = { docId, title, lastSyncedAt: now };
   const docs = await repo.listLinkedDocs();

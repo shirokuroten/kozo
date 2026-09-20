@@ -68,6 +68,17 @@ describe('repository', () => {
     expect(await repo.listReviewLogs()).toHaveLength(1);
   });
 
+  it('同期の反映で、書き込みと削除を一度に行う', async () => {
+    const stay = createTree(parseOutline('残る木')!, NOW);
+    const gone = createTree(parseOutline('消える木')!, NOW);
+    await repo.addTrees([stay, gone]);
+    const added = createTree(parseOutline('増える木')!, NOW);
+    await repo.applySync([added, { ...stay, updatedAt: 'later' }], [gone.id]);
+    const all = await repo.listTrees();
+    expect(all.map((t) => t.root.text).sort()).toEqual(['増える木', '残る木'].sort());
+    expect(all.find((t) => t.id === stay.id)!.updatedAt).toBe('later');
+  });
+
   it('Google の設定と登録した文書を覚える', async () => {
     expect(await repo.getGoogleClientId()).toBe('');
     expect(await repo.listLinkedDocs()).toEqual([]);

@@ -253,7 +253,31 @@ describe('planSync', () => {
     expect(moved.root).toEqual(tree.root);
   });
 
-  it('文書から消えた見出しの木は残す', () => {
-    expect(planSync([synced('消えた根\n  枝')], DOC_ID, [], NOW).put).toEqual([]);
+  it('文書から消えた見出しの木は消す。別の文書の木や手で作った木は消さない', () => {
+    const gone = synced('消えた根\n  枝');
+    const kept = synced('残る根\n  枝');
+    const other = synced('消えた根\n  枝', [], 'doc2');
+    const manual = createTree(parseOutline('消えた根\n  枝')!, NOW);
+    const plan = planSync([gone, kept, other, manual], DOC_ID, [docTree('残る根\n  枝')], NOW);
+    expect(plan.remove.map((t) => t.id)).toEqual([gone.id]);
+  });
+
+  it('見出しと中身を同時に変えた木は、古い方を消して新しい木にする', () => {
+    const old = synced('旧い見出し\n  旧い枝');
+    const plan = planSync([old], DOC_ID, [docTree('新しい見出し\n  新しい枝')], NOW);
+    expect(plan.created).toBe(1);
+    expect(plan.remove.map((t) => t.id)).toEqual([old.id]);
+  });
+
+  it('場所が変わっただけの木は消さない', () => {
+    const tree = synced('人権\n  固有性', ['憲法']);
+    const plan = planSync([tree], DOC_ID, [docTree('人権\n  固有性', ['憲法（芦部）'])], NOW);
+    expect(plan.remove).toEqual([]);
+  });
+
+  it('文書から木が1本も読めなかったときは、何も消さない', () => {
+    const plan = planSync([synced('根\n  枝')], DOC_ID, [], NOW);
+    expect(plan.remove).toEqual([]);
+    expect(plan.put).toEqual([]);
   });
 });

@@ -115,6 +115,8 @@ export function docToTrees(doc: GoogleDoc): DocTree[] {
 
 export interface SyncPlan {
   put: Tree[];
+  // 文書から消えたので、アプリからも消す木
+  remove: Tree[];
   created: number;
   updated: number;
   unchanged: number;
@@ -125,7 +127,9 @@ const samePath = (a: string[], b: string[]) =>
 
 // 同期は文書からアプリへの一方向。
 // 同じ文書の、同じ場所の、同じ見出しの木を同一とみなして中身だけ差し替える（記録は mergeStats で引き継ぐ）。
-// 文書から消えた見出しの木は消さない。展開の記録を黙って失わせないため
+// 文書が正で、アプリはその写し。文書から消えた見出しの木はアプリからも消す。
+// ただし文書から木が1本も読めなかったときは何も消さない。
+// 文書を誤って空にしたときや、読み取りがおかしいときに、全部を失わせないため
 export function planSync(
   existing: Tree[],
   docId: string,
@@ -171,7 +175,14 @@ export function planSync(
     take(sameText[0]);
   }
 
-  const plan: SyncPlan = { put: [], created: 0, updated: 0, unchanged: 0 };
+  // ここまでで相手が見つからなかった candidates が、文書から消えた木
+  const plan: SyncPlan = {
+    put: [],
+    remove: incoming.length > 0 ? [...candidates] : [],
+    created: 0,
+    updated: 0,
+    unchanged: 0,
+  };
   incoming.forEach((item, order) => {
     // order は文書の中での並び順。一覧を文書どおりに並べるために持つ
     const source = { kind: 'gdoc' as const, docId, docTitle, path: item.path, order };
