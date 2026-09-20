@@ -23,10 +23,16 @@ function compare<T>(a: T, b: T): number {
   return a < b ? -1 : a > b ? 1 : 0;
 }
 
-// 同期した木は文書ごとに、文書の中の順番どおりに。手で作った木は作った順に
-function shelfOrder(a: Tree, b: Tree): number {
+// 同期した木は文書ごとに、文書の中の順番どおりに。手で作った木は作った順に。
+// 文書どうしは利用者が登録した順。登録を外した文書の木は、その後ろに文書名の順で置く
+function shelfOrder(a: Tree, b: Tree, docOrder: string[]): number {
   if (a.source && b.source) {
+    const rank = (docId: string) => {
+      const index = docOrder.indexOf(docId);
+      return index === -1 ? docOrder.length : index;
+    };
     return (
+      compare(rank(a.source.docId), rank(b.source.docId)) ||
       compare(a.source.docTitle ?? '', b.source.docTitle ?? '') ||
       compare(a.source.docId, b.source.docId) ||
       compare(a.source.order ?? 0, b.source.order ?? 0)
@@ -36,10 +42,10 @@ function shelfOrder(a: Tree, b: Tree): number {
   return compare(a.createdAt, b.createdAt);
 }
 
-export function buildShelf(trees: Tree[]): ShelfGroup {
+export function buildShelf(trees: Tree[], docOrder: string[] = []): ShelfGroup {
   const root: ShelfGroup = { name: '', key: '', groups: [], trees: [], count: 0 };
 
-  for (const tree of [...trees].sort(shelfOrder)) {
+  for (const tree of [...trees].sort((a, b) => shelfOrder(a, b, docOrder))) {
     let group = root;
     group.count += 1;
     // 同じ名前のタブが別の文書にあっても混ざらないよう、文書の段は id で見分ける

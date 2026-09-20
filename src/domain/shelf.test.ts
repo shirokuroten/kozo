@@ -68,6 +68,16 @@ describe('buildShelf', () => {
     });
   });
 
+  it('文書どうしは登録した順に並べ、登録のない文書は後ろに置く', () => {
+    const trees = [
+      synced('A', '憲法', [], 0),
+      synced('B', '民法', [], 0),
+      synced('C', '刑法', [], 0),
+    ];
+    const names = buildShelf(trees, ['民法', '憲法']).groups.map((g) => g.name);
+    expect(names).toEqual(['民法', '憲法', '刑法']);
+  });
+
   it('まとまりごとに、下にある木の本数と一意なキーを持つ', () => {
     const shelf = buildShelf([
       synced('A', '憲法', ['第1編'], 0),

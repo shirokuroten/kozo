@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { repository } from '../data';
 import { buildShelf, searchTrees } from '../domain/shelf';
 import { partitionByDue } from '../domain/tree';
 import type { Tree } from '../domain/types';
@@ -22,10 +23,16 @@ interface Props {
 // 出番の木は数だけ知らせ、一覧は別の画面に置く。毎日は開かない使い方でも、たまった出番に追われないようにする
 export function Home({ trees, today, onChanged }: Props) {
   const [query, setQuery] = useState('');
-  const shelf = useMemo(() => buildShelf(trees), [trees]);
+  const [docOrder, setDocOrder] = useState<string[]>([]);
+  const shelf = useMemo(() => buildShelf(trees, docOrder), [trees, docOrder]);
   const hits = useMemo(() => searchTrees(trees, query), [trees, query]);
   const dueCount = useMemo(() => partitionByDue(trees, today).dueToday.length, [trees, today]);
   const searching = query.trim() !== '';
+
+  // 文書どうしの並びは登録した順。同期で文書が増えることがあるので、木が変わるたびに読み直す
+  useEffect(() => {
+    void repository.listLinkedDocs().then((docs) => setDocOrder(docs.map((d) => d.docId)));
+  }, [trees]);
 
   return (
     <div>
