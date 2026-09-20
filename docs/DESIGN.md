@@ -24,7 +24,7 @@ How the color of a node is decided: vermilion (shu) if `lastResult === false`, o
 
 ### Dark theme
 
-The dark theme follows the system setting (`prefers-color-scheme: dark`). There is no switch in the app. The roles are the same, and the values are tuned so text on paper keeps roughly the same contrast as in the light theme.
+By default the theme follows the system setting (`prefers-color-scheme: dark`). The user can force light or dark from the bottom of the home screen ("Match device", "Light", "Dark"). The choice is stored on the device and applied before the first paint. The roles are the same, and the values are tuned so text on paper keeps roughly the same contrast as in the light theme.
 
 | Token | Light | Dark |
 |---|---|---|

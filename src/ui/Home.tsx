@@ -9,6 +9,7 @@ import { useI18n, type Lang } from './i18n';
 import { Note } from './Note';
 import { navigate } from './route';
 import { Shelf } from './Shelf';
+import { useTheme, type Theme } from './theme';
 import { TreeRow } from './TreeRow';
 
 // The nodes that matched the query, shown under each search result row. Too many would make the list unreadable
@@ -19,6 +20,8 @@ const LANGS: { code: Lang; label: string }[] = [
   { code: 'ja', label: '日本語' },
   { code: 'en', label: 'English' },
 ];
+
+const THEMES: Theme[] = ['auto', 'light', 'dark'];
 
 interface Props {
   trees: Tree[];
@@ -32,6 +35,7 @@ interface Props {
 // Due trees are reported only as a count, and their list lives on a separate screen. Even a user who does not open the app every day should not feel chased by piled-up due trees
 export function Home({ trees, hasHistory, today, onChanged }: Props) {
   const { lang, setLang, t } = useI18n();
+  const { theme, setTheme } = useTheme();
   const [query, setQuery] = useState('');
   const [docOrder, setDocOrder] = useState<string[]>([]);
   const shelf = useMemo(() => buildShelf(trees, docOrder), [trees, docOrder]);
@@ -128,6 +132,20 @@ export function Home({ trees, hasHistory, today, onChanged }: Props) {
             onClick={() => setLang(code)}
           >
             {label}
+          </Button>
+        ))}
+      </div>
+
+      <div role="group" aria-label={t.theme.label} className="flex flex-wrap gap-x-4">
+        {THEMES.map((code) => (
+          <Button
+            key={code}
+            kind="text"
+            aria-pressed={theme === code}
+            className={theme === code ? 'text-sumi!' : ''}
+            onClick={() => setTheme(code)}
+          >
+            {t.theme[code]}
           </Button>
         ))}
       </div>

@@ -11,6 +11,13 @@
       name="description"
       content="Write what you study as outline trees, then recall them from the top"
     />
+    <script>
+      // Apply a forced theme before the first paint, so a dark page never flashes white. See src/ui/theme.ts
+      try {
+        var theme = localStorage.getItem('kozo:theme');
+        if (theme === 'light' || theme === 'dark') document.documentElement.dataset.theme = theme;
+      } catch (e) {}
+    </script>
     <title>Outline Recall</title>
   </head>
   <body>

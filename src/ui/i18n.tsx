@@ -40,6 +40,12 @@ export const ja = {
     open: 'メニュー',
     view: '木を見る',
   },
+  theme: {
+    label: '画面の色',
+    auto: '端末に合わせる',
+    light: 'ライト',
+    dark: 'ダーク',
+  },
   shelf: {
     treeCount: (n: number) => `${n} 本`,
     open: '開く',
@@ -223,6 +229,12 @@ export const en: Messages = {
   menu: {
     open: 'More',
     view: 'View tree',
+  },
+  theme: {
+    label: 'Theme',
+    auto: 'Match device',
+    light: 'Light',
+    dark: 'Dark',
   },
   shelf: {
     treeCount: (n) => plural(n, '1 tree', `${n} trees`),

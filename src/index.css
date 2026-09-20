@@ -16,10 +16,13 @@
   --font-gothic: 'Hiragino Sans', 'Yu Gothic', 'Noto Sans JP', sans-serif;
 }
 
-/* Dark theme: follows the system setting. Same roles as the light palette, tuned so that
-   text on paper keeps roughly the same contrast. Values are listed in docs/DESIGN.md */
+/* Dark theme. Same roles as the light palette, tuned so that text on paper keeps roughly the same
+   contrast. Values are listed in docs/DESIGN.md.
+   By default it follows the system. The user can force either theme from the home screen, which sets
+   data-theme on <html>. CSS cannot share one block between a media query and a selector, so the values
+   are written twice. Keep the two blocks identical */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme='light']) {
     --color-paper: #14171c;
     --color-sumi: #e4e7ec;
     --color-usuzumi: #9aa3b5;
@@ -30,6 +33,18 @@
     --color-surface: #1c2027;
     color-scheme: dark;
   }
+}
+
+:root[data-theme='dark'] {
+  --color-paper: #14171c;
+  --color-sumi: #e4e7ec;
+  --color-usuzumi: #9aa3b5;
+  --color-rule: #343a46;
+  --color-shu: #e0705a;
+  --color-oudo: #cfa94a;
+  --color-koke: #6fb58c;
+  --color-surface: #1c2027;
+  color-scheme: dark;
 }
 
 body {

@@ -24,7 +24,7 @@ The name: law students call their self-made summaries of a subject outlines, and
 - Paste import for outlines written anywhere else
 - JSON backup (export and import) for moving between devices
 - Offline PWA. Put it on your phone's home screen
-- Light and dark themes, following the system setting
+- Light and dark themes. Follows the device by default, and can be forced either way
 - Japanese / English UI. The default follows the browser language, and you can switch at the bottom of the home screen
 
 The app does not push you to clear a daily queue. Due trees are counted quietly and listed on a separate screen. Open one when you feel like reviewing.
