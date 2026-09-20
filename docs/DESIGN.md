@@ -22,7 +22,22 @@ The Japanese color names are kept because they are used as the CSS token names (
 
 How the color of a node is decided: vermilion (shu) if `lastResult === false`, otherwise ochre (oudo) if `missCount > 0`, otherwise ink (sumi).
 
-Dark mode is not built until phase 2.
+### Dark theme
+
+The dark theme follows the system setting (`prefers-color-scheme: dark`). There is no switch in the app. The roles are the same, and the values are tuned so text on paper keeps roughly the same contrast as in the light theme.
+
+| Token | Light | Dark |
+|---|---|---|
+| `paper` | `#FAFBF9` | `#14171C` |
+| `sumi` | `#22304A` | `#E4E7EC` |
+| `usuzumi` | `#6B7590` | `#9AA3B5` |
+| `rule` | `#C9CFDA` | `#343A46` |
+| `shu` | `#C8452B` | `#E0705A` |
+| `oudo` | `#B08A2E` | `#CFA94A` |
+| `koke` | `#3E7C59` | `#6FB58C` |
+| `surface` (inputs, outlined buttons) | `#FFFFFF` | `#1C2027` |
+
+Components use only the token classes. Never `white`, `black` or a hex value: text on a filled ink, moss or vermilion background uses `paper`, so it flips with the theme.
 
 ## Type
 

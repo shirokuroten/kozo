@@ -82,6 +82,16 @@ The repository is public on GitHub, so everything a visitor reads is in English,
 - [x] Comments and test titles in English
 - [x] Selectable UI language (Japanese or English) with English error messages
 
+## Phase 9: The ideas that had been put off
+
+Everything that the first spec listed as "later", plus the dark theme.
+
+- [x] Dark theme that follows the system setting
+- [x] Links between trees with `[[root text]]`
+- [x] Reviewing several trees in a row from a shelf group or the due list
+- [x] Review history calendar
+- [x] Past reviews and per-node history marks on the tree view
+
 ## After that
 
-"To consider in phase 2 and later" at the end of `SPEC.md`. Consult the user before starting.
+Nothing is planned. See "Later ideas" at the end of `SPEC.md`, and consult the user before starting anything new.

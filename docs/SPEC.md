@@ -112,9 +112,28 @@ Details are in `DATA.md`. Key points:
 - When the ratio is below 1, the interval is multiplied by the ratio to shorten it. The more nodes a tree missed, the sooner it comes back
 - Node statistics (miss count, last result) are for display. They are not used to decide what is asked
 
-## To consider in phase 2 and later (do not build now)
+## Links between trees
 
-- Linking from a leaf of a chapter tree to a tree for a specific issue
-- Viewing the review history on a calendar
-- A graph of the miss history for each node
-- "Review everything for today", which reviews several trees in a row
+- A node can point at another tree by writing that tree's root text in double brackets: `[[root text]]`. Plain text, so a link survives the editor, paste import and Google Docs sync
+- On the tree view the linked words are underlined in the rule color and open the target tree. A target that matches no root is shown as plain text
+- When several roots share the text, a tree from the same document wins. Matching ignores full-width and half-width differences and letter case
+- During a review, and in lists, the brackets are dropped and nothing is clickable. A review must not be interrupted or hinted at
+
+## Reviewing several trees in a row
+
+- From an open shelf group (document, tab or heading): review every tree under it, in shelf order. From the due screen: review every due tree, in the listed order. Trees without nodes are left out. The entry is hidden when it would cover fewer than two trees
+- Each tree is reviewed exactly as a single review. The seven steps and their constraints do not change
+- The review screen shows the position ("Tree 2 of 3"). Saving a result goes straight to the next tree, and after the last one back to the list
+- "Skip this tree" moves on without saving anything for that tree. "Stop" ends the whole run. Results already saved for earlier trees stay saved
+- The queue is kept for the browser session, so a reload continues it. It is cleared whenever the user leaves the review flow, so it never takes over later navigation
+
+## Review history
+
+- A calendar, one month at a time, reached from a quiet entry on the list (shown once at least one review exists). A day with reviews shows how many: in moss when everything was recalled that day, in vermilion when something was missed. Today's number is underlined. No heat map, no streaks, nothing that rewards or scolds
+- Tapping a day lists that day's reviews with their results and opens the tree from a row. Going past the current month, or back past the oldest review, is not possible
+- The tree view lists the last 10 reviews of that tree, newest first
+- The tree view also shows, next to each node, a row of small marks for the last 10 reviews, oldest on the left: an outlined moss circle for recalled, a filled vermilion circle for missed, and an empty slot when the node did not exist yet. The marks appear only on the tree view, never in the editor preview or during a review
+
+## Later ideas
+
+Nothing is planned. Consult the user before adding anything here.

@@ -59,6 +59,8 @@ interface ReviewLog {
   date: string;
   ratio: number;
   missedNodeIds: NodeId[];
+  nodeIds?: NodeId[]; // every node graded in this review. Lets the history tell "recalled" from "did not exist yet"
+  at?: string; // ISO timestamp. Orders several reviews made on the same day
 }
 ```
 
@@ -66,7 +68,7 @@ interface ReviewLog {
 
 - IndexedDB. The tables are `trees` and `reviewLogs`. In addition there is `meta`, which holds per-device settings (whether the sample tree has been inserted, the Google client ID, the list of documents registered for sync. Not included in the export)
 - `trees` holds each whole tree as one record. Nodes are not broken out into a table (a tree is small, up to a few dozen nodes, and reading and writing it whole is simpler)
-- `reviewLogs` is append only. It is recorded from the start for the history display in phase 2
+- `reviewLogs` is append only. It feeds the history calendar and the per-node history. `nodeIds` and `at` were added later, so every reader must handle logs without them: a node missing from `missedNodeIds` counts as recalled, and logs without `at` sort first within their day
 
 ## Outline format
 

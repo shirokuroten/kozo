@@ -55,3 +55,7 @@ Use this before changing phones, and for occasional backups. The data exists onl
 ## Rough guide to tree size
 
 A review opens the whole tree from the top. If a single tree is too large, each review becomes heavy and the result becomes coarse. Keep each tree to around 5 to 20 nodes, and split a large topic into several trees.
+
+## Linking trees
+
+Write another tree's root text in double brackets inside a node, for example `See [[即時取得]]` (good-faith acquisition). On the tree view the words become a link to that tree. This works the same in the editor, in pasted text and in Google Docs. If several trees have the same root text, the one from the same document is chosen. During a review the brackets are hidden and nothing is clickable.

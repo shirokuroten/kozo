@@ -17,10 +17,14 @@ The name: law students call their self-made summaries of a subject outlines, and
 - Shelf view: trees are arranged as document > tab > heading > tree, in the order of the source document
 - Search across all text: roots, nodes and locations
 - Whole-tree review with spaced repetition per tree (SM-2 based). Trees with missed nodes come back sooner
+- Review a whole chapter or part in a row, straight from the shelf
+- Links between trees: write `[[root text]]` in a node
+- Review history: a calendar, and per-node marks showing where you keep missing
 - One-way sync from Google Docs. The app never writes to your documents
 - Paste import for outlines written anywhere else
 - JSON backup (export and import) for moving between devices
 - Offline PWA. Put it on your phone's home screen
+- Light and dark themes, following the system setting
 - Japanese / English UI. The default follows the browser language, and you can switch at the bottom of the home screen
 
 The app does not push you to clear a daily queue. Due trees are counted quietly and listed on a separate screen. Open one when you feel like reviewing.
