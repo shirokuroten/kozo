@@ -26,7 +26,7 @@ This app treats knowledge as a tree. Branches grow from a heading, and content h
 
 ### List (home)
 
-- The main view is the shelf. Trees are nested as "document > tab > heading > tree" and listed in the order they appear in the document. Each group can be opened and closed, and the open or closed state is remembered on the device. Trees made by hand are listed below the shelf
+- The main view is the shelf. Trees are nested as "document > tab > heading > tree" and listed in the order they appear in the document. Within one level, groups and trees are interleaved in that order: a chapter whose heading has bullets right under it is a tree, a chapter with sub-headings is a group, and the shelf must still read chapter 1, 2, 3. Each group can be opened and closed, and the open or closed state is remembered on the device. Trees made by hand are listed below the shelf
 - Search. It looks through all text: roots, nodes and locations (document title, tab names, headings). Only trees that contain every whitespace-separated word are shown. Matching nodes are shown with the path leading to them
 - For trees that are due, only the count is shown, and their list lives on a separate screen (Due). This keeps the user from being chased by accumulated due trees even when the app is not opened every day
 - Each row shows the root text, the number of nodes, the number of nodes missed last time, and the next due date

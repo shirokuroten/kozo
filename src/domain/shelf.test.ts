@@ -68,6 +68,21 @@ describe('buildShelf', () => {
     });
   });
 
+  it('keeps groups and trees of one level in document order, not groups first', () => {
+    // Chapter 2 has bullets right under its heading, so it is a tree. The other chapters have
+    // sub-headings, so they are groups. The shelf must still read 1, 2, 3
+    const shelf = buildShelf([
+      synced('定義', '憲法', ['人権総論', '1. 分類'], 0),
+      synced('2. 享有主体性', '憲法', ['人権総論'], 1),
+      synced('公共の福祉', '憲法', ['人権総論', '3. 限界'], 2),
+      synced('特別な法律関係', '憲法', ['人権総論', '3. 限界'], 3),
+    ]);
+    const part = shelf.groups[0].groups[0];
+    expect(
+      part.items.map((item) => (item.kind === 'group' ? item.group.name : item.tree.root.text)),
+    ).toEqual(['1. 分類', '2. 享有主体性', '3. 限界']);
+  });
+
   it('orders documents by registration order and puts unregistered documents last', () => {
     const trees = [
       synced('A', '憲法', [], 0),

@@ -7,9 +7,15 @@ export interface ShelfGroup {
   key: string;
   groups: ShelfGroup[];
   trees: Tree[];
+  // Groups and trees of this level together, in the order they appear in the document.
+  // A chapter whose heading has bullets right under it is a tree, and a chapter with sub-headings is a
+  // group. Listing one kind before the other would shuffle the chapters of a book
+  items: ShelfItem[];
   // Number of trees, including those in the levels below
   count: number;
 }
+
+export type ShelfItem = { kind: 'group'; group: ShelfGroup } | { kind: 'tree'; tree: Tree };
 
 const UNTITLED_DOC = 'Untitled document';
 const KEY_SEPARATOR = '\n';
@@ -44,7 +50,7 @@ function shelfOrder(a: Tree, b: Tree, docOrder: string[]): number {
 }
 
 export function buildShelf(trees: Tree[], docOrder: string[] = []): ShelfGroup {
-  const root: ShelfGroup = { name: '', key: '', groups: [], trees: [], count: 0 };
+  const root: ShelfGroup = { name: '', key: '', groups: [], trees: [], items: [], count: 0 };
 
   for (const tree of [...trees].sort((a, b) => shelfOrder(a, b, docOrder))) {
     let group = root;
@@ -56,13 +62,16 @@ export function buildShelf(trees: Tree[], docOrder: string[] = []): ShelfGroup {
       const key = group.key + KEY_SEPARATOR + part;
       let child = group.groups.find((g) => g.key === key);
       if (!child) {
-        child = { name, key, groups: [], trees: [], count: 0 };
+        child = { name, key, groups: [], trees: [], items: [], count: 0 };
         group.groups.push(child);
+        // Trees arrive in document order, so a group takes the place of its first tree
+        group.items.push({ kind: 'group', group: child });
       }
       child.count += 1;
       group = child;
     });
     group.trees.push(tree);
+    group.items.push({ kind: 'tree', tree });
   }
   return root;
 }

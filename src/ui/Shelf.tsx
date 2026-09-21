@@ -78,17 +78,21 @@ function Group({ group, depth, today, openKeys, onToggle }: GroupProps) {
 function Contents({ group, depth, today, openKeys, onToggle }: GroupProps) {
   return (
     <>
-      {group.groups.map((child) => (
-        <Group key={child.key} group={child} {...{ depth, today, openKeys, onToggle }} />
-      ))}
-      {group.trees.length > 0 && (
-        <Indent depth={depth}>
-          <ul>
-            {group.trees.map((tree) => (
-              <TreeRow key={tree.id} tree={tree} today={today} />
-            ))}
-          </ul>
-        </Indent>
+      {/* Groups and trees are interleaved in document order. See ShelfGroup.items */}
+      {group.items.map((item) =>
+        item.kind === 'group' ? (
+          <Group
+            key={item.group.key}
+            group={item.group}
+            {...{ depth, today, openKeys, onToggle }}
+          />
+        ) : (
+          <Indent key={item.tree.id} depth={depth}>
+            <ul>
+              <TreeRow tree={item.tree} today={today} />
+            </ul>
+          </Indent>
+        ),
       )}
     </>
   );

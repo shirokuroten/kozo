@@ -1,14 +1,14 @@
 import type { ShelfGroup } from './shelf';
 import { countNodes } from './tree';
 
-// The order must be the one the shelf shows, top to bottom (subgroups first, then the group's own
-// trees), so that "review this chapter" walks the chapter the way the user reads it.
+// The order must be the one the shelf shows, top to bottom (the order of the document), so that
+// "review this chapter" walks the chapter the way the user reads it.
 // A tree without nodes has nothing to grade, and would only stop the queue on a dead end
 export function shelfTreeIds(group: ShelfGroup): string[] {
-  return [
-    ...group.groups.flatMap(shelfTreeIds),
-    ...group.trees.filter((tree) => countNodes(tree.root) > 0).map((tree) => tree.id),
-  ];
+  return group.items.flatMap((item) => {
+    if (item.kind === 'group') return shelfTreeIds(item.group);
+    return countNodes(item.tree.root) > 0 ? [item.tree.id] : [];
+  });
 }
 
 // index is zero based. null means the tree is being reviewed on its own, outside the queue
